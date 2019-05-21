@@ -20,5 +20,11 @@ void tfree();
 // you can exit your program, and all memory is automatically cleaned up.
 void texit(int status);
 
+// Garbage collection algorithm of 'mark and sweep'
+void mark(Value *value);
+
+// Allocates a Value struct and initializes its marked attribute to false.
+Value *makeValue();
+
 #endif
 

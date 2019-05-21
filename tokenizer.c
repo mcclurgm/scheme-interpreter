@@ -1,0 +1,405 @@
+#include "tokenizer.h"
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include <assert.h>
+#include <stdbool.h>
+
+void catLetter(char *str, char letter) {
+    int strLength = strlen(str);
+    str[strLength] = letter;
+    str[strLength +1] = '\0';
+    strLength = strlen(str);
+}
+
+bool isSymbolInitial(char c) {
+    if (isalpha(c)) {
+        return true;
+    } else if (c == '!') {
+        return true;
+    } else if (c == '$') {
+        return true;
+    } else if (c == '%') {
+        return true;
+    } else if (c == '&') {
+        return true;
+    } else if (c == '*') {
+        return true;
+    } else if (c == '/') {
+        return true;
+    } else if (c == ':') {
+        return true;
+    } else if (c == '<') {
+        return true;
+    } else if (c == '=') {
+        return true;
+    } else if (c == '>') {
+        return true;
+    } else if (c == '?') {
+        return true;
+    } else if (c == '~') {
+        return true;
+    } else if (c == '_') {
+        return true;
+    } else if (c == '^') {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool isSymbolSubsequent(char c) {
+    if (isSymbolInitial(c)) {
+        return true;
+    } else if (isdigit(c)) {
+        return true;
+    } else if (c == '+') {
+        return true;
+    } else if (c == '-') {
+        return true;
+    } else if (c == '.') {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+Value *endToken(Value *tokens) {
+    if (car(tokens)->type == INT_TYPE) {
+        car(tokens)->i = atoi(car(tokens)->s);
+    }
+    else if (car(tokens)->type == DOUBLE_TYPE) {
+        car(tokens)->d = atof(car(tokens)->s);
+    }
+    else if (car(tokens)->type == BOOL_TYPE) {
+        if (car(tokens)->i == -1) {
+            printf("Syntax error: invalid bool declaration.\n");
+            printf("Isolated '#' is invalid.\n");
+            texit(1);
+        }
+    }
+    tokens = cons(makeNull(), tokens);
+    return tokens;
+}
+
+Value *parseParens(char charRead, Value *tokens) {
+    if (charRead == '(') {
+        if (car(tokens)->type != NULL_TYPE) {
+            tokens = endToken(tokens);
+        }
+        car(tokens)->type = OPEN_TYPE;
+        car(tokens)->s = talloc(2 * sizeof(char));
+        strcpy(car(tokens)->s, "(");
+
+        // End the current token
+        tokens  = endToken(tokens);
+    } else if (charRead == ')') {
+        if (car(tokens)->type != NULL_TYPE) {
+            tokens = endToken(tokens);
+        }
+        car(tokens)->type = CLOSE_TYPE;
+        car(tokens)->s = talloc(2 * sizeof(char));
+        strcpy(car(tokens)->s, ")");
+
+        // End the current token
+        tokens = endToken(tokens);
+    } else if (charRead == '[') {
+        if (car(tokens)->type != NULL_TYPE) {
+            tokens = endToken(tokens);
+        }
+        car(tokens)->type = OPEN_BRACKET_TYPE;
+        car(tokens)->s = talloc(2 * sizeof(char));
+        strcpy(car(tokens)->s, "[");
+
+        // End the current token
+        tokens = endToken(tokens);
+    } else if (charRead == ']') {
+        if (car(tokens)->type != NULL_TYPE) {
+            tokens = endToken(tokens);
+        }
+        car(tokens)->type = CLOSE_BRACKET_TYPE;
+        car(tokens)->s = talloc(2 * sizeof(char));
+        strcpy(car(tokens)->s, "]");
+
+        // End the current token
+        tokens = endToken(tokens);
+    }
+    return tokens;
+}
+
+Value *parseNumber(char charRead, Value *tokens) {
+    valueType tokenType = car(tokens)->type;
+    if (tokenType == INT_TYPE) {
+        if (charRead == '.') {
+            car(tokens)->type = DOUBLE_TYPE;
+            catLetter(car(tokens)->s, charRead);
+        } else if (isdigit(charRead)) {
+            catLetter(car(tokens)->s, charRead);
+        } else {
+            printf("Syntax error.\n");
+            catLetter(car(tokens)->s, charRead);
+            printf("Unparseable number: %s\n", car(tokens)->s);
+            texit(1);
+        }
+    }
+    else if (tokenType == DOUBLE_TYPE) {
+        if (isdigit(charRead)) {
+            catLetter(car(tokens)->s, charRead);
+        }
+        else {
+            printf("Syntax error.\n");
+            catLetter(car(tokens)->s, charRead);
+            printf("Unparseable number: %s\n", car(tokens)->s);
+            texit(1);
+        }
+    }
+
+    return tokens;
+}
+
+Value *parseSymbol(char charRead, Value *tokens) {
+    // These cases create numbers, not symbols.
+    if (strcmp(car(tokens)->s, "+") == 0
+        || strcmp(car(tokens)->s, "-") == 0) {
+
+        if (isdigit(charRead)) {
+            car(tokens)->type = INT_TYPE;
+            catLetter(car(tokens)->s, charRead);
+        } else if (charRead == '.') {
+            car(tokens)->type = DOUBLE_TYPE;
+            catLetter(car(tokens)->s, charRead);
+        } else {
+            printf("Syntax error: invalid symbol.\n");
+            catLetter(car(tokens)->s, charRead);
+            printf("Entered: %s\n", car(tokens)->s);
+            texit(1);
+        }
+    } else if (isSymbolSubsequent(charRead)) {
+        catLetter(car(tokens)->s, charRead);
+    } else {
+        printf("Syntax error: invalid symbol.\n");
+        catLetter(car(tokens)->s, charRead);
+        printf("Entered: %s\n", car(tokens)->s);
+        texit(1);
+    }
+
+    return tokens;
+}
+
+Value *parseFirstChar(char charRead, Value *tokens) {
+    if (isdigit(charRead)) {
+        car(tokens)->type = INT_TYPE;
+        car(tokens)->s = talloc(255*sizeof(char));
+        strcpy(car(tokens)->s, "");
+        catLetter(car(tokens)->s, charRead);
+    }
+    // Change for Bonus?
+    else if (charRead == '.') {
+        car(tokens)->type = DOT_TYPE;
+        car(tokens)->s = talloc(255*sizeof(char));
+        strcpy(car(tokens)->s, ".");
+    }
+    else if (charRead == '#') {
+        car(tokens)->type = BOOL_TYPE;
+        car(tokens)->i = -1;
+    }
+    else if (isSymbolInitial(charRead) || charRead == '+' || charRead == '-') {
+        car(tokens)->type = SYMBOL_TYPE;
+        car(tokens)->s = talloc(255*sizeof(char));
+        strcpy(car(tokens)->s, "");
+        catLetter(car(tokens)->s, charRead);
+    } else if (!isspace(charRead)) {
+        printf("Syntax error: invalid character %c\n", charRead);
+        texit(1);
+    }
+
+    return tokens;
+}
+
+Value *parseDot(char charRead, Value *tokens) {
+    if (isdigit(charRead)) {
+        car(tokens)->type = DOUBLE_TYPE;
+        catLetter(car(tokens)->s, charRead);
+    } else {
+        printf("Syntax error: dot must be on its own or in number.\n");
+        catLetter(car(tokens)->s, charRead);
+        printf("At token: %s\n", car(tokens)->s);
+        texit(1);
+    }
+    return tokens;
+}
+
+// Read all of the input from stdin, and return a linked list consisting of the
+// tokens.
+Value *tokenize() {
+    char charRead;
+    Value *tokens = makeNull();
+    charRead = (char)fgetc(stdin);
+
+    // Initialize the first data cons cell
+    tokens = cons(makeNull(), tokens);
+
+    bool inComment = false;
+    bool inString = false;
+    while (charRead != EOF) {
+        if (cdr(tokens)->type != NULL_TYPE) {
+            if (car(cdr(tokens))->type == NULL_TYPE) {
+                printf("Null type before character: %c\n", charRead);
+            }
+        }
+        
+        // Check state for cases that don't parse for new tokens
+        if (inComment) {
+            if (charRead == '\n') {
+                inComment = false;
+            }
+        }
+        else if (inString) {
+            if (charRead == '"') {
+                inString = false;
+                tokens = endToken(tokens);
+            }
+            else {
+                catLetter(car(tokens)->s, charRead);
+            }
+        }
+
+        else if (charRead == ';') {
+            inComment = true;
+            if (car(tokens)->type != NULL_TYPE) {
+                tokens = endToken(tokens);
+            }
+        }
+        else if (charRead == '"') {
+            inString = true;
+            if (car(tokens)->type != NULL_TYPE) {
+                tokens = endToken(tokens);
+            }
+            car(tokens)->type = STR_TYPE;
+            car(tokens)->s = talloc(255*sizeof(char));
+            strcpy(car(tokens)->s, "");
+        }
+
+        // Beginning of token
+        else if (charRead == '(' || charRead == ')'
+                 || charRead == '[' || charRead == ']') {
+            tokens = parseParens(charRead, tokens);
+        }
+        else if (charRead == '\'') {
+            if (car(tokens)->type != NULL_TYPE) {
+                tokens = endToken(tokens);
+            }
+            car(tokens)->type = QUOTE_TYPE;
+            car(tokens)->s = talloc(2 * sizeof(char));
+            strcpy(car(tokens)->s, "'");
+            tokens  = endToken(tokens);
+        }
+
+        else if (car(tokens)->type == NULL_TYPE) {
+            tokens = parseFirstChar(charRead, tokens);
+        }
+
+        else if (isspace(charRead)) {
+            if (car(tokens)->type != NULL_TYPE) {
+                tokens = endToken(tokens);
+            }
+        }
+
+        // In the middle of an existing token
+        else if (car(tokens)->type == INT_TYPE || car(tokens)->type == DOUBLE_TYPE) {
+            tokens = parseNumber(charRead, tokens);
+        }
+
+        else if (car(tokens)->type == BOOL_TYPE) {
+            if (car(tokens)->i == -1) {
+                if (charRead == 't') {
+                    car(tokens)->i = 1;
+                }
+                else if (charRead == 'f') {
+                    car(tokens)->i = 0;
+                }
+                else {
+                    printf("Syntax error. Invalid Bool Type declaration at char:\n");
+                    printf("%c\n", charRead);
+                    texit(1);
+                }
+            }
+            else {
+                printf("Syntax error. Invalid Bool Type declaration at char:\n");
+                printf("%c\n", charRead);
+                texit(1);
+            }
+        } else if (car(tokens)->type == DOT_TYPE) {
+            tokens = parseDot(charRead, tokens);
+        } else if (car(tokens)->type == SYMBOL_TYPE) {
+            tokens = parseSymbol(charRead, tokens);
+        }
+
+        charRead = (char)fgetc(stdin);
+    }
+
+    // Finalize the last token
+    if (car(tokens)->type != NULL_TYPE) {
+        tokens = endToken(tokens);
+    }
+    tokens = cdr(tokens);
+
+    if (inString) {
+        printf("Untokenizable. Unclosed string at end of file.\n");
+        texit(1);
+    }
+
+    Value *revList = reverse(tokens);
+    return revList;
+}
+
+// Displays the contents of the linked list as tokens, with type information
+void displayTokens(Value *list) {
+    assert(list != NULL);
+
+    Value *current = list;
+    while(current->type != NULL_TYPE) {
+        if (car(current)->type == INT_TYPE) {
+            printf("%i:integer\n", car(current)->i);
+        }
+        else if (car(current)->type == DOUBLE_TYPE) {
+            printf("%f:decimal\n", car(current)->d);
+        }
+        else if (car(current)->type == STR_TYPE) {
+            printf("\"%s\":string\n", car(current)->s);
+        }
+        else if (car(current)->type == SYMBOL_TYPE) {
+            printf("%s:symbol\n", car(current)->s);
+        }
+        else if (car(current)->type == OPEN_TYPE) {
+            printf("%s:open\n", car(current)->s);
+        }
+        else if (car(current)->type == CLOSE_TYPE) {
+            printf("%s:close\n", car(current)->s);
+        }
+        else if (car(current)->type == BOOL_TYPE) {
+            if (car(current)->i > 0) {
+                printf("#t:bool\n");
+            } else {
+                printf("#f:bool\n");
+            }
+        }
+        else if (car(current)->type == QUOTE_TYPE) {
+            printf("%s:singlequote\n", car(current)->s);
+        }
+        else if (car(current)->type == OPEN_BRACKET_TYPE) {
+            printf("%s:openbracket\n", car(current)->s);
+        }
+        else if (car(current)->type == CLOSE_BRACKET_TYPE) {
+            printf("%s:closebracket\n", car(current)->s);
+        }
+        else if (car(current)->type == DOT_TYPE) {
+            printf("%s:dot\n", car(current)->s);
+        }
+        else if (car(current)->type == NULL_TYPE) {
+            printf("Null type, this should be an ERROR.\n");
+        }
+
+        current = cdr(current);
+    }
+}

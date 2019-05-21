@@ -1,4 +1,6 @@
 #include "value.h"
+#include "linkedlist.h"
+#include "talloc.h"
 
 #ifndef _TOKENIZER
 #define _TOKENIZER

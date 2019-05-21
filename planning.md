@@ -24,6 +24,11 @@
       * Call function `evalIf`
         * Arguments: everything after the `if` token
         * Evaluate each expression (using `eval`, probably) 
+      * Evaluate the condition
+      * If `true`, evaluate and return the second argument
+      * Else (`false`), evaluate and return the third argument
+      * *Technically*, if the result is not `#f` then it's considered true
+        * But Dave's spec requires a `boolean` type so let's not go there.
     * `let`
       * Evaluate binding pairs: arbitrary number of expressions
         * Each is a pair of an identifier name and a value

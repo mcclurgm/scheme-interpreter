@@ -1,4 +1,3 @@
-;(let ((x 3)) x)
-; should return 3 by the end
-
-(let ((x 7) (y 9)) x y)
+(let ((x 7) (y 9))
+    x 
+    (let ((x y)) x))

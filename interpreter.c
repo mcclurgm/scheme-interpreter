@@ -60,11 +60,56 @@ Value *lookUpSymbol(Value *symbol, Frame *activeFrame) {
     // Error, not found
     printf("Symbol not found: %s\n", symbol->s);
     texit(1);
+    return NULL;
 }
 
-Value *evalIf(Value *tree, Frame *activeFrame) {
-    assert(tree->type == CONS_TYPE);
-    printf("Implement evalIf\n");
+Value *evalIf(Value *argsTree, Frame *activeFrame) {
+    // Initialize expressions; sanity checks
+    Value *condExpr = argsTree;
+    if (condExpr->type != CONS_TYPE) {
+        printf("If statement has no body: expected 3 arguments, given none.\n");
+        printf("Expression: (if ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+    Value *thenExpr = cdr(condExpr);
+    if (thenExpr->type != CONS_TYPE) {
+        printf("If statement has no 'then' expression: expected 3 arguments, given 1.\n");
+        printf("Expression: (if ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+    Value *elseExpr = cdr(thenExpr);
+    if (elseExpr->type != CONS_TYPE) {
+        printf("If statement has no 'else' expression: expected 3 arguments, given 2.\n");
+        printf("Expression: (if ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *cond = eval(condExpr, activeFrame);
+    if (cond->type != BOOL_TYPE) {
+        printf("Condition of if statement must evaluate to boolean.\n");
+        printf("Expression: (if ");
+        printTree(argsTree);
+        printf(")\n");
+        printf("Condition expression: ");
+        printValue(car(condExpr));
+        printf("\n");
+        texit(1);
+    }
+
+    Value *result = makeNull();
+    if (cond->i) {
+        // Condition is true
+        result = eval(thenExpr, activeFrame);
+    } else {
+        result = eval(elseExpr, activeFrame);
+    }
+    return result;
 }
 
 Frame *makeBinding(Value *bindingPair, Frame *activeFrame) {
@@ -211,4 +256,13 @@ Value *eval(Value *tree, Frame *frame) {
 
         // Future assignments: do an actual function
     }
+    // The expression is of a type we don't know how to evaluate.
+    // This is an error.
+    printf("Error: you entered an unkown type of expression or token.\n");
+    printf("Your friendly neighborhood interpreter developers don't know how to evaluate it.\n");
+    printf("At expression: ");
+    printValue(expr);
+    printf("\n");
+    texit(2);
+    return NULL;
 }

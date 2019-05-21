@@ -12,5 +12,9 @@ Value *parse(Value *tokens);
 // Racket code; use parentheses to indicate subtrees.
 void printTree(Value *tree);
 
+// Prints a value (not a tree) to the screen in a readable fasion.
+// Designed as a helper function to printTree, but can have uses on its own.
+void printValue(Value *val);
+
 
 #endif

@@ -178,7 +178,54 @@ Value *parse(Value *tokens) {
     return reverse(stack);
 }
 
-
+void printValue(Value *val) {
+    if (val->type == CONS_TYPE) {
+        // This is a subtree expression.
+        printf("(");
+        printTree(val);
+        printf(")");
+    }
+    if (val->type == INT_TYPE) {
+        printf("%i", val->i);
+    }
+    else if (val->type == DOUBLE_TYPE) {
+        printf("%f", val->d);
+    }
+    else if (val->type == STR_TYPE) {
+        printf("\"%s\"", val->s);
+    }
+    else if (val->type == SYMBOL_TYPE) {
+        printf("%s", val->s);
+    }
+    else if (val->type == OPEN_TYPE) {
+        printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO OPEN_TYPE\n");
+    }
+    else if (val->type == CLOSE_TYPE) {
+        printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO CLOSE_TYPE\n");
+    }
+    else if (val->type == BOOL_TYPE) {
+        if (val->i > 0) {
+            printf("#t");
+        } else {
+            printf("#f");
+        }
+    }
+    else if (val->type == QUOTE_TYPE) {
+        printf("%s", val->s);
+    }
+    else if (val->type == OPEN_BRACKET_TYPE) {
+        printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO OPEN_BRACKET_TYPE\n");
+    }
+    else if (val->type == CLOSE_BRACKET_TYPE) {
+        printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO CLOSE_BRACKET_TYPE\n");
+    }
+    else if (val->type == DOT_TYPE) {
+        printf("%s", val->s);
+    }
+    else if (val->type == NULL_TYPE) {
+        printf("()");
+    }
+}
 // Prints the tree to the screen in a readable fashion. It should look just like
 // Racket code; use parentheses to indicate subtrees.
 void printTree(Value *tree) {
@@ -186,52 +233,7 @@ void printTree(Value *tree) {
 
     Value *current = tree;
     while(current->type != NULL_TYPE) {
-        if (car(current)->type == CONS_TYPE) {
-            // This is a subtree expression.
-            printf("(");
-            printTree(car(current));
-            printf(")");
-        }
-        if (car(current)->type == INT_TYPE) {
-            printf("%i", car(current)->i);
-        }
-        else if (car(current)->type == DOUBLE_TYPE) {
-            printf("%f", car(current)->d);
-        }
-        else if (car(current)->type == STR_TYPE) {
-            printf("\"%s\"", car(current)->s);
-        }
-        else if (car(current)->type == SYMBOL_TYPE) {
-            printf("%s", car(current)->s);
-        }
-        else if (car(current)->type == OPEN_TYPE) {
-            printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO OPEN_TYPE\n");
-        }
-        else if (car(current)->type == CLOSE_TYPE) {
-            printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO CLOSE_TYPE\n");
-        }
-        else if (car(current)->type == BOOL_TYPE) {
-            if (car(current)->i > 0) {
-                printf("#t");
-            } else {
-                printf("#f");
-            }
-        }
-        else if (car(current)->type == QUOTE_TYPE) {
-            printf("%s", car(current)->s);
-        }
-        else if (car(current)->type == OPEN_BRACKET_TYPE) {
-            printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO OPEN_BRACKET_TYPE\n");
-        }
-        else if (car(current)->type == CLOSE_BRACKET_TYPE) {
-            printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO CLOSE_BRACKET_TYPE\n");
-        }
-        else if (car(current)->type == DOT_TYPE) {
-            printf("%s", car(current)->s);
-        }
-        else if (car(current)->type == NULL_TYPE) {
-            printf("()");
-        }
+        printValue(car(current));
 
         // If the next element is null (the current subtree is done),
         // don't print a space.

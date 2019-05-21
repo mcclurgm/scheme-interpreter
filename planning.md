@@ -34,18 +34,22 @@
       * Evaluate each expression in the body
         * Loop through and call `eval` on each?
         * Using the new frame from the let: `f`
+        * Return the result of the last expression
 
 ## Evaluation errors
 
 * `if`
   * `if` has < 3 arguments
   * Condition in `if` evaluates to not a boolean
-* `let`:
-  * `let` has < 2 arguments
+* `let`
+  * `let` has < 2 arguments (ie, doesn't have a body)
   * `let`: list of bindings isn't a nested list
     * `(let ((x 1)) ...)` is good, not `(let (x 1) ...)`
   * If the first element of a binding pair isn't a symbol / identifier
   * If a binding pair list is not of length 2
+  * Can't bind a variable name twice in one `let`
+  * Can't bind a variable to something that's bound in the same `let`
+    * You can only bind to values from the parent frame, not the new frame
 * Unbinded variable
   * Should be handled in searching the frames
 

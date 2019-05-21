@@ -19,12 +19,28 @@ void interpret(Value *tree) {
     
     Value *current = tree;
     while(current->type != NULL_TYPE) {
-        Value *result = eval(car(current), global);
+        Value *result = eval(current, global);
         current = cdr(current);
 
         printValue(result);
         printf("\n");
     }
+}
+
+Value *lookupBindingInFrame(Value *symbol, Frame *frame) {
+    Value *currentBinding = frame->bindings;
+    while (currentBinding->type != NULL_TYPE) {
+        // A binding is a linked list, where car points to a cons cell.
+        // Car of that cell is the name of the binding, and cdr is its value.
+        Value *bindingPair = car(currentBinding);
+        if (!strcmp(car(bindingPair)->s, symbol->s)) {
+            Value *bindingValue = cdr(bindingPair);
+            return car(bindingValue);
+        }
+        currentBinding = cdr(currentBinding);
+    }
+
+    return NULL;
 }
 
 Value *lookUpSymbol(Value *symbol, Frame *activeFrame) {
@@ -33,20 +49,12 @@ Value *lookUpSymbol(Value *symbol, Frame *activeFrame) {
     // Check bindings in current frame
     Frame *currentFrame = activeFrame;
     while (currentFrame != NULL) {
-        Value *bindings = currentFrame->bindings;
-
-        Value *currentBinding = bindings;
-        while (currentBinding->type != NULL_TYPE) {
-            // A binding is a linked list, where car points to a cons cell.
-            // Car of that cell is the name of the binding, and cdr is its value.
-            Value *bindingPair = car(currentBinding);
-            if (!strcmp(car(bindingPair)->s, symbol->s)) {
-                return cdr(bindingPair);
-            }
-            currentBinding = cdr(currentBinding);
+        Value *search = lookupBindingInFrame(symbol, currentFrame);
+        if (search != NULL) {
+            return search;
+        } else {
+            currentFrame = currentFrame->parent;
         }
-        
-        currentFrame = currentFrame->parent;
     }
 
     // Error, not found
@@ -59,13 +67,102 @@ Value *evalIf(Value *tree, Frame *activeFrame) {
     printf("Implement evalIf\n");
 }
 
-Value *evalLet(Value *tree, Frame *activeFrame) {
-    assert(tree->type == CONS_TYPE);
-    printf("Implement evalLet\n");
+Frame *makeBinding(Value *bindingPair, Frame *activeFrame) {
+    Value *name = car(bindingPair);
+    Value *expr = cdr(bindingPair);
+
+    // Check that it's a pair
+    if (expr->type == NULL_TYPE || cdr(expr)->type != NULL_TYPE) {
+        printf("Binding in let statement is not a pair.\n");
+        printf("At binding: ");
+        printValue(bindingPair);
+        printf("\n");
+        texit(1);
+    }
+
+    if (name->type != SYMBOL_TYPE) {
+        printf("Binding must assign a value to symbol; wrong token type found.\n");
+        printf("At binding: ");
+        printValue(bindingPair);
+        printf("\n");
+        texit(1);
+    }
+
+    if (lookupBindingInFrame(name, activeFrame) != NULL) {
+        printf("Duplicate binding in one let statement.\n");
+        printf("At binding: ");
+        printValue(bindingPair);
+        printf(";\n");
+        printf("For symbol: %s\n", name->s);
+        texit(1);
+    }
+
+    Value *exprResult = eval(expr, activeFrame->parent);
+    Value *newBinding = makeNull();
+    newBinding = cons(exprResult, newBinding);
+    newBinding = cons(name, newBinding);
+    
+    activeFrame->bindings = cons(newBinding, activeFrame->bindings);
+    return activeFrame;
 }
 
-Value *eval(Value *expr, Frame *frame) {
-    assert(expr != NULL);
+Value *evalLet(Value *argsTree, Frame *activeFrame) {
+    assert(argsTree != NULL);
+    assert(activeFrame != NULL);
+    assert(argsTree->type == CONS_TYPE);
+
+    if (cdr(argsTree)->type == NULL_TYPE) {
+        printf("let statement has no body; expected one.\n");
+        printf("At expression: (let ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+
+    if (car(argsTree)->type != CONS_TYPE) {
+        printf("Bindings in let statement is not a list.\n");
+        printf("At expression: (let ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+
+    Frame *letFrame = talloc(sizeof(Frame));
+    letFrame->parent = activeFrame;
+    letFrame->bindings = makeNull();
+
+    // Make bindings
+    Value *currentBindingPair = car(argsTree);
+    while (currentBindingPair->type != NULL_TYPE) {
+        if (car(currentBindingPair)->type != CONS_TYPE) {
+            printf("Binding in let statement is not a pair.\n");
+            printf("At expression: (let ");
+            printTree(argsTree);
+            printf(")\n");
+            printf("At token: ");
+            printValue(currentBindingPair);
+            printf("\n");
+            texit(1);
+        }
+        letFrame = makeBinding(car(currentBindingPair), letFrame);
+        currentBindingPair = cdr(currentBindingPair);
+    }
+    
+    // Evaluate the body expressions
+    Value *result = makeNull();
+    Value *currentExpr = cdr(argsTree);
+    while(currentExpr->type != NULL_TYPE) {
+        result = eval(currentExpr, letFrame);
+        currentExpr = cdr(currentExpr);
+    }
+    
+    return result;
+}
+
+Value *eval(Value *tree, Frame *frame) {
+    assert(tree != NULL);
+
+    Value *expr = car(tree);
 
     // Primitive types
     if (expr->type == INT_TYPE) {
@@ -90,11 +187,16 @@ Value *eval(Value *expr, Frame *frame) {
         Value *args = cdr(expr);
 
         //TODO: sanity and error checking on first...
-        // It should be a symbol type
-        // None of these pointers should be null
-        // cdr can be null_type (NOT NULL, which should be handled from above)
+        assert(first != NULL);
+        assert(args != NULL);
+        if (first->type != SYMBOL_TYPE) {
+            printf("First element of S-expression is not a symbol.\n");
+            printf("At expression: ");
+            printValue(first);
+            printf("\n");
+            texit(1);
+        }
 
-        printf("First type:%i\n", first->type);
         // Special cases
         if (!strcmp(first->s, "if")) {
             return evalIf(args, frame);

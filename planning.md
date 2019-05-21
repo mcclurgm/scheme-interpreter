@@ -40,6 +40,19 @@
         * Loop through and call `eval` on each?
         * Using the new frame from the let: `f`
         * Return the result of the last expression
+      * `display`
+        * Does not return anything
+          * **How do we deal with this??**
+          * Simply prints the result of whatever's in it to the console
+            * Does not include a line break
+      * `when`
+        * If the condition evaluates to `#t`, evaluate all body expressions and return the result of the last
+        * If `#f`, don't evaluate anything
+          * This should not return anything
+      * `unless`
+        * If the condition evaluates to `#f`, evaluate all body expressions and return the result of the last
+        * If `#t`, don't evaluate anything
+          * This should not return anything
 
 ## Evaluation errors
 
@@ -57,6 +70,14 @@
     * You can only bind to values from the parent frame, not the new frame
 * Unbinded variable
   * Should be handled in searching the frames
+* `display`
+  * Must have exactly one argument
+* `when`, `unless`
+  * If it has < 2 arguments
+    * 0 arguments: does not have a conditional
+    * 1 argument: does not have a body
+    * Can basically copy these conditionals from `evalIf`
+  * If the condition doesn't result in a boolean
 
 ## Frame handling
 

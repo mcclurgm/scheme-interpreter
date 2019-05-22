@@ -63,6 +63,29 @@ Value *lookUpSymbol(Value *symbol, Frame *activeFrame) {
     return NULL;
 }
 
+Value *evalDisplay(Value *argTree, Frame *activeFrame) {
+    assert(argTree->type == CONS_TYPE);
+    if (argTree->type != CONS_TYPE) {
+        printf("display statement has no body: expected 1 argument, given none.\n");
+        texit(1);
+    }
+    
+    if (cdr(argTree)->type != NULL_TYPE) {
+        printf("display statement has too many arguments: expected 1, given %i\n", length(argTree));
+        printf("Expression: (display ");
+        printTree(argTree);
+        printf(")\n");
+    }
+
+    // Evaluate the argument to display it
+    Value *evalResult = eval(argTree, activeFrame);
+    printValue(evalResult);
+
+    Value *result = makeValue();
+    result->type = VOID_TYPE;
+    return result;
+}
+
 Value *evalIf(Value *argsTree, Frame *activeFrame) {
     // Initialize expressions; sanity checks
     Value *condExpr = argsTree;
@@ -247,6 +270,8 @@ Value *eval(Value *tree, Frame *frame) {
             return evalIf(args, frame);
         } else if (!strcmp(first->s, "let")) {
             return evalLet(args, frame);
+        } else if (!strcmp(first->s, "display")) {
+            return evalDisplay(args, frame);
         } else {
             // ERROR
             printf("Unrecognized symbol; expected function or special form\n");

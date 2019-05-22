@@ -42,7 +42,6 @@
         * Return the result of the last expression
       * `display`
         * Does not return anything
-          * **How do we deal with this??**
           * Simply prints the result of whatever's in it to the console
             * Does not include a line break
       * `when`

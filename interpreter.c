@@ -86,6 +86,102 @@ Value *evalDisplay(Value *argTree, Frame *activeFrame) {
     return result;
 }
 
+Value *evalWhen(Value *argsTree, Frame *activeFrame) {
+    // Initialize expressions; sanity checks
+    Value *condExpr = argsTree;
+    if (condExpr->type != CONS_TYPE) {
+        printf("When statement has no condition: expected at least 2 arguments, given none.\n");
+        printf("Expression: (when ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+    Value *thenExpr = cdr(condExpr);
+    if (thenExpr->type != CONS_TYPE) {
+        printf("when statement has no body: expected at least 2 arguments, given 1.\n");
+        printf("Expression: (when ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *cond = eval(condExpr, activeFrame);
+    if (cond->type != BOOL_TYPE) {
+        printf("Error: condition of when statement must evaluate to boolean.\n");
+        printf("Expression: (when ");
+        printTree(argsTree);
+        printf(")\n");
+        printf("Condition expression: ");
+        printValue(car(condExpr));
+        printf("\n");
+        texit(1);
+    }
+
+    if (cond->i) {
+        // Condition is true
+        // Evaluate the body expressions
+        Value *result = makeNull();
+        Value *currentExpr = thenExpr;
+        while(currentExpr->type != NULL_TYPE) {
+            result = eval(currentExpr, activeFrame);
+            currentExpr = cdr(currentExpr);
+        }
+        return result;
+    } else {
+        Value *result = makeValue();
+        result->type = VOID_TYPE;
+        return result;
+    }
+}
+
+Value *evalUnless(Value *argsTree, Frame *activeFrame) {
+    // Initialize expressions; sanity checks
+    Value *condExpr = argsTree;
+    if (condExpr->type != CONS_TYPE) {
+        printf("Unless statement has no condition: expected at least 2 arguments, given none.\n");
+        printf("Expression: (unless ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+    Value *thenExpr = cdr(condExpr);
+    if (thenExpr->type != CONS_TYPE) {
+        printf("Unless statement has no body: expected at least 2 arguments, given 1.\n");
+        printf("Expression: (unless ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *cond = eval(condExpr, activeFrame);
+    if (cond->type != BOOL_TYPE) {
+        printf("Error: condition of unless statement must evaluate to boolean.\n");
+        printf("Expression: (unless ");
+        printTree(argsTree);
+        printf(")\n");
+        printf("Condition expression: ");
+        printValue(car(condExpr));
+        printf("\n");
+        texit(1);
+    }
+
+    if (!cond->i) {
+        // Condition is true
+        // Evaluate the body expressions
+        Value *result = makeNull();
+        Value *currentExpr = thenExpr;
+        while(currentExpr->type != NULL_TYPE) {
+            result = eval(currentExpr, activeFrame);
+            currentExpr = cdr(currentExpr);
+        }
+        return result;
+    } else {
+        Value *result = makeValue();
+        result->type = VOID_TYPE;
+        return result;
+    }
+}
+
 Value *evalIf(Value *argsTree, Frame *activeFrame) {
     // Initialize expressions; sanity checks
     Value *condExpr = argsTree;
@@ -272,6 +368,10 @@ Value *eval(Value *tree, Frame *frame) {
             return evalLet(args, frame);
         } else if (!strcmp(first->s, "display")) {
             return evalDisplay(args, frame);
+        } else if (!strcmp(first->s, "when")) {
+            return evalWhen(args, frame);
+        } else if (!strcmp(first->s, "unless")) {
+            return evalUnless(args, frame);
         } else {
             // ERROR
             printf("Unrecognized symbol; expected function or special form\n");

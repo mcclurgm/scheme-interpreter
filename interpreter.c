@@ -63,8 +63,46 @@ Value *lookUpSymbol(Value *symbol, Frame *activeFrame) {
     return NULL;
 }
 
+Frame *makeBinding(Value *bindingPair, Frame *activeFrame) {
+    Value *name = car(bindingPair);
+    Value *expr = cdr(bindingPair);
+
+    // Check that it's a pair
+    if (expr->type == NULL_TYPE || cdr(expr)->type != NULL_TYPE) {
+        printf("Binding in let statement is not a pair.\n");
+        printf("At binding: ");
+        printValue(bindingPair);
+        printf("\n");
+        texit(1);
+    }
+
+    if (name->type != SYMBOL_TYPE) {
+        printf("Binding must assign a value to symbol; wrong token type found.\n");
+        printf("At binding: ");
+        printValue(bindingPair);
+        printf("\n");
+        texit(1);
+    }
+
+    if (lookupBindingInFrame(name, activeFrame) != NULL) {
+        printf("Duplicate binding in one let statement.\n");
+        printf("At binding: ");
+        printValue(bindingPair);
+        printf(";\n");
+        printf("For symbol: %s\n", name->s);
+        texit(1);
+    }
+
+    Value *exprResult = eval(expr, activeFrame->parent);
+    Value *newBinding = makeNull();
+    newBinding = cons(exprResult, newBinding);
+    newBinding = cons(name, newBinding);
+    
+    activeFrame->bindings = cons(newBinding, activeFrame->bindings);
+    return activeFrame;
+}
+
 Value *evalDisplay(Value *argTree, Frame *activeFrame) {
-    assert(argTree->type == CONS_TYPE);
     if (argTree->type != CONS_TYPE) {
         printf("display statement has no body: expected 1 argument, given none.\n");
         texit(1);
@@ -75,6 +113,7 @@ Value *evalDisplay(Value *argTree, Frame *activeFrame) {
         printf("Expression: (display ");
         printTree(argTree);
         printf(")\n");
+        texit(1);
     }
 
     // Evaluate the argument to display it
@@ -231,50 +270,14 @@ Value *evalIf(Value *argsTree, Frame *activeFrame) {
     return result;
 }
 
-Frame *makeBinding(Value *bindingPair, Frame *activeFrame) {
-    Value *name = car(bindingPair);
-    Value *expr = cdr(bindingPair);
-
-    // Check that it's a pair
-    if (expr->type == NULL_TYPE || cdr(expr)->type != NULL_TYPE) {
-        printf("Binding in let statement is not a pair.\n");
-        printf("At binding: ");
-        printValue(bindingPair);
-        printf("\n");
-        texit(1);
-    }
-
-    if (name->type != SYMBOL_TYPE) {
-        printf("Binding must assign a value to symbol; wrong token type found.\n");
-        printf("At binding: ");
-        printValue(bindingPair);
-        printf("\n");
-        texit(1);
-    }
-
-    if (lookupBindingInFrame(name, activeFrame) != NULL) {
-        printf("Duplicate binding in one let statement.\n");
-        printf("At binding: ");
-        printValue(bindingPair);
-        printf(";\n");
-        printf("For symbol: %s\n", name->s);
-        texit(1);
-    }
-
-    Value *exprResult = eval(expr, activeFrame->parent);
-    Value *newBinding = makeNull();
-    newBinding = cons(exprResult, newBinding);
-    newBinding = cons(name, newBinding);
-    
-    activeFrame->bindings = cons(newBinding, activeFrame->bindings);
-    return activeFrame;
-}
-
 Value *evalLet(Value *argsTree, Frame *activeFrame) {
     assert(argsTree != NULL);
     assert(activeFrame != NULL);
-    assert(argsTree->type == CONS_TYPE);
-
+    if (argsTree->type != CONS_TYPE) {
+        printf("let statement has no body; expected one.\n");
+        printf("At expression: (let)\n");
+        texit(1);
+    }
     if (cdr(argsTree)->type == NULL_TYPE) {
         printf("let statement has no body; expected one.\n");
         printf("At expression: (let ");
@@ -321,6 +324,24 @@ Value *evalLet(Value *argsTree, Frame *activeFrame) {
     }
     
     return result;
+}
+
+Value *evalQuote(Value *argsTree, Frame *activeFrame) {
+    assert(argsTree != NULL);
+    if (argsTree->type != CONS_TYPE) {
+        printf("quote statement has no body: expected 1 argument, given none.\n");
+        texit(1);
+    }
+    
+    if (cdr(argsTree)->type != NULL_TYPE) {
+        printf("quote statement has too many arguments: expected 1, given %i\n", length(argsTree));
+        printf("Expression: (quote ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+
+    return car(argsTree);
 }
 
 Value *eval(Value *tree, Frame *frame) {
@@ -372,6 +393,8 @@ Value *eval(Value *tree, Frame *frame) {
             return evalWhen(args, frame);
         } else if (!strcmp(first->s, "unless")) {
             return evalUnless(args, frame);
+        } else if (!strcmp(first->s, "quote")) {
+            return evalQuote(args, frame);
         } else {
             // ERROR
             printf("Unrecognized symbol; expected function or special form\n");

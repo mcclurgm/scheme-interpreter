@@ -151,8 +151,8 @@ Frame *makeApplyBindings(Value *functionParams, Value *args, Frame *functionFram
     while (currentParam->type != NULL_TYPE) {
         // Make the binding
         Value *newBinding = makeNull();
-        newBinding = cons(currentArg, newBinding);
-        newBinding = cons(currentParam, newBinding);
+        newBinding = cons(car(currentArg), newBinding);
+        newBinding = cons(car(currentParam), newBinding);
         functionFrame->bindings = cons(newBinding, functionFrame->bindings);
 
         currentParam = cdr(currentParam);
@@ -162,14 +162,14 @@ Frame *makeApplyBindings(Value *functionParams, Value *args, Frame *functionFram
 }
 
 Value *apply(Value *function, Value *argsTree) {
-    printf("~~~ APPLY ~~~\n");
-    printf("Function: \n");
-    printValue(function);
-    printf("\n");
-    printf("Arguments: \n");
-    printTree(argsTree);
-    printf("\n");
-    printf("~~~~~~~~~~~~~\n");
+    // printf("~~~ APPLY ~~~\n");
+    // printf("Function: \n");
+    // printValue(function);
+    // printf("\n");
+    // printf("Arguments: \n");
+    // printTree(argsTree);
+    // printf("\n");
+    // printf("~~~~~~~~~~~~~\n");
 
     // Construct a new frame whose parent is the environment stored in the closure (function)
     Frame *evalFrame = talloc(sizeof(Frame));
@@ -178,9 +178,11 @@ Value *apply(Value *function, Value *argsTree) {
 
     // Bind parameters to arguments in this frame
     evalFrame = makeApplyBindings(function->cl.paramNames, argsTree, evalFrame);
-    printf("Number of bindings: %i\n", length(evalFrame->bindings));
-    printTree(evalFrame->bindings);
-    printf("\n");
+    // printf("Number of bindings: %i\n", length(evalFrame->bindings));
+    // printTree(evalFrame->bindings);
+    // printf("\n");
+
+    
 
     // Evaluate the function body expressions
     Value *result = makeNull();

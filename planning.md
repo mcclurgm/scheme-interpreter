@@ -111,3 +111,16 @@
   * Must all be symbols
 * Body:
   * Does not need to use all the parameters
+
+## Bonus Define/Lambda
+
+* `Define`
+  * Try when first arg is CONS_TYPE vs SYMBOL_TYPE until it breaks
+  * Somehow handle bindings and closure type assignment
+  * (define (myFn a b c) (+ a b c))
+
+* `Lambda`
+  * Maybe add bool to Struct?
+    * isSpecial?
+    * Allows binding single param to body
+    * Ex. (define fun (lambda x x)) -> (define 1 2 3) where x -> (1 2 3)

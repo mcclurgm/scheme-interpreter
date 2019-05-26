@@ -1,7 +1,11 @@
-(define a 3)
-
 (define not
-    (lambda (bool x)
-        (if bool #f #t)))
+  (lambda (bool)
+    (if bool #f #t)))
 
-(not #t 1)
+(define testit
+  (lambda (cond conseq alt)
+    (let ((nconseq (not conseq)) (nalt (not alt)))
+      (if cond nconseq nalt))))
+      
+(testit #t #f #t)
+(testit #f #f #t)

@@ -35,7 +35,7 @@ Value *lookupBindingInFrame(Value *symbol, Frame *frame) {
         Value *bindingPair = car(currentBinding);
         if (!strcmp(car(bindingPair)->s, symbol->s)) {
             Value *bindingValue = cdr(bindingPair);
-            return car(bindingValue);
+            return bindingValue;
         }
         currentBinding = cdr(currentBinding);
     }
@@ -51,7 +51,8 @@ Value *lookUpSymbol(Value *symbol, Frame *activeFrame) {
     while (currentFrame != NULL) {
         Value *search = lookupBindingInFrame(symbol, currentFrame);
         if (search != NULL) {
-            return search;
+            Value *searchVal = car(search);
+            return searchVal;
         } else {
             currentFrame = currentFrame->parent;
         }
@@ -398,8 +399,8 @@ Value *evalDefine(Value *argsTree, Frame *activeFrame) {
         globalFrame->bindings = cons(newBinding, globalFrame->bindings);
     } else {
         // Binding already exists
-        printf("Existing binding\n");
-        currentBindingValue = 
+        // Set the value this binding points to to the new result
+        currentBindingValue->c.car = exprResult;
     }
 
     Value *result = makeValue();

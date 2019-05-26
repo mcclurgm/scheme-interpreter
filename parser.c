@@ -225,6 +225,18 @@ void printValue(Value *val) {
     else if (val->type == NULL_TYPE) {
         printf("()");
     }
+    else if (val->type == CLOSURE_TYPE) {
+        printf("#<procedure>\n");
+
+        // Debugging:
+        printf("Param names: ");
+        printTree(val->cl.paramNames);
+        printf("\n");
+        printf("Function code: ");
+        printTree(val->cl.functionCode);
+        printf("\n");
+        printf("Just trust the frame...\n");
+    }
 }
 // Prints the tree to the screen in a readable fashion. It should look just like
 // Racket code; use parentheses to indicate subtrees.

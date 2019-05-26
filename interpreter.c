@@ -104,6 +104,33 @@ Frame *makeBinding(Value *bindingPair, Frame *activeFrame) {
     return activeFrame;
 }
 
+bool checkValidParameters(Value *paramsList) {
+    if (paramsList->type == NULL_TYPE) {
+        return true;
+    }
+    
+    Value *currentParam = paramsList;
+    if (car(currentParam)->type != SYMBOL_TYPE) {
+        return false;
+    }
+    // Check that parameter name can't show up twice
+    while (currentParam->type != NULL_TYPE) {
+        Value *compareParam = cdr(currentParam);
+        while (compareParam->type != NULL_TYPE) {
+            if (car(compareParam)->type != SYMBOL_TYPE) {
+                return false;
+            }
+            if (!strcmp(car(compareParam)->s, car(currentParam)->s)) {
+                // A name appears twice in the list
+                return false;
+            }
+            compareParam = cdr(compareParam);
+        }
+        currentParam = compareParam;
+    }
+    return true;
+}
+
 Value *evalDisplay(Value *argTree, Frame *activeFrame) {
     if (argTree->type != CONS_TYPE) {
         printf("display statement has no body: expected 1 argument, given none.\n");
@@ -408,6 +435,55 @@ Value *evalDefine(Value *argsTree, Frame *activeFrame) {
     return result;
 }
 
+Value *evalLambda(Value *argsTree, Frame *activeFrame) {
+    assert(argsTree != NULL);
+    assert(activeFrame != NULL);
+    
+    if (argsTree->type != CONS_TYPE) {
+        printf("Lambda statement has no or invalid parameters.\n");
+        printf("Expected either a list or ().");
+        printf("At expression: (lambda ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+
+    if (cdr(argsTree)->type == NULL_TYPE) {
+        printf("Lambda statement has no body; expected one.\n");
+        printf("At expression: (lambda ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *params = car(argsTree);
+    Value *body = cdr(argsTree);
+
+    // Check parameters list: can be cons or null
+    if (params->type != CONS_TYPE && params->type != NULL_TYPE) {
+        printf("Parameters in lambda statement are not a list.\n");
+        printf("At expression: (lambda ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+    if (!checkValidParameters(params)) {
+        printf("Ill-formed parameter list.\n");
+        printf("Must be either null or a list of unique symbols.\n");
+        printf("At expression: (lambda ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *closure = makeValue();
+    closure->type = CLOSURE_TYPE;
+    closure->cl.frame = activeFrame;
+    closure->cl.paramNames = params;
+    closure->cl.functionCode = body;
+    return closure;
+}
+
 Value *eval(Value *tree, Frame *frame) {
     assert(tree != NULL);
 
@@ -461,6 +537,8 @@ Value *eval(Value *tree, Frame *frame) {
             return evalQuote(args, frame);
         } else if (!strcmp(first->s, "define")) {
             return evalDefine(args, frame);
+        } else if (!strcmp(first->s, "lambda")) {
+            return evalLambda(args, frame);
         } else {
             // ERROR
             printf("Unrecognized symbol; expected function or special form\n");

@@ -95,3 +95,19 @@
   * `cdr` is the value it's bound to (arbitrary type as long as it's a valid value)
   * We can make a `makeBinding(Value *name, Value *val)`
     * `name` is a symbol type and you should just be able to pass it directly from the tree
+
+## `lambda`
+
+* Basic format
+  * Must have 2 or more elements
+  * First element is the params: see next
+  * Everything else becomes body, like let
+
+* Params:
+  * Has some number of params
+  * Can be 0 or more
+  * So possible values for the list: `CONS_TYPE` (multiple params) or `NULL_TYPE`
+  * Can't have the same name twice
+  * Must all be symbols
+* Body:
+  * Does not need to use all the parameters

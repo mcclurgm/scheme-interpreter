@@ -84,6 +84,7 @@ Frame *makeBinding(Value *bindingPair, Frame *activeFrame) {
         texit(1);
     }
 
+    // Check that this symbol isn't already bound in the current frame
     if (lookupBindingInFrame(name, activeFrame) != NULL) {
         printf("Duplicate binding in one let statement.\n");
         printf("At binding: ");
@@ -344,6 +345,68 @@ Value *evalQuote(Value *argsTree, Frame *activeFrame) {
     return car(argsTree);
 }
 
+Value *evalDefine(Value *argsTree, Frame *activeFrame) {
+    assert(argsTree != NULL);
+    if (argsTree->type != CONS_TYPE) {
+        printf("Define statement has no body: expected 2 arguments, given none.\n");
+        texit(1);
+    }
+
+    if (cdr(argsTree)->type == NULL_TYPE) {
+        printf("Define statement has no expression to bind to.\n");
+        printf("Found one argument; expected two.\n");
+        printf("At expression: (define ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *symbol = car(argsTree);
+    Value *expr = cdr(argsTree);
+
+    if (symbol->type != SYMBOL_TYPE) {
+        printf("Define must bind a value to symbol; wrong token type found for symbol.\n");
+        printf("At expression: (define ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+
+    if (cdr(expr)->type != NULL_TYPE) {
+        printf("Define statement has too many arguments: expected 2, given %i\n", length(argsTree));
+        printf("Expression: (define ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *exprResult = eval(expr, activeFrame);
+
+    // Get the global frame
+    Frame *globalFrame = activeFrame;
+    while (globalFrame->parent != NULL) {
+        globalFrame = globalFrame->parent;
+    }
+
+    Value *currentBindingValue = lookupBindingInFrame(symbol, globalFrame);
+    if (currentBindingValue == NULL) {
+        // Not already bound: make a new one
+        Value *newBinding = makeNull();
+        newBinding = cons(exprResult, newBinding);
+        newBinding = cons(symbol, newBinding);
+        
+        globalFrame->bindings = cons(newBinding, globalFrame->bindings);
+    } else {
+        // Binding already exists
+        printf("Existing binding\n");
+        currentBindingValue = 
+    }
+
+    Value *result = makeValue();
+    result->type = VOID_TYPE;
+    return result;
+}
+
 Value *eval(Value *tree, Frame *frame) {
     assert(tree != NULL);
 
@@ -395,6 +458,8 @@ Value *eval(Value *tree, Frame *frame) {
             return evalUnless(args, frame);
         } else if (!strcmp(first->s, "quote")) {
             return evalQuote(args, frame);
+        } else if (!strcmp(first->s, "define")) {
+            return evalDefine(args, frame);
         } else {
             // ERROR
             printf("Unrecognized symbol; expected function or special form\n");

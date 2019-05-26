@@ -1,4 +1,4 @@
-# Planning the evaluation project
+# Planning the interpreter project
 
 * When do we create a new frame? (When we create new variable names)
   * Currently `let`

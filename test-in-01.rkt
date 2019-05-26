@@ -1,1 +1,3 @@
-1 2.3 "a" b
+(define x 3)
+(display x)
+(define x 5)

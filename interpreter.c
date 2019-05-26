@@ -131,6 +131,68 @@ bool checkValidParameters(Value *paramsList) {
     return true;
 }
 
+// Yes, we know how this name sounds...
+Frame *makeApplyBindings(Value *functionParams, Value *args, Frame *functionFrame) {
+    if (length(functionParams) != length(args)) {
+        printf("Arity mismatch in function application.\n");
+        printf("Function expected %i arguments, ", length(functionParams));
+        printf("given %i.\n", length(args));
+        texit(1);
+    }
+    
+    Value *currentParam = functionParams;
+    Value *currentArg = args;
+
+    // Iterate through both at once.
+    // Bind the current param to the current arg.
+    // Note: we can now assume that functionParams and args have the same length.
+    // Also, functionParams can't include duplicate symbols to bind. That was
+    // handled in evalLambda.
+    while (currentParam->type != NULL_TYPE) {
+        // Make the binding
+        Value *newBinding = makeNull();
+        newBinding = cons(currentArg, newBinding);
+        newBinding = cons(currentParam, newBinding);
+        functionFrame->bindings = cons(newBinding, functionFrame->bindings);
+
+        currentParam = cdr(currentParam);
+        currentArg = cdr(currentArg);
+    }
+    return functionFrame;
+}
+
+Value *apply(Value *function, Value *argsTree) {
+    printf("~~~ APPLY ~~~\n");
+    printf("Function: \n");
+    printValue(function);
+    printf("\n");
+    printf("Arguments: \n");
+    printTree(argsTree);
+    printf("\n");
+    printf("~~~~~~~~~~~~~\n");
+
+    // Construct a new frame whose parent is the environment stored in the closure (function)
+    Frame *evalFrame = talloc(sizeof(Frame));
+    evalFrame->parent = function->cl.frame;
+    evalFrame->bindings = makeNull();
+
+    // Bind parameters to arguments in this frame
+    evalFrame = makeApplyBindings(function->cl.paramNames, argsTree, evalFrame);
+    printf("Number of bindings: %i\n", length(evalFrame->bindings));
+    printTree(evalFrame->bindings);
+    printf("\n");
+
+    // Evaluate the function body expressions
+    Value *result = makeNull();
+    Value *currentExpr = function->cl.functionCode;
+    while(currentExpr->type != NULL_TYPE) {
+        result = eval(currentExpr, evalFrame);
+        currentExpr = cdr(currentExpr);
+    }
+    
+    return result;
+}
+
 Value *evalDisplay(Value *argTree, Frame *activeFrame) {
     if (argTree->type != CONS_TYPE) {
         printf("display statement has no body: expected 1 argument, given none.\n");
@@ -484,6 +546,21 @@ Value *evalLambda(Value *argsTree, Frame *activeFrame) {
     return closure;
 }
 
+/*
+Evaluates each expression in body.
+Returns a linked list of all the expression results.
+*/
+Value *evalEach(Value *body, Frame *activeFrame) {
+    Value *result = makeNull();
+    Value *currentExpr = body;
+    while(currentExpr->type != NULL_TYPE) {
+        result = cons(eval(currentExpr, activeFrame), result);
+        currentExpr = cdr(currentExpr);
+    }
+
+    return reverse(result);
+}
+
 Value *eval(Value *tree, Frame *frame) {
     assert(tree != NULL);
 
@@ -539,14 +616,14 @@ Value *eval(Value *tree, Frame *frame) {
             return evalDefine(args, frame);
         } else if (!strcmp(first->s, "lambda")) {
             return evalLambda(args, frame);
+        // Otherwise, proceed with standard evaluation
         } else {
-            // ERROR
-            printf("Unrecognized symbol; expected function or special form\n");
-            printf("At token: %s\n", first->s);
-            texit(1);
+            // If not a special form, evaluate the first, evaluate the args,
+            // then apply the first to the args.
+            Value *evaledOperator = eval(expr, frame);
+            Value *evaledArgs = evalEach(args, frame);
+            return apply(evaledOperator,evaledArgs);
         }
-
-        // Future assignments: do an actual function
     }
     // The expression is of a type we don't know how to evaluate.
     // This is an error.

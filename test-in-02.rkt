@@ -1,3 +1,4 @@
-(lambda () x)
-(lambda (x y) x)
-(lambda (x) x)
+(define a (lambda (x) x))
+
+(define x 3)
+(display a)

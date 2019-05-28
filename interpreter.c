@@ -108,6 +108,9 @@ bool checkValidParameters(Value *paramsList) {
     if (paramsList->type == NULL_TYPE) {
         return true;
     }
+    if (paramsList->type == SYMBOL_TYPE) {
+        return true;
+    }
     
     Value *currentParam = paramsList;
     if (car(currentParam)->type != SYMBOL_TYPE) {
@@ -133,30 +136,39 @@ bool checkValidParameters(Value *paramsList) {
 
 // Yes, we know how this name sounds...
 Frame *makeApplyBindings(Value *functionParams, Value *args, Frame *functionFrame) {
-    if (length(functionParams) != length(args)) {
-        printf("Arity mismatch in function application.\n");
-        printf("Function expected %i arguments, ", length(functionParams));
-        printf("given %i.\n", length(args));
-        texit(1);
-    }
-    
-    Value *currentParam = functionParams;
-    Value *currentArg = args;
+    if (functionParams->type == SYMBOL_TYPE) {
+            Value *newBinding = makeNull();
+            newBinding = cons(args, newBinding);
+            newBinding = cons(functionParams, newBinding);
+            functionFrame->bindings = cons(newBinding, functionFrame->bindings);
+    } else {
+        assert(functionParams->type == CONS_TYPE || functionParams->type == NULL_TYPE);
 
-    // Iterate through both at once.
-    // Bind the current param to the current arg.
-    // Note: we can now assume that functionParams and args have the same length.
-    // Also, functionParams can't include duplicate symbols to bind. That was
-    // handled in evalLambda.
-    while (currentParam->type != NULL_TYPE) {
-        // Make the binding
-        Value *newBinding = makeNull();
-        newBinding = cons(car(currentArg), newBinding);
-        newBinding = cons(car(currentParam), newBinding);
-        functionFrame->bindings = cons(newBinding, functionFrame->bindings);
+        if (length(functionParams) != length(args)) {
+            printf("Arity mismatch in function application.\n");
+            printf("Function expected %i arguments, ", length(functionParams));
+            printf("given %i.\n", length(args));
+            texit(1);
+        }
+        
+        Value *currentParam = functionParams;
+        Value *currentArg = args;
 
-        currentParam = cdr(currentParam);
-        currentArg = cdr(currentArg);
+        // Iterate through both at once.
+        // Bind the current param to the current arg.
+        // Note: we can now assume that functionParams and args have the same length.
+        // Also, functionParams can't include duplicate symbols to bind. That was
+        // handled in evalLambda.
+        while (currentParam->type != NULL_TYPE) {
+            // Make the binding
+            Value *newBinding = makeNull();
+            newBinding = cons(car(currentArg), newBinding);
+            newBinding = cons(car(currentParam), newBinding);
+            functionFrame->bindings = cons(newBinding, functionFrame->bindings);
+
+            currentParam = cdr(currentParam);
+            currentArg = cdr(currentArg);
+        }
     }
     return functionFrame;
 }
@@ -462,7 +474,8 @@ Value *evalLambda(Value *argsTree, Frame *activeFrame) {
     Value *body = cdr(argsTree);
 
     // Check parameters list: can be cons or null
-    if (params->type != CONS_TYPE && params->type != NULL_TYPE) {
+    if (params->type != CONS_TYPE && params->type != NULL_TYPE 
+            && params->type != SYMBOL_TYPE) {
         printf("Parameters in lambda statement are not a list.\n");
         printf("At expression: (lambda ");
         printTree(argsTree);
@@ -471,7 +484,7 @@ Value *evalLambda(Value *argsTree, Frame *activeFrame) {
     }
     if (!checkValidParameters(params)) {
         printf("Ill-formed parameter list.\n");
-        printf("Must be either null or a list of unique symbols.\n");
+        printf("Must be a list of unique symbols.\n");
         printf("At expression: (lambda ");
         printTree(argsTree);
         printf(")\n");

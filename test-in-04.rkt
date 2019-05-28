@@ -1,7 +1,4 @@
-(let ((x "hello")) (let ((y "goodbye")) (let ((z #f)) (if z x y))))
-(let ((x (display "\nblah"))) x)
-(let ((x 3)) (display x))
-(when #t (display "a") (display 12345) (let ((x 3)) x))
-(when #f (display "b") (display 67890) (let ((x 5)) x))
-(unless #t (display "a") (display 12345) (let ((x 3)) x))
-(unless #f (display "b") (display 67890) (let ((x 5)) x))
+(define f
+    (lambda x x))
+(display f)
+(f 1)

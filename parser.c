@@ -230,7 +230,7 @@ void printValue(Value *val) {
 
         // Debugging:
         printf("Param names: ");
-        printTree(val->cl.paramNames);
+        printValue(val->cl.paramNames);
         printf("\n");
         printf("Function code: ");
         printTree(val->cl.functionCode);

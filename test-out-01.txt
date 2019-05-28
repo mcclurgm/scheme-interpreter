@@ -1,0 +1,12 @@
+Original tree:  (define x 3) (display x) (define x 5) (display x) (let ((x 7)) x) (define y 9) (let ((b y)) b) (define a x) (display a) (define a #f) (display a)
+
+3
+
+5
+7
+
+9
+
+5
+
+#f

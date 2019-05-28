@@ -1,0 +1,4 @@
+Original tree:  (define f (lambda x x)) (display f) (f 1)
+
+#<procedure>
+(1)

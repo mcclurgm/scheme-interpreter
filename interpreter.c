@@ -437,68 +437,6 @@ Value *evalQuote(Value *argsTree, Frame *activeFrame) {
     return car(argsTree);
 }
 
-Value *evalDefine(Value *argsTree, Frame *activeFrame) {
-    assert(argsTree != NULL);
-    if (argsTree->type != CONS_TYPE) {
-        printf("Define statement has no body: expected 2 arguments, given none.\n");
-        texit(1);
-    }
-
-    if (cdr(argsTree)->type == NULL_TYPE) {
-        printf("Define statement has no expression to bind to.\n");
-        printf("Found one argument; expected two.\n");
-        printf("At expression: (define ");
-        printTree(argsTree);
-        printf(")\n");
-        texit(1);
-    }
-
-    Value *symbol = car(argsTree);
-    Value *expr = cdr(argsTree);
-
-    if (symbol->type != SYMBOL_TYPE) {
-        printf("Define must bind a value to symbol; wrong token type found for symbol.\n");
-        printf("At expression: (define ");
-        printTree(argsTree);
-        printf(")\n");
-        texit(1);
-    }
-
-    if (cdr(expr)->type != NULL_TYPE) {
-        printf("Define statement has too many arguments: expected 2, given %i\n", length(argsTree));
-        printf("Expression: (define ");
-        printTree(argsTree);
-        printf(")\n");
-        texit(1);
-    }
-
-    Value *exprResult = eval(expr, activeFrame);
-
-    // Get the global frame
-    Frame *globalFrame = activeFrame;
-    while (globalFrame->parent != NULL) {
-        globalFrame = globalFrame->parent;
-    }
-
-    Value *currentBindingValue = lookupBindingInFrame(symbol, globalFrame);
-    if (currentBindingValue == NULL) {
-        // Not already bound: make a new one
-        Value *newBinding = makeNull();
-        newBinding = cons(exprResult, newBinding);
-        newBinding = cons(symbol, newBinding);
-        
-        globalFrame->bindings = cons(newBinding, globalFrame->bindings);
-    } else {
-        // Binding already exists
-        // Set the value this binding points to to the new result
-        currentBindingValue->c.car = exprResult;
-    }
-
-    Value *result = makeValue();
-    result->type = VOID_TYPE;
-    return result;
-}
-
 Value *evalLambda(Value *argsTree, Frame *activeFrame) {
     assert(argsTree != NULL);
     assert(activeFrame != NULL);
@@ -546,6 +484,93 @@ Value *evalLambda(Value *argsTree, Frame *activeFrame) {
     closure->cl.paramNames = params;
     closure->cl.functionCode = body;
     return closure;
+}
+
+Value *evalDefine(Value *argsTree, Frame *activeFrame) {
+    assert(argsTree != NULL);
+    if (argsTree->type != CONS_TYPE) {
+        printf("Define statement has no body: expected 2 arguments, given none.\n");
+        texit(1);
+    }
+
+    if (cdr(argsTree)->type == NULL_TYPE) {
+        printf("Define statement has no expression to bind to.\n");
+        printf("Found one argument; expected two.\n");
+        printf("At expression: (define ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *symbol;
+    Value *exprResult;
+    if (car(argsTree)->type == CONS_TYPE) {
+        symbol = car(car(argsTree));
+        if (symbol->type != SYMBOL_TYPE) {
+            printf("Function name must be a symbol; wrong token type found.\n");
+            printf("At expression: (define ");
+            printTree(argsTree);
+            printf(")\n");
+            texit(1);
+        }
+
+        Value *params = cdr(car(argsTree));
+        Value *body = cdr(argsTree);
+
+        if (body->type != CONS_TYPE) {
+            printf("No function body found.\n");
+            printf("At expression: (define ");
+            printTree(argsTree);
+            printf(")\n");
+            texit(1);
+        }
+
+        Value *lambdaExpr = cons(params, body);
+        exprResult = evalLambda(lambdaExpr, activeFrame);
+    } else if (car(argsTree)->type == SYMBOL_TYPE) {
+        symbol = car(argsTree);
+        Value *expr = cdr(argsTree);
+
+        if (cdr(expr)->type != NULL_TYPE) {
+            printf("Define statement has too many arguments: expected 2, given %i\n", length(argsTree));
+            printf("Expression: (define ");
+            printTree(argsTree);
+            printf(")\n");
+            texit(1);
+        }
+
+        exprResult = eval(expr, activeFrame);
+    } else {
+        printf("Define must bind a value to symbol; wrong token type found for symbol name.\n");
+        printf("At expression: (define ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+
+    // Get the global frame
+    Frame *globalFrame = activeFrame;
+    while (globalFrame->parent != NULL) {
+        globalFrame = globalFrame->parent;
+    }
+
+    Value *currentBindingValue = lookupBindingInFrame(symbol, globalFrame);
+    if (currentBindingValue == NULL) {
+        // Not already bound: make a new one
+        Value *newBinding = makeNull();
+        newBinding = cons(exprResult, newBinding);
+        newBinding = cons(symbol, newBinding);
+        
+        globalFrame->bindings = cons(newBinding, globalFrame->bindings);
+    } else {
+        // Binding already exists
+        // Set the value this binding points to to the new result
+        currentBindingValue->c.car = exprResult;
+    }
+
+    Value *result = makeValue();
+    result->type = VOID_TYPE;
+    return result;
 }
 
 /*

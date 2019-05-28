@@ -118,6 +118,7 @@
   * Try when first arg is CONS_TYPE vs SYMBOL_TYPE until it breaks
   * Somehow handle bindings and closure type assignment
   * (define (myFn a b c) (+ a b c))
+  * 
 
 * `Lambda`
   * Maybe add bool to Struct?

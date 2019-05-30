@@ -391,7 +391,7 @@ Value *evalLet(Value *argsTree, Frame *activeFrame) {
         texit(1);
     }
 
-    if (car(argsTree)->type != CONS_TYPE) {
+    if (car(argsTree)->type != CONS_TYPE && car(argsTree)->type != NULL_TYPE) {
         printf("Bindings in let statement is not a list.\n");
         printf("At expression: (let ");
         printTree(argsTree);

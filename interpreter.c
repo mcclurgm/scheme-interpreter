@@ -8,10 +8,35 @@
 #include "parser.h"
 #include "talloc.h"
 
+Value *primitiveAdd(Value *args) {
+	//Error sanity checking
+   // check that args has length one and car(args) is numerical
+   Value *result = makeNull();
+   return result; 
+}
+
+void bindPrimitive(char *name, Value *(*function)(struct Value *), Frame *frame) {
+    // Add primitive functions to top-level bindings list
+	Value *symbol = makeValue();
+	symbol->type = SYMBOL_TYPE;
+	symbol->s = name;
+
+    Value *value = talloc(sizeof(Value));
+    value->type = PRIMITIVE_TYPE;
+    value->pf = function;
+    
+	Value *binding = makeNull();
+	binding = cons(value, binding);
+	binding = cons(symbol, binding);
+	frame->bindings = cons(binding, frame->bindings);
+}
+
 void interpret(Value *tree) {
     Frame *global = talloc(sizeof(Frame));
     global->parent = NULL;
     global->bindings = makeNull();
+
+	bindPrimitive("+", primitiveAdd, global);
 
     printf("Original tree:  ");
     printTree(tree);
@@ -174,14 +199,6 @@ Frame *makeApplyBindings(Value *functionParams, Value *args, Frame *functionFram
 }
 
 Value *apply(Value *function, Value *argsTree) {
-    // printf("~~~ APPLY ~~~\n");
-    // printf("Function: \n");
-    // printValue(function);
-    // printf("\n");
-    // printf("Arguments: \n");
-    // printTree(argsTree);
-    // printf("\n");
-    // printf("~~~~~~~~~~~~~\n");
 
     // Construct a new frame whose parent is the environment stored in the closure (function)
     Frame *evalFrame = talloc(sizeof(Frame));
@@ -190,11 +207,6 @@ Value *apply(Value *function, Value *argsTree) {
 
     // Bind parameters to arguments in this frame
     evalFrame = makeApplyBindings(function->cl.paramNames, argsTree, evalFrame);
-    // printf("Number of bindings: %i\n", length(evalFrame->bindings));
-    // printTree(evalFrame->bindings);
-    // printf("\n");
-
-    
 
     // Evaluate the function body expressions
     Value *result = makeNull();
@@ -614,6 +626,8 @@ Value *eval(Value *tree, Frame *frame) {
     } else if (expr->type == STR_TYPE) {
         return expr;
     } else if (expr->type == BOOL_TYPE) {
+        return expr;
+    } else if (expr->type == PRIMITIVE_TYPE) {
         return expr;
     } else if (expr->type == NULL_TYPE) {
         //TODO We'll figure this out later.

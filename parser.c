@@ -225,6 +225,9 @@ void printValue(Value *val) {
     else if (val->type == NULL_TYPE) {
         printf("()");
     }
+    else if (val->type == PRIMITIVE_TYPE) {
+        printf("#<primitive>");
+    }
     else if (val->type == CLOSURE_TYPE) {
         printf("#<procedure>");
 

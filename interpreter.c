@@ -9,10 +9,33 @@
 #include "talloc.h"
 
 Value *primitiveAdd(Value *args) {
-	//Error sanity checking
-   // check that args has length one and car(args) is numerical
-   Value *result = makeNull();
-   return result; 
+    double sum = 0;
+    bool isInt = true;
+    Value *current = args;
+    //Pseudocode like stuff
+    while(current->type != NULL_TYPE) {
+        if(current->type != INT_TYPE && current->type != DOUBLE_TYPE) {
+            printf("ERROR\n");
+            texit(1);
+        } else if (current->type == INT_TYPE) {
+            sum += current->i;
+        } else {
+            sum += current->d;
+            isInt = false;
+        }
+        current = cdr(current);
+    }
+
+    Value *result = makeValue();
+    if(isInt){
+        result->type = INT_TYPE;
+        result->i = sum;
+    } else {
+        result->type = DOUBLE_TYPE;
+        result->d = sum;
+    }
+    
+    return result;
 }
 
 void bindPrimitive(char *name, Value *(*function)(struct Value *), Frame *frame) {
@@ -638,7 +661,6 @@ Value *eval(Value *tree, Frame *frame) {
     } else if (expr->type == BOOL_TYPE) {
         return expr;
     } else if (expr->type == PRIMITIVE_TYPE) {
-        //
         return expr;
     } else if (expr->type == NULL_TYPE) {
         //TODO We'll figure this out later.
@@ -682,14 +704,22 @@ Value *eval(Value *tree, Frame *frame) {
                 // then apply the first to the args.
                 Value *evaledOperator = eval(expr, frame);
                 Value *evaledArgs = evalEach(args, frame);
-                return apply(evaledOperator,evaledArgs);
+                if (evaledOperator->type == PRIMITIVE_TYPE) {
+                    return (*(evaledOperator->pf))(evaledArgs);
+                } else {
+                    return apply(evaledOperator,evaledArgs);
+                }
             }
         } else {
             // If not a special form, evaluate the first, evaluate the args,
             // then apply the first to the args.
             Value *evaledOperator = eval(expr, frame);
             Value *evaledArgs = evalEach(args, frame);
-            return apply(evaledOperator,evaledArgs);
+            if (evaledOperator->type == PRIMITIVE_TYPE) {
+                    return (*(evaledOperator->pf))(evaledArgs);
+                } else {
+                    return apply(evaledOperator,evaledArgs);
+                }
         }
     }
     // The expression is of a type we don't know how to evaluate.

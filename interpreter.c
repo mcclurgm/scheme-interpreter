@@ -67,6 +67,62 @@ Value *primitiveNull(Value *args) {
     return result;
 }
 
+Value *primitiveCar(Value *args) {
+    if (args->type != CONS_TYPE) {
+        printf("car statement has no body: expected 1 argument, given none.\n");
+        texit(1);
+    }
+    
+    if (cdr(args)->type != NULL_TYPE) {
+        printf("car statement has too many arguments: expected 1, given %i\n", length(args));
+        printf("Expression: (car ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    if (car(args)->type != CONS_TYPE) {
+        printf("car statement needs to act on a cons cell\n");
+        printf("Expression: (car ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *result = makeValue();
+    result = car(car(args));
+
+    return result;
+}
+
+Value *primitiveCdr(Value *args) {
+    if (args->type != CONS_TYPE) {
+        printf("cdr statement has no body: expected 1 argument, given none.\n");
+        texit(1);
+    }
+    
+    if (cdr(args)->type != NULL_TYPE) {
+        printf("cdr statement has too many arguments: expected 1, given %i\n", length(args));
+        printf("Expression: (cdr ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    if (car(args)->type != CONS_TYPE) {
+        printf("cdr statement needs to act on a cons cell\n");
+        printf("Expression: (cdr ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *result = makeValue();
+    result = cdr(car(args));
+
+    return result;
+}
+
 void bindPrimitive(char *name, Value *(*function)(struct Value *), Frame *frame) {
     // Add primitive functions to top-level bindings list
 	Value *symbol = makeValue();
@@ -90,6 +146,8 @@ void interpret(Value *tree) {
 
 	bindPrimitive("+", primitiveAdd, global);
     bindPrimitive("null?", primitiveNull, global);
+    bindPrimitive("car", primitiveCar, global);
+    bindPrimitive("cdr", primitiveCdr, global);
 
     printf("Original tree:  ");
     printTree(tree);

@@ -41,6 +41,32 @@ Value *primitiveAdd(Value *args) {
     return result;
 }
 
+Value *primitiveNull(Value *args) {
+    if (args->type != CONS_TYPE) {
+        printf("null? statement has no body: expected 1 argument, given none.\n");
+        texit(1);
+    }
+    
+    if (cdr(args)->type != NULL_TYPE) {
+        printf("null? statement has too many arguments: expected 1, given %i\n", length(args));
+        printf("Expression: (null? ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *result = makeValue();
+    result->type = BOOL_TYPE;
+
+    if (car(args)->type == NULL_TYPE) {
+        result->i = true;
+    } else {
+        result->i = false;
+    }
+
+    return result;
+}
+
 void bindPrimitive(char *name, Value *(*function)(struct Value *), Frame *frame) {
     // Add primitive functions to top-level bindings list
 	Value *symbol = makeValue();
@@ -63,6 +89,7 @@ void interpret(Value *tree) {
     global->bindings = makeNull();
 
 	bindPrimitive("+", primitiveAdd, global);
+    bindPrimitive("null?", primitiveNull, global);
 
     printf("Original tree:  ");
     printTree(tree);
@@ -666,9 +693,7 @@ Value *eval(Value *tree, Frame *frame) {
     } else if (expr->type == PRIMITIVE_TYPE) {
         return expr;
     } else if (expr->type == NULL_TYPE) {
-        //TODO We'll figure this out later.
-        printf("NULL figure this out\n");
-        texit(2);
+        return expr;
     } else if (expr->type == SYMBOL_TYPE) {
         return lookUpSymbol(expr, frame);
     }

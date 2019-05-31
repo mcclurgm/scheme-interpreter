@@ -199,6 +199,16 @@ Frame *makeApplyBindings(Value *functionParams, Value *args, Frame *functionFram
 }
 
 Value *apply(Value *function, Value *argsTree) {
+    //Sanity checks for closure
+
+    if (function->type != CLOSURE_TYPE) {
+        printf("Application not a procedure.\n");
+        printf("Given: ");
+        printValue(function);
+        printf("\n");
+        printf("This is not a procedure\n");
+        texit(1);
+    }
 
     // Construct a new frame whose parent is the environment stored in the closure (function)
     Frame *evalFrame = talloc(sizeof(Frame));
@@ -628,6 +638,7 @@ Value *eval(Value *tree, Frame *frame) {
     } else if (expr->type == BOOL_TYPE) {
         return expr;
     } else if (expr->type == PRIMITIVE_TYPE) {
+        //
         return expr;
     } else if (expr->type == NULL_TYPE) {
         //TODO We'll figure this out later.
@@ -645,32 +656,34 @@ Value *eval(Value *tree, Frame *frame) {
         //TODO: sanity and error checking on first...
         assert(first != NULL);
         assert(args != NULL);
-        if (first->type != SYMBOL_TYPE) {
-            printf("First element of S-expression is not a symbol.\n");
-            printf("At expression: ");
-            printValue(first);
-            printf("\n");
-            texit(1);
-        }
 
-        // Special cases
-        if (!strcmp(first->s, "if")) {
-            return evalIf(args, frame);
-        } else if (!strcmp(first->s, "let")) {
-            return evalLet(args, frame);
-        } else if (!strcmp(first->s, "display")) {
-            return evalDisplay(args, frame);
-        } else if (!strcmp(first->s, "when")) {
-            return evalWhen(args, frame);
-        } else if (!strcmp(first->s, "unless")) {
-            return evalUnless(args, frame);
-        } else if (!strcmp(first->s, "quote")) {
-            return evalQuote(args, frame);
-        } else if (!strcmp(first->s, "define")) {
-            return evalDefine(args, frame);
-        } else if (!strcmp(first->s, "lambda")) {
-            return evalLambda(args, frame);
-        // Otherwise, proceed with standard evaluation
+
+        if (first->type == SYMBOL_TYPE) {
+                // Special cases
+            if (!strcmp(first->s, "if")) {
+                return evalIf(args, frame);
+            } else if (!strcmp(first->s, "let")) {
+                return evalLet(args, frame);
+            } else if (!strcmp(first->s, "display")) {
+                return evalDisplay(args, frame);
+            } else if (!strcmp(first->s, "when")) {
+                return evalWhen(args, frame);
+            } else if (!strcmp(first->s, "unless")) {
+                return evalUnless(args, frame);
+            } else if (!strcmp(first->s, "quote")) {
+                return evalQuote(args, frame);
+            } else if (!strcmp(first->s, "define")) {
+                return evalDefine(args, frame);
+            } else if (!strcmp(first->s, "lambda")) {
+                return evalLambda(args, frame);
+            // Otherwise, proceed with standard evaluation
+            } else {
+                // If not a special form, evaluate the first, evaluate the args,
+                // then apply the first to the args.
+                Value *evaledOperator = eval(expr, frame);
+                Value *evaledArgs = evalEach(args, frame);
+                return apply(evaledOperator,evaledArgs);
+            }
         } else {
             // If not a special form, evaluate the first, evaluate the args,
             // then apply the first to the args.

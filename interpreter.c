@@ -15,7 +15,10 @@ Value *primitiveAdd(Value *args) {
     //Pseudocode like stuff
     while(current->type != NULL_TYPE) {
         if(car(current)->type != INT_TYPE && car(current)->type != DOUBLE_TYPE) {
-            printf("ERROR\n");
+            printf("Expected number in +\n");
+            printf("Given: ");
+            printTree(current);
+            printf("\n");
             texit(1);
         } else if (car(current)->type == INT_TYPE) {
             sum += car(current)->i;

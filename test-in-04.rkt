@@ -4,4 +4,6 @@
 
 (car (quote (1 2 3)))
 
-(cdr ())
+(cdr (quote (1 2)))
+
+(cons 1 (quote(2)))

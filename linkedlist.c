@@ -9,6 +9,8 @@
 #include "value.h"
 #include <assert.h>
 #include "talloc.h"
+#include <stdbool.h>
+#include "parser.h"
 
 // Create a new NULL_TYPE value node.
 Value *makeNull() {
@@ -16,6 +18,23 @@ Value *makeNull() {
     (*null).type = NULL_TYPE;
     return null;
 
+}
+
+bool isList(Value *list) {
+    Value *current = list;
+    if (current->type != CONS_TYPE && current->type != NULL_TYPE) {
+        return false;
+    }
+
+    while(current->type != NULL_TYPE) {
+
+        if (cdr(current)->type != NULL_TYPE && cdr(current)->type != CONS_TYPE) {
+            return false;
+        }
+        current = cdr(current);
+    }
+
+    return true;
 }
 
 // Create a new CONS_TYPE value node.
@@ -29,7 +48,6 @@ Value *makeNull() {
 Value *cons(Value *newCar, Value *newCdr) {
     assert(newCar != NULL);
     assert(newCdr != NULL);
-    assert((*newCdr).type == CONS_TYPE || isNull(newCdr));
 
     Value *cell = makeValue();
     (*cell).type = CONS_TYPE;
@@ -38,6 +56,12 @@ Value *cons(Value *newCar, Value *newCdr) {
         char* newString = talloc(sizeof(char) * (strlen((*newCar).s)+1));
         strcpy(newString, (*newCar).s);
         (*newCar).s = newString;
+    }
+
+    if ((*newCdr).type == STR_TYPE){
+        char* newString = talloc(sizeof(char) * (strlen((*newCdr).s)+1));
+        strcpy(newString, (*newCdr).s);
+        (*newCdr).s = newString;
     }
 
     (*cell).c.car = newCar;
@@ -87,15 +111,23 @@ void display(Value *list) {
 Value *reverse(Value *list) {
     assert(list != NULL);
     assert((*list).type == CONS_TYPE || (*list).type == NULL_TYPE);
-    Value *partial = makeNull();
-    Value *current = list;
-    while ((*current).type != NULL_TYPE) {
-        // Build revesred list with cons
-        assert((*current).type == CONS_TYPE || (*current).type == NULL_TYPE);
-        partial = cons(car(current), partial);
-        current = cdr(current);
+    if (isList(list)) {
+        Value *partial = makeNull();
+        Value *current = list;
+        while ((*current).type != NULL_TYPE) {
+            // Build revesred list with cons
+            assert((*current).type == CONS_TYPE || (*current).type == NULL_TYPE);
+            partial = cons(car(current), partial);
+            current = cdr(current);
+        }
+        return partial;
+
+    } else {
+        printf("reverse: contract violation\n");
+        printf("expected: list?\n");
+        texit(1);
     }
-    return partial;
+    return list;
 }
 
 
@@ -116,14 +148,22 @@ bool isNull(Value *value) {
 int length(Value *value) {
     assert(value != NULL);
     assert((*value).type == CONS_TYPE || (*value).type == NULL_TYPE);
-    Value *current = value;
-    int length = 0;
-    while ((*current).type != NULL_TYPE) {
-        assert((*current).type == CONS_TYPE || (*current).type == NULL_TYPE);
-        length++;
-        current = cdr(current);
+
+    if (isList(value)) {
+        Value *current = value;
+        int length = 0;
+        while ((*current).type != NULL_TYPE) {
+            assert((*current).type == CONS_TYPE || (*current).type == NULL_TYPE);
+            length++;
+            current = cdr(current);
+        }
+        return length;
+    } else {
+        printf("length: contract violation\n");
+        printf("expected: list?\n");
+        texit(1);
     }
-    return length;
+    return 0;
 }
 
 // Utility to make it less typing to get car value. Use assertions to make sure
@@ -158,17 +198,23 @@ Value *append(Value *newList, Value *oldList) {
     assert(oldList != NULL);
     assert((*newList).type == CONS_TYPE || isNull(newList));
     assert((*oldList).type == CONS_TYPE || isNull(oldList));
-
-    Value *result = oldList;
-    Value *current = reverse(newList);
-    Value *freeMe = current;
-    while ((*current).type != NULL_TYPE) {
-        assert((*current).type == CONS_TYPE || (*current).type == NULL_TYPE);
-        result = cons(car(current), result);
-        current = cdr(current);
+    if (isList(newList) && isList(oldList)) {
+        Value *result = oldList;
+        Value *current = reverse(newList);
+        Value *freeMe = current;
+        while ((*current).type != NULL_TYPE) {
+            assert((*current).type == CONS_TYPE || (*current).type == NULL_TYPE);
+            result = cons(car(current), result);
+            current = cdr(current);
+        }
+        //cleanup(freeMe);
+        return result;
+    } else {
+        printf("append: contract violation\n");
+        printf("expected: list?\n");
+        texit(1);
     }
-    //cleanup(freeMe);
-    return result;
+    return newList;
 }
 
 // Creates a linked list from the values in values[].

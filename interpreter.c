@@ -123,6 +123,34 @@ Value *primitiveCdr(Value *args) {
     return result;
 }
 
+Value *primitiveCons(Value *args) {
+    if (args->type != CONS_TYPE) {
+        printf("cons statement has no body: expected 1 argument, given none.\n");
+        texit(1);
+    }
+
+    if (cdr(args)->type != CONS_TYPE) {
+        printf("cons statement has too few arguments: expected 2, given 1\n");
+        printf("Expression: (cons ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+    
+    if (cdr(cdr(args))->type != NULL_TYPE) {
+        printf("cons statement has too many arguments: expected 2, given %i\n", length(args));
+        printf("Expression: (cons ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *result = makeValue();
+    result = cons(car(args), car(cdr(args)));
+
+    return result;
+}
+
 void bindPrimitive(char *name, Value *(*function)(struct Value *), Frame *frame) {
     // Add primitive functions to top-level bindings list
 	Value *symbol = makeValue();
@@ -148,6 +176,7 @@ void interpret(Value *tree) {
     bindPrimitive("null?", primitiveNull, global);
     bindPrimitive("car", primitiveCar, global);
     bindPrimitive("cdr", primitiveCdr, global);
+    bindPrimitive("cons", primitiveCons, global);
 
     printf("Original tree:  ");
     printTree(tree);

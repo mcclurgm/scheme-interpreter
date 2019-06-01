@@ -257,6 +257,12 @@ void printTree(Value *tree) {
         if (cdr(current)->type != NULL_TYPE) {
             printf(" ");
         }
+        
+        if (cdr(current)->type != NULL_TYPE && cdr(current)->type != CONS_TYPE) {
+            printf(". ");
+            printValue(cdr(current));
+            break;
+        }
 
         current = cdr(current);
     }

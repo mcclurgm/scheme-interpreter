@@ -151,6 +151,11 @@ Value *primitiveCons(Value *args) {
     return result;
 }
 
+Value *primitiveList(Value *args) {
+    Value *result = args;
+    return result;
+}
+
 void bindPrimitive(char *name, Value *(*function)(struct Value *), Frame *frame) {
     // Add primitive functions to top-level bindings list
 	Value *symbol = makeValue();
@@ -177,6 +182,7 @@ void interpret(Value *tree) {
     bindPrimitive("car", primitiveCar, global);
     bindPrimitive("cdr", primitiveCdr, global);
     bindPrimitive("cons", primitiveCons, global);
+    bindPrimitive("list", primitiveList, global);
 
     printf("Original tree:  ");
     printTree(tree);

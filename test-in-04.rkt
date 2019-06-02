@@ -7,3 +7,5 @@
 (cdr (quote (1 2)))
 
 (cons 1 (quote(2)))
+
+(list)

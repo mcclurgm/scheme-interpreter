@@ -8,4 +8,13 @@
 
 (cons 1 (quote(2)))
 
-(list)
+(list 1 2)
+
+(equal? 1 1)
+
+(define a 3)
+(define b a)
+
+(eq? a b)
+(eq? a a)
+(equal? a b)

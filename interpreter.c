@@ -213,10 +213,55 @@ Value *primitiveEqual(Value *args) {
             result->i = false;
             return result;
         }
-    } 
+    } else {
+        printf("Unknown type in equal?\n");
+        printf("given: ");
+        printValue(first);
+        printf("\n");
+        texit(1);
+    }
     
 
     return result;
+}
+
+Value *primitiveEq(Value *args) {
+    if (args->type != CONS_TYPE) {
+        printf("eq? statement has no body: expected 2 arguments, given none.\n");
+        texit(1);
+    }
+
+    if (cdr(args)->type != CONS_TYPE) {
+        printf("eq? statement has too few arguments: expected 2, given 1\n");
+        printf("Expression: (eq? ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+    
+    if (cdr(cdr(args))->type != NULL_TYPE) {
+        printf("eq? statement has too many arguments: expected 2, given %i\n", length(args));
+        printf("Expression: (eq? ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *first = car(args);
+    Value *second = car(cdr(args));
+
+    Value *result = makeValue();
+    result->type = BOOL_TYPE;
+
+
+    if (first == second) {
+        result->i = true;
+        return result;
+    } else {
+        result->i = false;
+        return result;
+    }
+
 }
 
 void bindPrimitive(char *name, Value *(*function)(struct Value *), Frame *frame) {
@@ -247,6 +292,7 @@ void interpret(Value *tree) {
     bindPrimitive("cons", primitiveCons, global);
     bindPrimitive("list", primitiveList, global);
     bindPrimitive("equal?", primitiveEqual, global);
+    bindPrimitive("eq?", primitiveEq, global);
 
     printf("Original tree:  ");
     printTree(tree);

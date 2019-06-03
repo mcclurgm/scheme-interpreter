@@ -125,7 +125,7 @@ Value *primitiveCdr(Value *args) {
 
 Value *primitiveCons(Value *args) {
     if (args->type != CONS_TYPE) {
-        printf("cons statement has no body: expected 1 argument, given none.\n");
+        printf("cons statement has no body: expected 2 arguments, given none.\n");
         texit(1);
     }
 
@@ -145,14 +145,77 @@ Value *primitiveCons(Value *args) {
         texit(1);
     }
 
-    Value *result = makeValue();
-    result = cons(car(args), car(cdr(args)));
+    Value *result = cons(car(args), car(cdr(args)));
 
     return result;
 }
 
 Value *primitiveList(Value *args) {
     Value *result = args;
+    return result;
+}
+
+Value *primitiveEqual(Value *args) {
+    if (args->type != CONS_TYPE) {
+        printf("equal? statement has no body: expected 2 arguments, given none.\n");
+        texit(1);
+    }
+
+    if (cdr(args)->type != CONS_TYPE) {
+        printf("equal? statement has too few arguments: expected 2, given 1\n");
+        printf("Expression: (equal? ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+    
+    if (cdr(cdr(args))->type != NULL_TYPE) {
+        printf("equal? statement has too many arguments: expected 2, given %i\n", length(args));
+        printf("Expression: (equal? ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *first = car(args);
+    Value *second = car(cdr(args));
+
+    Value *result = makeValue();
+    result->type = BOOL_TYPE;
+
+
+    if (first->type != second->type) {
+        result->i = false;
+        return result;
+    }
+
+    if (first->type == INT_TYPE) {
+        if (first->i == second->i) {
+            result->i = true;
+            return result;
+        } else {
+            result->i = false;
+            return result;
+        }
+    } else if (first->type == DOUBLE_TYPE) {
+        if (first->d == second->d) {
+            result->i = true;
+            return result;
+        } else {
+            result->i = false;
+            return result;
+        }
+    } else if (first->type == STR_TYPE || first->type == SYMBOL_TYPE) {
+        if (!strcmp(first->s, second->s)) {
+            result->i = true;
+            return result;
+        } else {
+            result->i = false;
+            return result;
+        }
+    } 
+    
+
     return result;
 }
 
@@ -183,6 +246,7 @@ void interpret(Value *tree) {
     bindPrimitive("cdr", primitiveCdr, global);
     bindPrimitive("cons", primitiveCons, global);
     bindPrimitive("list", primitiveList, global);
+    bindPrimitive("equal?", primitiveEqual, global);
 
     printf("Original tree:  ");
     printTree(tree);

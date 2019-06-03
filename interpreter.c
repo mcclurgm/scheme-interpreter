@@ -155,6 +155,52 @@ Value *primitiveList(Value *args) {
     return result;
 }
 
+Value *primitiveAppend(Value *args) {
+    if (args->type != CONS_TYPE) {
+        printf("append statement has no body: expected 2 arguments, given none.\n");
+        texit(1);
+    }
+
+    if (cdr(args)->type != CONS_TYPE) {
+        printf("append statement has too few arguments: expected 2, given 1\n");
+        printf("Expression: (append ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+    
+    if (cdr(cdr(args))->type != NULL_TYPE) {
+        printf("append statement has too many arguments: expected 2, given %i\n", length(args));
+        printf("Expression: (append ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *first = car(args);
+    Value *second = car(cdr(args));
+
+    if (!isList(first)) {
+        printf("contract violation: list?\n");
+        printf("expected: list?\n");
+        printf("given: ");
+        printValue(first);
+        printf("\n");
+        texit(1);
+    } else if (!isList(second)) {
+        printf("contract violation: list?\n");
+        printf("expected: list?\n");
+        printf("given: ");
+        printValue(second);
+        printf("\n");
+        texit(1);
+    }
+
+    Value *result = append(first, second);
+    return result;
+    
+}
+
 Value *primitiveEqual(Value *args) {
     if (args->type != CONS_TYPE) {
         printf("equal? statement has no body: expected 2 arguments, given none.\n");
@@ -291,6 +337,7 @@ void interpret(Value *tree) {
     bindPrimitive("cdr", primitiveCdr, global);
     bindPrimitive("cons", primitiveCons, global);
     bindPrimitive("list", primitiveList, global);
+    bindPrimitive("append", primitiveAppend, global);
     bindPrimitive("equal?", primitiveEqual, global);
     bindPrimitive("eq?", primitiveEq, global);
 

@@ -18,3 +18,5 @@
 (eq? a b)
 (eq? a a)
 (equal? a b)
+
+(append () (list 1 2))

@@ -79,4 +79,6 @@ Value *append(Value *newList, Value *oldList);
 // (for example, with an array of length 3 to add 3 elements)
 Value *list(int dim, Value *values[]);
 
+bool isList(Value *list);
+
 #endif

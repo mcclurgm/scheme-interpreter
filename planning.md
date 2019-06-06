@@ -125,3 +125,9 @@
     * isSpecial?
     * Allows binding single param to body
     * Ex. (define fun (lambda x x)) -> (define 1 2 3) where x -> (1 2 3)
+
+## Final Special Forms
+
+### `let*`
+
+* Allows `(let ((x 3) (x 4)) ...)

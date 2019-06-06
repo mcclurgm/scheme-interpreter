@@ -1,14 +1,2 @@
-(define x 3)
-(display x)
-(define x 5)
-(display x)
-(let ((x 7)) x)
-
-(define y 9)
-(let ((b y)) b)
-
-(define a x)
-(display a)
-
-(define a #f)
-(display a)
+(let* ((x 3) (x 4) (y x)) y)
+(let* ((x 3) (x 4) (y (+ x 1))) y)

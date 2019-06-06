@@ -756,6 +756,65 @@ Value *evalLet(Value *argsTree, Frame *activeFrame) {
     return result;
 }
 
+Value *evalLetStar(Value *argsTree, Frame *activeFrame)  {
+    assert(argsTree != NULL);
+    assert(activeFrame != NULL);
+    if (argsTree->type != CONS_TYPE) {
+        printf("let* statement has no body; expected one.\n");
+        printf("At expression: (let*)\n");
+        texit(1);
+    }
+    if (cdr(argsTree)->type == NULL_TYPE) {
+        printf("let* statement has no body; expected one.\n");
+        printf("At expression: (let* ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+
+    if (car(argsTree)->type != CONS_TYPE && car(argsTree)->type != NULL_TYPE) {
+        printf("Bindings in let* statement is not a list.\n");
+        printf("At expression: (let* ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+
+    Frame *letFrame = activeFrame;
+
+    // Make bindings
+    Value *currentBindingPair = car(argsTree);
+    while (currentBindingPair->type != NULL_TYPE) {
+        if (car(currentBindingPair)->type != CONS_TYPE) {
+            printf("Binding in let statement is not a pair.\n");
+            printf("At expression: (let ");
+            printTree(argsTree);
+            printf(")\n");
+            printf("At token: ");
+            printValue(currentBindingPair);
+            printf("\n");
+            texit(1);
+        }
+
+        Frame *newFrame = talloc(sizeof(Frame));
+        newFrame->parent = letFrame;
+        newFrame->bindings = makeNull();
+
+        letFrame = makeBinding(car(currentBindingPair), newFrame);
+        currentBindingPair = cdr(currentBindingPair);
+    }
+    
+    // Evaluate the body expressions
+    Value *result = makeNull();
+    Value *currentExpr = cdr(argsTree);
+    while(currentExpr->type != NULL_TYPE) {
+        result = eval(currentExpr, letFrame);
+        currentExpr = cdr(currentExpr);
+    }
+    
+    return result;
+}
+
 Value *evalQuote(Value *argsTree, Frame *activeFrame) {
     assert(argsTree != NULL);
     if (argsTree->type != CONS_TYPE) {
@@ -964,6 +1023,8 @@ Value *eval(Value *tree, Frame *frame) {
                 return evalIf(args, frame);
             } else if (!strcmp(first->s, "let")) {
                 return evalLet(args, frame);
+            } else if (!strcmp(first->s, "let*")) {
+                return evalLetStar(args, frame);
             } else if (!strcmp(first->s, "display")) {
                 return evalDisplay(args, frame);
             } else if (!strcmp(first->s, "when")) {

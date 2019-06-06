@@ -7,4 +7,4 @@ x
 
 (let* ((x 1) (y x)) y)
 (begin (define a 1) (set! a 2) a)
-(begin)
+(begin x)

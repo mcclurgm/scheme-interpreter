@@ -131,3 +131,18 @@
 ### `let*`
 
 * Allows `(let ((x 3) (x 4)) ...)
+
+### `cond`
+
+* Format:
+  * `(cond expr1 expr2 ...)`
+  * Can take any number of expressions
+    * 0 expressions returns `VOID_TYPE`
+    * Also returns `VOID_TYPE` if all are false (unless there's an `else`)
+  * Expression format:
+    * `(test body)`
+      * Test: must evaluate to `#t` or `#f`
+        * We can assume this for the test code...
+      * Body: any number of expressions, evaluated like begin or let
+* `else`:
+  * There can't be any other expressions after an `else`

@@ -542,6 +542,40 @@ Value *evalBegin(Value *argsTree, Frame *activeFrame) {
     return result;
 }
 
+Value *evalCond(Value *argsTree, Frame *activeFrame) {
+    Value *currentExpr = argsTree;
+    while (currentExpr->type != NULL_TYPE) {
+        Value *condition = car(car(currentExpr));
+        Value *body = cdr(car(currentExpr));
+
+        // Check for else special case
+        if (condition->type == SYMBOL_TYPE) {
+            if (!strcmp(condition->s, "else")) {
+                if (body->type == NULL_TYPE) {
+                    printf("Else statement must have a body.\n");
+                    printf("At expression: ");
+                    printTree(currentExpr);
+                    printf("\n");
+                    texit(1);
+                }
+                return evalBegin(body, activeFrame);
+            }
+        }
+
+        currentExpr = cdr(currentExpr);
+    }
+    
+    return makeVoid();
+}
+
+Value *evalAnd(Value *argsTree, Frame *activeFrame) {
+
+}
+
+Value *evalOr(Value *argsTree, Frame *activeFrame) {
+
+}
+
 Value *evalDisplay(Value *argTree, Frame *activeFrame) {
     if (argTree->type != CONS_TYPE) {
         printf("display statement has no body: expected 1 argument, given none.\n");
@@ -1110,6 +1144,12 @@ Value *eval(Value *tree, Frame *frame) {
                 return evalSetBang(args, frame);
             } else if (!strcmp(first->s, "begin")) {
                 return evalBegin(args, frame);
+            } else if (!strcmp(first->s, "cond")) {
+                return evalCond(args, frame);
+            } else if (!strcmp(first->s, "and")) {
+                return evalAnd(args, frame);
+            } else if (!strcmp(first->s, "or")) {
+                return evalOr(args, frame);
             } else if (!strcmp(first->s, "lambda")) {
                 return evalLambda(args, frame);
             // Otherwise, proceed with standard evaluation

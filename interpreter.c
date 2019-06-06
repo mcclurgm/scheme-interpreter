@@ -379,8 +379,7 @@ Value *lookUpSymbol(Value *symbol, Frame *activeFrame) {
     while (currentFrame != NULL) {
         Value *search = lookupBindingInFrame(symbol, currentFrame);
         if (search != NULL) {
-            Value *searchVal = car(search);
-            return searchVal;
+            return search;
         } else {
             currentFrame = currentFrame->parent;
         }
@@ -901,6 +900,7 @@ Value *evalDefine(Value *argsTree, Frame *activeFrame) {
 
     Value *symbol;
     Value *exprResult;
+    // Lambda shorthand syntax
     if (car(argsTree)->type == CONS_TYPE) {
         symbol = car(car(argsTree));
         if (symbol->type != SYMBOL_TYPE) {
@@ -924,6 +924,7 @@ Value *evalDefine(Value *argsTree, Frame *activeFrame) {
 
         Value *lambdaExpr = cons(params, body);
         exprResult = evalLambda(lambdaExpr, activeFrame);
+    // Standard define
     } else if (car(argsTree)->type == SYMBOL_TYPE) {
         symbol = car(argsTree);
         Value *expr = cdr(argsTree);
@@ -937,6 +938,7 @@ Value *evalDefine(Value *argsTree, Frame *activeFrame) {
         }
 
         exprResult = eval(expr, activeFrame);
+    
     } else {
         printf("Define must bind a value to symbol; wrong token type found for symbol name.\n");
         printf("At expression: (define ");
@@ -963,6 +965,63 @@ Value *evalDefine(Value *argsTree, Frame *activeFrame) {
         // Binding already exists
         // Set the value this binding points to to the new result
         currentBindingValue->c.car = exprResult;
+    }
+
+    Value *result = makeValue();
+    result->type = VOID_TYPE;
+    return result;
+}
+
+Value *evalSetBang(Value *argsTree, Frame *activeFrame) {
+    // Table setting: same as define behavior
+    assert(argsTree != NULL);
+    if (argsTree->type != CONS_TYPE) {
+        printf("Define statement has no body: expected 2 arguments, given none.\n");
+        texit(1);
+    }
+
+    if (cdr(argsTree)->type == NULL_TYPE) {
+        printf("Define statement has no expression to bind to.\n");
+        printf("Found one argument; expected two.\n");
+        printf("At expression: (define ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *symbol = car(argsTree);
+    Value *expr = cdr(argsTree);
+
+    if (car(argsTree)->type != SYMBOL_TYPE) {
+        printf("Define must bind a value to symbol; wrong token type found for symbol name.\n");
+        printf("At expression: (define ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+    if (cdr(expr)->type != NULL_TYPE) {
+        printf("Define statement has too many arguments: expected 2, given %i\n", length(argsTree));
+        printf("Expression: (define ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *exprResult = eval(expr, activeFrame);
+
+    // Lookup and redefine symbol in active environment
+    Value *currentBinding = lookUpSymbol(symbol, activeFrame);
+    if (currentBinding == NULL) {
+        // Not already bound: this is an error
+        printf("Error: cannot set variable before its definition.\n");
+        printf("At: (set! ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    } else {
+        // Binding already exists
+        // Set the value this binding points to to the new result
+        currentBinding->c.car = exprResult;
     }
 
     Value *result = makeValue();
@@ -1004,7 +1063,8 @@ Value *eval(Value *tree, Frame *frame) {
     } else if (expr->type == NULL_TYPE) {
         return expr;
     } else if (expr->type == SYMBOL_TYPE) {
-        return lookUpSymbol(expr, frame);
+        Value *binding = lookUpSymbol(expr, frame);
+        return car(binding); // Gets value from binding
     }
     // This means that the expression is a complete S-expression
     else if (expr->type == CONS_TYPE) {
@@ -1035,6 +1095,8 @@ Value *eval(Value *tree, Frame *frame) {
                 return evalQuote(args, frame);
             } else if (!strcmp(first->s, "define")) {
                 return evalDefine(args, frame);
+            } else if (!strcmp(first->s, "set!")) {
+                return evalSetBang(args, frame);
             } else if (!strcmp(first->s, "lambda")) {
                 return evalLambda(args, frame);
             // Otherwise, proceed with standard evaluation

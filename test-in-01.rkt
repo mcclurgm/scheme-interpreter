@@ -4,3 +4,7 @@
 (define x 5)
 ((let ((x 3)) (lambda () (set! x 4) x)))
 x
+
+(let* ((x 1) (y x)) y)
+(begin (define a 1) (set! a 2) a)
+(begin)

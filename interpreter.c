@@ -531,6 +531,17 @@ Value *apply(Value *function, Value *argsTree) {
     return result;
 }
 
+Value *evalBegin(Value *argsTree, Frame *activeFrame) {
+    Value *result = makeVoid();
+    Value *currentExpr = argsTree;
+    while(currentExpr->type != NULL_TYPE) {
+        result = eval(currentExpr, activeFrame);
+        currentExpr = cdr(currentExpr);
+    }
+    
+    return result;
+}
+
 Value *evalDisplay(Value *argTree, Frame *activeFrame) {
     if (argTree->type != CONS_TYPE) {
         printf("display statement has no body: expected 1 argument, given none.\n");
@@ -1097,6 +1108,8 @@ Value *eval(Value *tree, Frame *frame) {
                 return evalDefine(args, frame);
             } else if (!strcmp(first->s, "set!")) {
                 return evalSetBang(args, frame);
+            } else if (!strcmp(first->s, "begin")) {
+                return evalBegin(args, frame);
             } else if (!strcmp(first->s, "lambda")) {
                 return evalLambda(args, frame);
             // Otherwise, proceed with standard evaluation

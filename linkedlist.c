@@ -17,7 +17,13 @@ Value *makeNull() {
     Value *null = makeValue();
     (*null).type = NULL_TYPE;
     return null;
+}
 
+// Create a new VOID_TYPE value node.
+Value *makeVoid() {
+    Value *result = makeValue();
+    (*result).type = VOID_TYPE;
+    return result;
 }
 
 bool isList(Value *list) {

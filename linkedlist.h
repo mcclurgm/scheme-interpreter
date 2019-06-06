@@ -7,6 +7,9 @@
 // Create a new NULL_TYPE value node.
 Value *makeNull();
 
+// Create a new VOID_TYPE value node.
+Value *makeVoid();
+
 // Create a new CONS_TYPE value node.
 //
 // FAQ: If the newCdr contains a string within, do we need to make a copy of

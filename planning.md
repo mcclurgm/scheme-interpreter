@@ -146,3 +146,13 @@
       * Body: any number of expressions, evaluated like begin or let
 * `else`:
   * There can't be any other expressions after an `else`
+
+### `and` & `or`
+
+* Short circuit
+* Empty defaults
+  * `and`: `#t`
+  * `or`: `#f`
+* `and` evaluates to `#t` until it hits a false case, then short circuits.
+  `or` evaluates to `#f` until it hits a true case, then short circuits.
+* Assuming that all arguments are `BOOL_TYPE`

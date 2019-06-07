@@ -543,37 +543,98 @@ Value *evalBegin(Value *argsTree, Frame *activeFrame) {
 }
 
 Value *evalCond(Value *argsTree, Frame *activeFrame) {
+    // Check for correct syntax with else
     Value *currentExpr = argsTree;
     while (currentExpr->type != NULL_TYPE) {
-        Value *condition = car(car(currentExpr));
+        Value *condition = car(currentExpr);
         Value *body = cdr(car(currentExpr));
 
         // Check for else special case
-        if (condition->type == SYMBOL_TYPE) {
-            if (!strcmp(condition->s, "else")) {
+        if (car(condition)->type == SYMBOL_TYPE) {
+            if (!strcmp(car(condition)->s, "else")) {
                 if (body->type == NULL_TYPE) {
-                    printf("Else statement must have a body.\n");
+                    printf("Else clause must have a body.\n");
                     printf("At expression: ");
                     printTree(currentExpr);
                     printf("\n");
                     texit(1);
                 }
+                if (cdr(currentExpr)->type != NULL_TYPE) {
+                    printf("Else clause must be last; given too many.\n");
+                    printf("At expression: ");
+                    printTree(cdr(currentExpr));
+                    printf("\n");
+                    texit(1);
+                }
+            }
+        }
+        currentExpr = cdr(currentExpr);
+    }
+
+    // Actually evaluate
+    currentExpr = argsTree;
+    while (currentExpr->type != NULL_TYPE) {
+        Value *condition = car(currentExpr);
+        Value *body = cdr(car(currentExpr));
+
+        // Check for else special case
+        if (car(condition)->type == SYMBOL_TYPE) {
+            if (!strcmp(car(condition)->s, "else")) {
                 return evalBegin(body, activeFrame);
             }
+        }
+
+        // Assuming condition evaluates to bool
+        Value *conditionResult = eval(condition, activeFrame);
+        if (conditionResult->i) {
+            return evalBegin(body, activeFrame);
         }
 
         currentExpr = cdr(currentExpr);
     }
     
+    // Return void if none of the conditions are true
     return makeVoid();
 }
 
 Value *evalAnd(Value *argsTree, Frame *activeFrame) {
+    // Evaluates to #t until it hits a false case
+    Value *result = makeValue();
+    result->type = BOOL_TYPE;
+    result->i = true;
 
+    Value *currentExpr = argsTree;
+    while(currentExpr->type != NULL_TYPE) {
+        Value *condition = eval(currentExpr, activeFrame);
+        // Assuming condition is always a boolean
+        if (!condition->i) {
+            result->i = false;
+            return result;
+        }
+        currentExpr = cdr(currentExpr);
+    }
+    
+    return result;
 }
 
 Value *evalOr(Value *argsTree, Frame *activeFrame) {
+    // Evaluates to #f until it hits a true case
+    Value *result = makeValue();
+    result->type = BOOL_TYPE;
+    result->i = false;
 
+    Value *currentExpr = argsTree;
+    while(currentExpr->type != NULL_TYPE) {
+        Value *condition = eval(currentExpr, activeFrame);
+        // Assuming condition is always a boolean
+        if (condition->i) {
+            result->i = true;
+            return result;
+        }
+        currentExpr = cdr(currentExpr);
+    }
+    
+    return result;
 }
 
 Value *evalDisplay(Value *argTree, Frame *activeFrame) {

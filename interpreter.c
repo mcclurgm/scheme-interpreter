@@ -31,8 +31,8 @@ bool compareNumbers(Value *one, Value *two) {
 Value *primitiveAdd(Value *args) {
     double sum = 0;
     bool isInt = true;
+
     Value *current = args;
-    //Pseudocode like stuff
     while(current->type != NULL_TYPE) {
         if(car(current)->type != INT_TYPE && car(current)->type != DOUBLE_TYPE) {
             printf("Expected number in +\n");
@@ -56,6 +56,40 @@ Value *primitiveAdd(Value *args) {
     } else {
         result->type = DOUBLE_TYPE;
         result->d = sum;
+    }
+    
+    return result;
+}
+
+Value *primitiveMult(Value *args) {
+    double product = 1;
+    bool isInt = true;
+    
+    Value *current = args;
+    while(current->type != NULL_TYPE) {
+        if(car(current)->type != INT_TYPE && car(current)->type != DOUBLE_TYPE) {
+            printf("Expected number in *\n");
+            printf("Given: ");
+            printTree(current);
+            printf("\n");
+            texit(1);
+        } else if (car(current)->type == INT_TYPE) {
+            product *= car(current)->i;
+        } else {
+            product *= car(current)->d;
+            isInt = false;
+        }
+        current = cdr(current);
+    }
+
+    // Package result in a Value
+    Value *result = makeValue();
+    if(isInt){
+        result->type = INT_TYPE;
+        result->i = product;
+    } else {
+        result->type = DOUBLE_TYPE;
+        result->d = product;
     }
     
     return result;
@@ -398,6 +432,7 @@ void interpret(Value *tree) {
     global->bindings = makeNull();
 
 	bindPrimitive("+", primitiveAdd, global);
+	bindPrimitive("*", primitiveMult, global);
     bindPrimitive("null?", primitiveNull, global);
     bindPrimitive("car", primitiveCar, global);
     bindPrimitive("cdr", primitiveCdr, global);

@@ -74,7 +74,7 @@ Value *primitiveSubtract(Value *args) {
         texit(1);
     }
 
-    double difference = 0;
+        double difference = 0;
     bool isInt = true;
     if(car(args)->type != INT_TYPE && car(args)->type != DOUBLE_TYPE) {
         printf("Expected number in +\n");
@@ -114,7 +114,7 @@ Value *primitiveSubtract(Value *args) {
         result->type = DOUBLE_TYPE;
         result->d = difference;
     }
-    
+
     return result;
 }
 
@@ -149,6 +149,83 @@ Value *primitiveMult(Value *args) {
         result->d = product;
     }
     
+    return result;
+}
+
+Value *primitiveDivide(Value *args) {
+    if (args->type != CONS_TYPE) {
+        printf("- expression has no arguments: expected at least 2, given none.\n");
+        texit(1);
+    }
+    if (cdr(args)->type != CONS_TYPE) {
+        printf("- expression has too few arguments: expected at least 2, given 1\n");
+        printf("Expression: (- ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+    if (cdr(cdr(args))->type != NULL_TYPE) {
+        printf("/ statement has too many arguments: expected 2, given %i\n", length(args));
+        printf("Expression: (/ ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *result = makeValue();
+    
+    Value *numerator = car(args);
+    Value *denominator = car(cdr(args));
+    if (numerator->type == INT_TYPE) {
+        if (denominator->type == INT_TYPE) {
+            if (numerator->i % denominator->i != 0) {
+                result->type = DOUBLE_TYPE;
+                result->d = (1.0 * numerator->i) / denominator->i;
+            } else {
+                result->type = INT_TYPE;
+                result->i = numerator->i / denominator->i;
+            }
+        } else if (denominator->type == DOUBLE_TYPE) {
+            result->type = DOUBLE_TYPE;
+            result->d = numerator->i / denominator->d;
+        } else {
+            printf("Expected number in /\n");
+            printf("Given: ");
+            printValue(denominator);
+            printf("\n");
+            printf("At expression: (/ ");
+            printTree(args);
+            printf(")\n");
+            texit(1);
+        }
+    } else  if (numerator->type == DOUBLE_TYPE) {
+        if (denominator->type == INT_TYPE) {
+            result->type = DOUBLE_TYPE;
+            result->d = numerator->d / denominator->i;
+        } else if (denominator->type == DOUBLE_TYPE) {
+            result->type = DOUBLE_TYPE;
+            result->d = numerator->d / denominator->d;
+        } else {
+            printf("Expected number in /\n");
+            printf("Given: ");
+            printValue(denominator);
+            printf("\n");
+            printf("At expression: (/ ");
+            printTree(args);
+            printf(")\n");
+            texit(1);
+        }
+    } else {
+        printf("Expected number in /\n");
+        printf("Given: ");
+        printValue(numerator);
+        printf("\n");
+        printf("At expression: (/ ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
     return result;
 }
 
@@ -491,6 +568,7 @@ void interpret(Value *tree) {
 	bindPrimitive("+", primitiveAdd, global);
 	bindPrimitive("-", primitiveSubtract, global);
 	bindPrimitive("*", primitiveMult, global);
+	bindPrimitive("/", primitiveDivide, global);
     bindPrimitive("null?", primitiveNull, global);
     bindPrimitive("car", primitiveCar, global);
     bindPrimitive("cdr", primitiveCdr, global);

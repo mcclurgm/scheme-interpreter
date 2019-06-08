@@ -473,6 +473,9 @@ Frame *makeBinding(Value *bindingPair, Frame *activeFrame) {
 
     if (name->type != SYMBOL_TYPE) {
         printf("Binding must assign a value to symbol; wrong token type found.\n");
+        printf("Given: ");
+        printValue(name);
+        printf("\n");
         printf("At binding: ");
         printValue(bindingPair);
         printf("\n");
@@ -480,16 +483,22 @@ Frame *makeBinding(Value *bindingPair, Frame *activeFrame) {
     }
 
     // Check that this symbol isn't already bound in the current frame
-    if (lookupBindingInFrame(name, activeFrame) != NULL) {
-        printf("Duplicate binding in one let statement.\n");
-        printf("At binding: ");
-        printValue(bindingPair);
-        printf(";\n");
-        printf("For symbol: %s\n", name->s);
-        texit(1);
+    Value *bindingValue = lookupBindingInFrame(name, activeFrame);
+    if (bindingValue != NULL) {
+        // If you're in the second pass of letrec, this is OK.
+        // Otherwise, except.
+        if (car(bindingValue)->type != UNINITIALIZED) {
+            printf("Duplicate binding in one let statement.\n");
+            printf("At binding: ");
+            printValue(bindingPair);
+            printf(";\n");
+            printf("For symbol: %s\n", name->s);
+            texit(1);
+        }
     }
 
     Value *exprResult = eval(expr, activeFrame->parent);
+    assert(exprResult->type == UNINITIALIZED);
     Value *newBinding = makeNull();
     newBinding = cons(exprResult, newBinding);
     newBinding = cons(name, newBinding);
@@ -571,6 +580,7 @@ Value *apply(Value *function, Value *argsTree) {
     //Sanity checks for closure
 
     if (function->type != CLOSURE_TYPE) {
+        assert(false);
         printf("Application not a procedure.\n");
         printf("Given: ");
         printValue(function);
@@ -987,6 +997,90 @@ Value *evalLetStar(Value *argsTree, Frame *activeFrame)  {
     return result;
 }
 
+Value *evalLetRec(Value *argsTree, Frame *activeFrame)  {
+    assert(argsTree != NULL);
+    assert(activeFrame != NULL);
+    if (argsTree->type != CONS_TYPE) {
+        printf("let statement has no body; expected one.\n");
+        printf("At expression: (let)\n");
+        texit(1);
+    }
+    if (cdr(argsTree)->type == NULL_TYPE) {
+        printf("let statement has no body; expected one.\n");
+        printf("At expression: (let ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+
+    if (car(argsTree)->type != CONS_TYPE && car(argsTree)->type != NULL_TYPE) {
+        printf("Bindings in let statement is not a list.\n");
+        printf("At expression: (let ");
+        printTree(argsTree);
+        printf(")\n");
+        texit(1);
+    }
+
+    Frame *letFrame = talloc(sizeof(Frame));
+    letFrame->parent = activeFrame;
+    letFrame->bindings = makeNull();
+
+    // Make bindings: first pass
+    Value *uninitializedValue = makeValue();
+    uninitializedValue->type = UNINITIALIZED;
+
+    Value *currentBindingPair = car(argsTree);
+    while (currentBindingPair->type != NULL_TYPE) {
+        if (car(currentBindingPair)->type != CONS_TYPE && cdr(car(currentBindingPair))->type != CONS_TYPE) {
+            printf("Binding in let statement is not a pair.\n");
+            printf("At expression: (let ");
+            printTree(argsTree);
+            printf(")\n");
+            printf("At token: ");
+            printValue(currentBindingPair);
+            printf("\n");
+            texit(1);
+        }
+
+        // Construct a binding pair to pass to makeBinding
+        Value *tempBinding = cons(uninitializedValue, makeNull());
+        tempBinding = cons(car(car(currentBindingPair)), tempBinding);
+        assert(car(car(currentBindingPair))->type == SYMBOL_TYPE);
+        letFrame = makeBinding(tempBinding, letFrame);
+
+        currentBindingPair = cdr(currentBindingPair);
+    }
+
+    // Second pass: for real this time.
+    // Letrec 2: Electric Boogaloo
+    currentBindingPair = car(argsTree);
+    while (currentBindingPair->type != NULL_TYPE) {
+        Value *name = car(car(currentBindingPair));
+        Value *expr = cdr(car(currentBindingPair));
+        assert(car(lookUpSymbol(name, letFrame))->type == UNINITIALIZED);
+
+        Value *exprResult = eval(expr, letFrame);
+        if (exprResult->type == UNINITIALIZED) {
+            printf("Cannot bind to uninitialized value.\n");
+            printf("Binding: ");
+            printValue(currentBindingPair);
+            printf("\n");
+            printf("Expression: (letrec ");
+            printTree(argsTree);
+            printf(")\n");
+            texit(1);
+        }
+        
+        Value *currentBinding = lookUpSymbol(name, letFrame);
+        currentBinding->c.car = exprResult;
+
+        currentBindingPair = cdr(currentBindingPair);
+    }
+    
+    Value *body = cdr(argsTree);
+    return evalBegin(body, letFrame);
+}
+
 Value *evalQuote(Value *argsTree, Frame *activeFrame) {
     assert(argsTree != NULL);
     if (argsTree->type != CONS_TYPE) {
@@ -1149,14 +1243,14 @@ Value *evalSetBang(Value *argsTree, Frame *activeFrame) {
     // Table setting: same as define behavior
     assert(argsTree != NULL);
     if (argsTree->type != CONS_TYPE) {
-        printf("Define statement has no body: expected 2 arguments, given none.\n");
+        printf("Set! statement has no body: expected 2 arguments, given none.\n");
         texit(1);
     }
 
     if (cdr(argsTree)->type == NULL_TYPE) {
-        printf("Define statement has no expression to bind to.\n");
+        printf("Set! statement has no expression to bind to.\n");
         printf("Found one argument; expected two.\n");
-        printf("At expression: (define ");
+        printf("At expression: (set! ");
         printTree(argsTree);
         printf(")\n");
         texit(1);
@@ -1166,15 +1260,15 @@ Value *evalSetBang(Value *argsTree, Frame *activeFrame) {
     Value *expr = cdr(argsTree);
 
     if (car(argsTree)->type != SYMBOL_TYPE) {
-        printf("Define must bind a value to symbol; wrong token type found for symbol name.\n");
-        printf("At expression: (define ");
+        printf("Set! must bind a value to symbol; wrong token type found for symbol name.\n");
+        printf("At expression: (set! ");
         printTree(argsTree);
         printf(")\n");
         texit(1);
     }
     if (cdr(expr)->type != NULL_TYPE) {
-        printf("Define statement has too many arguments: expected 2, given %i\n", length(argsTree));
-        printf("Expression: (define ");
+        printf("Set! statement has too many arguments: expected 2, given %i\n", length(argsTree));
+        printf("Expression: (set! ");
         printTree(argsTree);
         printf(")\n");
         texit(1);
@@ -1238,6 +1332,8 @@ Value *eval(Value *tree, Frame *frame) {
     } else if (expr->type == SYMBOL_TYPE) {
         Value *binding = lookUpSymbol(expr, frame);
         return car(binding); // Gets value from binding
+    } else if (expr->type == UNINITIALIZED) {
+        return expr;
     }
     // This means that the expression is a complete S-expression
     else if (expr->type == CONS_TYPE) {
@@ -1258,6 +1354,8 @@ Value *eval(Value *tree, Frame *frame) {
                 return evalLet(args, frame);
             } else if (!strcmp(first->s, "let*")) {
                 return evalLetStar(args, frame);
+            } else if (!strcmp(first->s, "letrec")) {
+                return evalLetRec(args, frame);
             } else if (!strcmp(first->s, "display")) {
                 return evalDisplay(args, frame);
             } else if (!strcmp(first->s, "when")) {

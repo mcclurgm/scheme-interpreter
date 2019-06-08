@@ -132,6 +132,13 @@
 
 * Allows `(let ((x 3) (x 4)) ...)
 
+### `letrec`
+
+* 2 passes
+  * First: binds the variables to a 'junk' (uninitialized) value
+  * Second: evaluates the expressions in the `letrec`'s frame and binds
+  * In theory, you should be able to identify an uninitialized value but we may not do that here.
+
 ### `cond`
 
 * Format:

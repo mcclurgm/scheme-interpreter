@@ -61,6 +61,63 @@ Value *primitiveAdd(Value *args) {
     return result;
 }
 
+Value *primitiveSubtract(Value *args) {
+    if (args->type != CONS_TYPE) {
+        printf("- expression has no arguments: expected at least 2, given none.\n");
+        texit(1);
+    }
+    if (cdr(args)->type != CONS_TYPE) {
+        printf("- expression has too few arguments: expected at least 2, given 1\n");
+        printf("Expression: (- ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    double difference = 0;
+    bool isInt = true;
+    if(car(args)->type != INT_TYPE && car(args)->type != DOUBLE_TYPE) {
+        printf("Expected number in +\n");
+        printf("Given: ");
+        printTree(args);
+        printf("\n");
+        texit(1);
+    } else if (car(args)->type == INT_TYPE) {
+        difference = car(args)->i;
+    } else {
+        difference = car(args)->d;
+        isInt = false;
+    }
+
+    Value *current = cdr(args);
+    while(current->type != NULL_TYPE) {
+        if(car(current)->type != INT_TYPE && car(current)->type != DOUBLE_TYPE) {
+            printf("Expected number in +\n");
+            printf("Given: ");
+            printTree(current);
+            printf("\n");
+            texit(1);
+        } else if (car(current)->type == INT_TYPE) {
+            difference -= car(current)->i;
+        } else {
+            difference -= car(current)->d;
+            isInt = false;
+        }
+        current = cdr(current);
+    }
+
+    Value *result = makeValue();
+    if(isInt){
+        result->type = INT_TYPE;
+        result->i = difference;
+    } else {
+        result->type = DOUBLE_TYPE;
+        result->d = difference;
+    }
+    
+    return result;
+}
+
 Value *primitiveMult(Value *args) {
     double product = 1;
     bool isInt = true;
@@ -432,6 +489,7 @@ void interpret(Value *tree) {
     global->bindings = makeNull();
 
 	bindPrimitive("+", primitiveAdd, global);
+	bindPrimitive("-", primitiveSubtract, global);
 	bindPrimitive("*", primitiveMult, global);
     bindPrimitive("null?", primitiveNull, global);
     bindPrimitive("car", primitiveCar, global);

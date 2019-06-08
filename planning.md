@@ -156,3 +156,13 @@
 * `and` evaluates to `#t` until it hits a false case, then short circuits.
   `or` evaluates to `#f` until it hits a true case, then short circuits.
 * Assuming that all arguments are `BOOL_TYPE`
+
+## Final Primitives
+
+### `=`
+
+* Like `equal?` for numbers
+* Requires numbers, exit with error if you get other input
+* Takes at least 1 number
+* Returns true if all of the arguments are equal
+* Returns false if any of them is not equal to the rest

@@ -1,11 +1,11 @@
-(define not
-  (lambda (bool)
-    (if bool #f #t)))
-
-(define testit
-  (lambda (cond conseq alt)
-    (let ((nconseq (not conseq)) (nalt (not alt)))
-      (if cond nconseq nalt))))
-      
-(testit #t #f #t)
-(testit #f #f #t)
+; Test =
+(= 1 1)
+(= 1 2)
+(= 1.0 1)
+(= 1 2.0)
+(= 1.0 2.0)
+(= 1.0 1 1 1 1 1 1.0000000000000 2)
+(= 1)
+(= 1 ((lambda () 1)))
+(define x 1)
+(= x 1)

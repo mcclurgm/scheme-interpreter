@@ -8,6 +8,26 @@
 #include "parser.h"
 #include "talloc.h"
 
+/* 
+Assumes that both arguments are numbers.
+Check this before you call it.
+*/
+bool compareNumbers(Value *one, Value *two) {
+    if (one->type == INT_TYPE) {
+        if (two->type == INT_TYPE) {
+            return one->i == two->i;
+        } else {
+            return one->i == two->d;
+        }
+    } else {
+        if (two->type == INT_TYPE) {
+            return one->d == two->i;
+        } else {
+            return one->d == two->d;
+        }
+    }
+}
+
 Value *primitiveAdd(Value *args) {
     double sum = 0;
     bool isInt = true;
@@ -310,6 +330,52 @@ Value *primitiveEq(Value *args) {
 
 }
 
+Value *primitiveEqualNum(Value *args) {
+    if (args->type != CONS_TYPE) {
+        printf("= statement has no arguments: expected at least one.\n");
+        printf("At: (=)\n");
+        texit(1);
+    }
+
+    Value *result = makeValue();
+    result->type = BOOL_TYPE;
+    result->i = true;
+
+    Value *first = car(args);
+    if(first->type != INT_TYPE && first->type != DOUBLE_TYPE) {
+        printf("Expected number in =\n");
+        printf("Given ");
+        printValue(first);
+        printf("\n");
+        printf("At expression: (= ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *current = cdr(args);
+    while (current->type != NULL_TYPE) {
+        Value *currentValue = car(current);
+        if(currentValue->type != INT_TYPE && currentValue->type != DOUBLE_TYPE) {
+            printf("Expected number in =\n");
+            printf("Given ");
+            printValue(currentValue);
+            printf("\n");
+            printf("At expression: (= ");
+            printTree(args);
+            printf(")\n");
+            texit(1);
+        }
+        if (!compareNumbers(first, currentValue)) {
+            result->i = false;
+            return result;
+        }
+        current = cdr(current);
+    }
+
+    return result;
+}
+
 void bindPrimitive(char *name, Value *(*function)(struct Value *), Frame *frame) {
     // Add primitive functions to top-level bindings list
 	Value *symbol = makeValue();
@@ -340,6 +406,7 @@ void interpret(Value *tree) {
     bindPrimitive("append", primitiveAppend, global);
     bindPrimitive("equal?", primitiveEqual, global);
     bindPrimitive("eq?", primitiveEq, global);
+    bindPrimitive("=", primitiveEqualNum, global);
 
     printf("Original tree:  ");
     printTree(tree);

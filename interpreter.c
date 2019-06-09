@@ -154,12 +154,12 @@ Value *primitiveMult(Value *args) {
 
 Value *primitiveDivide(Value *args) {
     if (args->type != CONS_TYPE) {
-        printf("- expression has no arguments: expected at least 2, given none.\n");
+        printf("/ expression has no arguments: expected 2, given none.\n");
         texit(1);
     }
     if (cdr(args)->type != CONS_TYPE) {
-        printf("- expression has too few arguments: expected at least 2, given 1\n");
-        printf("Expression: (- ");
+        printf("/ expression has too few arguments: expected 2, given 1\n");
+        printf("Expression: (/ ");
         printTree(args);
         printf(")\n");
         texit(1);
@@ -544,6 +544,76 @@ Value *primitiveEqualNum(Value *args) {
     return result;
 }
 
+Value *primitiveLessThan(Value *args) {
+    if (args->type != CONS_TYPE) {
+        printf("< expression has no arguments: expected 2, given none.\n");
+        texit(1);
+    }
+    if (cdr(args)->type != CONS_TYPE) {
+        printf("< expression has too few arguments: expected 2, given 1\n");
+        printf("Expression: (< ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+    if (cdr(cdr(args))->type != NULL_TYPE) {
+        printf("< statement has too many arguments: expected 2, given %i\n", length(args));
+        printf("Expression: (< ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *result = makeValue();
+    result->type = BOOL_TYPE;
+
+    Value *first = car(args);
+    Value *second = car(cdr(args));
+    if (first->type == INT_TYPE) {
+        if (second->type == INT_TYPE) {
+            result->i = (first->i < second->i);
+        } else if (second->type == DOUBLE_TYPE) {
+            result->i = (first->i < second->d);
+        } else {
+            printf("Expected number in <\n");
+            printf("Given: ");
+            printValue(second);
+            printf("\n");
+            printf("At expression: (< ");
+            printTree(args);
+            printf(")\n");
+            texit(1);
+        }
+    } else  if (first->type == DOUBLE_TYPE) {
+        if (second->type == INT_TYPE) {
+            result->i = (first->d < second->i);
+        } else if (second->type == DOUBLE_TYPE) {
+            result->i = (first->d < second->d);
+        } else {
+            printf("Expected number in <\n");
+            printf("Given: ");
+            printValue(second);
+            printf("\n");
+            printf("At expression: (< ");
+            printTree(args);
+            printf(")\n");
+            texit(1);
+        }
+    } else {
+        printf("Expected number in <\n");
+        printf("Given: ");
+        printValue(first);
+        printf("\n");
+        printf("At expression: (< ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    return result;
+
+}
+
 void bindPrimitive(char *name, Value *(*function)(struct Value *), Frame *frame) {
     // Add primitive functions to top-level bindings list
 	Value *symbol = makeValue();
@@ -578,6 +648,7 @@ void interpret(Value *tree) {
     bindPrimitive("equal?", primitiveEqual, global);
     bindPrimitive("eq?", primitiveEq, global);
     bindPrimitive("=", primitiveEqualNum, global);
+    bindPrimitive("<", primitiveLessThan, global);
 
     printf("Original tree:  ");
     printTree(tree);

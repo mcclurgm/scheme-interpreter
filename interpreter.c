@@ -684,6 +684,59 @@ Value *primitiveGreaterThan(Value *args) {
 
 }
 
+Value *primitiveModulo(Value *args) {
+    if (args->type != CONS_TYPE) {
+        printf("modulo expression has no arguments: expected 2, given none.\n");
+        texit(1);
+    }
+    if (cdr(args)->type != CONS_TYPE) {
+        printf("modulo expression has too few arguments: expected 2, given 1\n");
+        printf("Expression: (modulo ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+    if (cdr(cdr(args))->type != NULL_TYPE) {
+        printf("modulo statement has too many arguments: expected 2, given %i\n", length(args));
+        printf("Expression: (modulo ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *result = makeValue();
+    result->type = INT_TYPE;
+
+    Value *first = car(args);
+    Value *second = car(cdr(args));
+    if (first->type == INT_TYPE) {
+        if (second->type == INT_TYPE) {
+            result->i = (first->i % second->i);
+        } else {
+            printf("Expected integer in modulo\n");
+            printf("Given: ");
+            printValue(second);
+            printf("\n");
+            printf("At expression: (modulo ");
+            printTree(args);
+            printf(")\n");
+            texit(1);
+        }
+    } else {
+        printf("Expected integer in modulo\n");
+        printf("Given: ");
+        printValue(first);
+        printf("\n");
+        printf("At expression: (modulo ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    return result;
+
+}
+
 void bindPrimitive(char *name, Value *(*function)(struct Value *), Frame *frame) {
     // Add primitive functions to top-level bindings list
 	Value *symbol = makeValue();
@@ -720,6 +773,7 @@ void interpret(Value *tree) {
     bindPrimitive("=", primitiveEqualNum, global);
     bindPrimitive("<", primitiveLessThan, global);
     bindPrimitive(">", primitiveGreaterThan, global);
+    bindPrimitive("modulo", primitiveModulo, global);
 
     printf("Original tree:  ");
     printTree(tree);

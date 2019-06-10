@@ -7,6 +7,7 @@
 #include "linkedlist.h"
 #include "parser.h"
 #include "talloc.h"
+#include "tokenizer.h"
 
 /* 
 Assumes that both arguments are numbers.
@@ -1663,6 +1664,51 @@ Value *evalSetBang(Value *argsTree, Frame *activeFrame) {
     return result;
 }
 
+Value *evalLoad(Value *args, Frame *activeFrame) {
+    if (args->type != CONS_TYPE) {
+        printf("load statement has no body: expected 1 argument, given none.\n");
+        texit(1);
+    }
+    
+    if (cdr(args)->type != NULL_TYPE) {
+        printf("load statement has too many arguments: expected 1, given %i\n", length(args));
+        printf("Expression: (load ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *filePath = eval(args, activeFrame);
+
+    if (car(args)->type != STR_TYPE) {
+        printf("load needs a string file path.\n");
+        printf("Given wrong type. \n");
+        printf("Expression: (load ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    FILE *fp = fopen(filePath->s, "r");
+    if (fp == NULL) {
+        printf("File not found: %s\n", filePath->s);
+        texit(1);
+    }
+
+    Value *tokenList = tokenize(fp);
+    Value *tree = parse(tokenList);
+    fclose(fp);
+    
+    // Get the global frame
+    Frame *globalFrame = activeFrame;
+    while (globalFrame->parent != NULL) {
+        globalFrame = globalFrame->parent;
+    }
+
+    return evalBegin(tree, globalFrame);
+
+}
+
 /*
 Evaluates each expression in body.
 Returns a linked list of all the expression results.
@@ -1743,6 +1789,8 @@ Value *eval(Value *tree, Frame *frame) {
                 return evalAnd(args, frame);
             } else if (!strcmp(first->s, "or")) {
                 return evalOr(args, frame);
+            } else if (!strcmp(first->s, "load")) {
+                return evalLoad(args, frame);
             } else if (!strcmp(first->s, "lambda")) {
                 return evalLambda(args, frame);
             // Otherwise, proceed with standard evaluation

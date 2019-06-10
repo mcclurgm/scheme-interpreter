@@ -866,7 +866,6 @@ Frame *makeBinding(Value *bindingPair, Frame *activeFrame) {
     }
 
     Value *exprResult = eval(expr, activeFrame->parent);
-    assert(exprResult->type == UNINITIALIZED);
     Value *newBinding = makeNull();
     newBinding = cons(exprResult, newBinding);
     newBinding = cons(name, newBinding);
@@ -1413,7 +1412,6 @@ Value *evalLetRec(Value *argsTree, Frame *activeFrame)  {
         // Construct a binding pair to pass to makeBinding
         Value *tempBinding = cons(uninitializedValue, makeNull());
         tempBinding = cons(car(car(currentBindingPair)), tempBinding);
-        assert(car(car(currentBindingPair))->type == SYMBOL_TYPE);
         letFrame = makeBinding(tempBinding, letFrame);
 
         currentBindingPair = cdr(currentBindingPair);

@@ -155,7 +155,7 @@
   * There can't be any other expressions after an `else`
 
 ### `and` & `or`
-
+01
 * Short circuit
 * Empty defaults
   * `and`: `#t`
@@ -174,7 +174,7 @@
 * Returns true if all of the arguments are equal
 * Returns false if any of them is not equal to the rest
 
-## `load`
+## Bonus: `load`
 
 * C file handling: this is the code from main that successfully executes
 ```c

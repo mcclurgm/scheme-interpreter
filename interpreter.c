@@ -776,10 +776,6 @@ void interpret(Value *tree) {
     bindPrimitive(">", primitiveGreaterThan, global);
     bindPrimitive("modulo", primitiveModulo, global);
 
-    printf("Original tree:  ");
-    printTree(tree);
-    printf("\n");
-    
     Value *current = tree;
     while(current->type != NULL_TYPE) {
         Value *result = eval(current, global);

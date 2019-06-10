@@ -34,3 +34,5 @@
 (modulo 3 1) ;0
 (modulo 2 3) ;2
 (modulo 4300 17) ;16
+
+(let* ((x 3) (y x)) y)

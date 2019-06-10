@@ -173,3 +173,25 @@
 * Takes at least 1 number
 * Returns true if all of the arguments are equal
 * Returns false if any of them is not equal to the rest
+
+## `load`
+
+* C file handling: this is the code from main that successfully executes
+```c
+int main() {
+
+    FILE *fp = fopen("test-in-04.rkt","r");
+    if (fp == NULL) {
+        printf("Can't open input file in.list!\n");
+        exit(1);
+    }
+
+    Value *list = tokenize(fp);
+    Value *tree = parse(list);
+    interpret(tree);
+
+    tfree();
+    fclose(fp);
+    return 0;
+}
+```

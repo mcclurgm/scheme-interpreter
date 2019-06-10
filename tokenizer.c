@@ -229,19 +229,19 @@ Value *parseDot(char charRead, Value *tokens) {
     return tokens;
 }
 
-// Read all of the input from stdin, and return a linked list consisting of the
+// Read all of the input from the file pointer fp, and return a linked list consisting of the
 // tokens.
-Value *tokenize() {
+Value *tokenize(FILE *fp) {
     char charRead;
     Value *tokens = makeNull();
-    charRead = (char)fgetc(stdin);
+    charRead = (char)fgetc(fp);
 
     // Initialize the first data cons cell
     tokens = cons(makeNull(), tokens);
 
     bool inComment = false;
     bool inString = false;
-    while (charRead != EOF) {
+    while (!feof(fp)) {
         if (cdr(tokens)->type != NULL_TYPE) {
             if (car(cdr(tokens))->type == NULL_TYPE) {
                 printf("Null type before character: %c\n", charRead);
@@ -335,7 +335,7 @@ Value *tokenize() {
             tokens = parseSymbol(charRead, tokens);
         }
 
-        charRead = (char)fgetc(stdin);
+        charRead = (char)fgetc(fp);
     }
 
     // Finalize the last token

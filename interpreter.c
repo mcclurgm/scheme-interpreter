@@ -423,7 +423,7 @@ Value *primitiveEqual(Value *args) {
         return result;
     }
 
-    if (first->type == INT_TYPE) {
+    if (first->type == INT_TYPE || first->type == BOOL_TYPE) {
         if (first->i == second->i) {
             result->i = true;
             return result;

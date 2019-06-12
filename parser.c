@@ -116,7 +116,6 @@ Value *parseExpression(Value **currentToken) {
 
         // This expression is just a single token
         Value *expr = car(*currentToken);
-        *currentToken = cdr(*currentToken);
         return expr;
     }
 
@@ -140,10 +139,9 @@ Value *parseExpression(Value **currentToken) {
         
         Value *expr = parseExpression(currentToken);
         subtree = cons(expr, subtree);
+        *currentToken = cdr(*currentToken);
     }
 
-    // Iterate currentToken to the first token past the cons expression
-    *currentToken = cdr(*currentToken);
     return reverse(subtree);
 }
 
@@ -159,6 +157,7 @@ Value *parse(Value *tokens) {
     assert(currentToken != NULL && "Error (parse): null pointer");
     while (currentToken->type != NULL_TYPE) {
         stack = cons(parseExpression(&currentToken), stack);
+        currentToken = cdr(currentToken);
     }
     
     return reverse(stack);

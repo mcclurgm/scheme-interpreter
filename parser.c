@@ -17,70 +17,6 @@ Value *addTokenToTree(Value *token, Value *tree, int *depth) {
     return tree;
 }
 
-void printTreeTest(Value *tree, int indent) {
-    assert(tree != NULL);
-
-    Value *current = tree;
-    while(current->type != NULL_TYPE) {
-        if (car(current)->type != CONS_TYPE) {
-            for(int i = 0; i < indent; i++) {
-                printf(" ");
-            }
-        }
-
-        if (car(current)->type == CONS_TYPE) {
-            // This is a subtree expression.
-            // printf("(\n");
-            printf("CONS:\n");
-            printTreeTest(car(current), indent + 4);
-            // printf(")\n");
-        }
-        if (car(current)->type == INT_TYPE) {
-            printf("%i\n", car(current)->i);
-        }
-        else if (car(current)->type == DOUBLE_TYPE) {
-            printf("%f\n", car(current)->d);
-        }
-        else if (car(current)->type == STR_TYPE) {
-            printf("\"%s\"\n", car(current)->s);
-        }
-        else if (car(current)->type == SYMBOL_TYPE) {
-            printf("%s\n", car(current)->s);
-        }
-        else if (car(current)->type == OPEN_TYPE) {
-            printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO OPEN_TYPE\n");
-        }
-        else if (car(current)->type == CLOSE_TYPE) {
-            printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO CLOSE_TYPE\n");
-        }
-        else if (car(current)->type == BOOL_TYPE) {
-            if (car(current)->i > 0) {
-                printf("#t\n");
-            } else {
-                printf("#f\n");
-            }
-        }
-        else if (car(current)->type == QUOTE_TYPE) {
-            printf("%s\n", car(current)->s);
-        }
-        else if (car(current)->type == OPEN_BRACKET_TYPE) {
-            printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO OPEN_BRACKET_TYPE\n");
-        }
-        else if (car(current)->type == CLOSE_BRACKET_TYPE) {
-            printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO CLOSE_BRACKET_TYPE\n");
-        }
-        else if (car(current)->type == DOT_TYPE) {
-            printf("%s\n", car(current)->s);
-        }
-        else if (car(current)->type == NULL_TYPE) {
-            printf("() NULL TYPE\n");
-        }
-
-        printf(" ");
-        current = cdr(current);
-    }
-}
-
 /*
 Checks if the currentItem would end a subtree (ie, if it is an open of some sort).
 
@@ -264,6 +200,70 @@ void printTree(Value *tree) {
             break;
         }
 
+        current = cdr(current);
+    }
+}
+
+void printTreeTest(Value *tree, int indent) {
+    assert(tree != NULL);
+
+    Value *current = tree;
+    while(current->type != NULL_TYPE) {
+        if (car(current)->type != CONS_TYPE) {
+            for(int i = 0; i < indent; i++) {
+                printf(" ");
+            }
+        }
+
+        if (car(current)->type == CONS_TYPE) {
+            // This is a subtree expression.
+            // printf("(\n");
+            printf("CONS:\n");
+            printTreeTest(car(current), indent + 4);
+            // printf(")\n");
+        }
+        if (car(current)->type == INT_TYPE) {
+            printf("%i\n", car(current)->i);
+        }
+        else if (car(current)->type == DOUBLE_TYPE) {
+            printf("%f\n", car(current)->d);
+        }
+        else if (car(current)->type == STR_TYPE) {
+            printf("\"%s\"\n", car(current)->s);
+        }
+        else if (car(current)->type == SYMBOL_TYPE) {
+            printf("%s\n", car(current)->s);
+        }
+        else if (car(current)->type == OPEN_TYPE) {
+            printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO OPEN_TYPE\n");
+        }
+        else if (car(current)->type == CLOSE_TYPE) {
+            printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO CLOSE_TYPE\n");
+        }
+        else if (car(current)->type == BOOL_TYPE) {
+            if (car(current)->i > 0) {
+                printf("#t\n");
+            } else {
+                printf("#f\n");
+            }
+        }
+        else if (car(current)->type == QUOTE_TYPE) {
+            printf("%s\n", car(current)->s);
+        }
+        else if (car(current)->type == OPEN_BRACKET_TYPE) {
+            printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO OPEN_BRACKET_TYPE\n");
+        }
+        else if (car(current)->type == CLOSE_BRACKET_TYPE) {
+            printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO CLOSE_BRACKET_TYPE\n");
+        }
+        else if (car(current)->type == DOT_TYPE) {
+            printf("%s\n", car(current)->s);
+        }
+        else if (car(current)->type == NULL_TYPE) {
+            printf("() NULL TYPE\n");
+        }
+
+        printf(" ");
         current = cdr(current);
     }
 }

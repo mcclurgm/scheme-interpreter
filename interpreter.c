@@ -779,11 +779,15 @@ void interpret(Value *tree) {
     Value *current = tree;
     while(current->type != NULL_TYPE) {
         Value *result = eval(current, global);
-        current = cdr(current);
 
-        printValue(result);
-        printf("\n");
+        if (result->type != VOID_TYPE) {
+            printValue(result);
+            printf("\n");
+        }
+
+        current = cdr(current);
     }
+    printf("\n");
 }
 
 Value *lookupBindingInFrame(Value *symbol, Frame *frame) {

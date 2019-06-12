@@ -150,32 +150,15 @@ Value *parseExpression(Value **currentToken) {
 // Takes a list of tokens from a Racket program, and returns a pointer to a
 // parse tree representing that program.
 Value *parse(Value *tokens) {
-    Value *currentToken = tokens;
-    Value *parsed = parseExpression(&currentToken);
-    return parsed;
 
     // Initialize an empty stack.
     Value *stack = makeNull();
 
     // While there are more tokens:
-    // Value *currentToken = tokens;
+    Value *currentToken = tokens;
     assert(currentToken != NULL && "Error (parse): null pointer");
-    int depth = 0;
     while (currentToken->type != NULL_TYPE) {
-        if (car(currentToken)->type == CLOSE_TYPE 
-                || car(currentToken)->type == CLOSE_BRACKET_TYPE) {
-            
-            stack = makeNewSubtree(stack, &depth, car(currentToken)->type);
-        } else {
-            stack = addTokenToTree(car(currentToken), stack, &depth);
-        }
-        currentToken = cdr(currentToken);
-    }
-
-    // Check for not enough close parens case
-    if (depth != 0) {
-        printf("Syntax error: not enough close parentheses.\n");
-        texit(1);
+        stack = cons(parseExpression(&currentToken), stack);
     }
     
     return reverse(stack);

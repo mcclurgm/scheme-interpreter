@@ -84,14 +84,81 @@ Value *makeNewSubtree(Value *tree, int *depth, valueType closeType) {
     return newTree;
 }
 
+bool tokenInExpression(Value *currentToken, valueType closeType) {
+    printf("closeType: %i  and current: %i\n", closeType, car(currentToken)->type);
+    if (currentToken->type == NULL_TYPE) {
+        // We are trying to add the beginning of a file to the subtree.
+        // This corresponds to too many close parentheses: we never reached
+        // an open paren to stop this from happening.
+        // Throw a syntax error.
+        printf("Syntax error: too many close parentheses.\n");
+        texit(1);
+    } else if (car(currentToken)->type == closeType) {
+        return false;
+    } else if (car(currentToken)->type == CLOSE_TYPE 
+            || car(currentToken)->type == CLOSE_BRACKET_TYPE) {
+        
+        // This means the first open token we hit is the wrong type.
+        printf("Syntax error: bracket type mismatch.\n");
+        texit(1);
+    }
+    return true;
+}
+
+Value *parseExpression(Value **currentToken) {
+    if (car(*currentToken)->type != OPEN_BRACKET_TYPE 
+        && car(*currentToken)->type != OPEN_TYPE) {
+
+        printf("Just an single token... at ");
+        printValue(car(*currentToken));
+        printf("Type: %i\n", car(*currentToken)->type);
+        printf("\n");
+
+        // This expression is just a single token
+        Value *expr = car(*currentToken);
+        *currentToken = cdr(*currentToken);
+        return expr;
+    }
+
+    // The expression is cons-type, so iterate through all its sub-expressions
+    // and cons them onto a subtree.
+    valueType openType = car(*currentToken)->type;
+    valueType closeType;
+    if (openType == OPEN_TYPE) {
+        closeType = CLOSE_TYPE;
+    } else if (openType == OPEN_BRACKET_TYPE) {
+        closeType = CLOSE_BRACKET_TYPE;
+    }
+
+    Value *subtree = makeNull();
+    *currentToken = cdr(*currentToken);
+
+    while (tokenInExpression(*currentToken, closeType)) {
+        printf("Current token: ");
+        printValue(car(*currentToken));
+        printf("\n");
+        
+        Value *expr = parseExpression(currentToken);
+        subtree = cons(expr, subtree);
+    }
+
+    // Iterate currentToken to the first token past the cons expression
+    *currentToken = cdr(*currentToken);
+    return reverse(subtree);
+}
+
 // Takes a list of tokens from a Racket program, and returns a pointer to a
 // parse tree representing that program.
 Value *parse(Value *tokens) {
+    Value *currentToken = tokens;
+    Value *parsed = parseExpression(&currentToken);
+    return parsed;
+
     // Initialize an empty stack.
     Value *stack = makeNull();
 
     // While there are more tokens:
-    Value *currentToken = tokens;
+    // Value *currentToken = tokens;
     assert(currentToken != NULL && "Error (parse): null pointer");
     int depth = 0;
     while (currentToken->type != NULL_TYPE) {

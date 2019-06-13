@@ -3,6 +3,7 @@ import os
 import re
 import subprocess
 import filecmp
+import pprint
 
 
 allTestsPass = True
@@ -12,10 +13,12 @@ for filename in sorted(os.listdir()):
         expectedOutput = 'test-out-'+m.group(1)+'.txt'
         result = subprocess.run('./interpreter',stdin=open(filename),
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
+        print(type(result))
         # Get expected output
         with open(expectedOutput,"rb") as expOut:
             expResults = expOut.read()
+        with open(expectedOutput,"r") as expOut:
+            expResultsPretty = expOut.read()
 
         testPasses = result.stdout==expResults
         print("Input:",filename,"Expected output:",expectedOutput,
@@ -27,6 +30,13 @@ for filename in sorted(os.listdir()):
             print(result.stdout)
             print("Expected output in bytes:")
             print(expResults)
+            
+            print()
+            
+            print("Actual output:")
+            print(result.stdout.decode('utf-8'))
+            print("Expected output:")
+            print(expResultsPretty)
 
 if allTestsPass:
     print('All tests passed!')

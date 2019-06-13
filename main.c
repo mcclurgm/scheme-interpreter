@@ -12,7 +12,7 @@ int main() {
     Value *tree = parse(list);
     printTree(tree);
     printf("\n");
-    // interpret(tree);
+    interpret(tree);
 
     tfree();
     return 0;

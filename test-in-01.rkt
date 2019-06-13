@@ -9,7 +9,7 @@
 ; (begin (define a 1) (set! a 2) a)
 ; (begin x)
 
-(letrec ((x 1) (y 3)) y)
+((letrec ((x 1) (y 3)) y)
 (letrec ((sum (lambda (x)
                 (if (null? x)
                     0

@@ -85,13 +85,12 @@ Value *makeNewSubtree(Value *tree, int *depth, valueType closeType) {
 }
 
 bool tokenInExpression(Value *currentToken, valueType closeType) {
-    printf("closeType: %i  and current: %i\n", closeType, car(currentToken)->type);
     if (currentToken->type == NULL_TYPE) {
-        // We are trying to add the beginning of a file to the subtree.
-        // This corresponds to too many close parentheses: we never reached
-        // an open paren to stop this from happening.
+        // We are trying to add the end of a file to an expression.
+        // This corresponds to too many open parentheses: we never reached
+        // a close paren to close the expression.
         // Throw a syntax error.
-        printf("Syntax error: too many close parentheses.\n");
+        printf("Syntax error: too many open parentheses.\n");
         texit(1);
     } else if (car(currentToken)->type == closeType) {
         return false;
@@ -133,10 +132,6 @@ Value *parseExpression(Value **currentToken) {
     *currentToken = cdr(*currentToken);
 
     while (tokenInExpression(*currentToken, closeType)) {
-        printf("Current token: ");
-        printValue(car(*currentToken));
-        printf("\n");
-        
         Value *expr = parseExpression(currentToken);
         subtree = cons(expr, subtree);
         *currentToken = cdr(*currentToken);

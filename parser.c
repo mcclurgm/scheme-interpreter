@@ -110,7 +110,7 @@ Value *parseExpression(Value **currentToken) {
 
         printf("Just an single token... at ");
         printValue(car(*currentToken));
-        printf("Type: %i\n", car(*currentToken)->type);
+        printf("  Type: %i\n", car(*currentToken)->type);
         printf("\n");
 
         // This expression is just a single token
@@ -151,6 +151,15 @@ Value *parse(Value *tokens) {
     Value *currentToken = tokens;
     assert(currentToken != NULL && "Error (parse): null pointer");
     while (currentToken->type != NULL_TYPE) {
+        if (car(currentToken)->type == CLOSE_TYPE || car(currentToken)->type == CLOSE_BRACKET_TYPE) {
+            // There are too many close parentheses.
+            // All the close types should be handled by parseExpression,
+            // since they're part of an expression (the end). So if we see a
+            // close type, that means it's outside of an expression and is a
+            // syntax error.
+            printf("Syntax error: too many close parentheses\n");
+            texit(1);
+        }
         stack = cons(parseExpression(&currentToken), stack);
         currentToken = cdr(currentToken);
     }

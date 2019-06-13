@@ -108,11 +108,6 @@ Value *parseExpression(Value **currentToken) {
     if (car(*currentToken)->type != OPEN_BRACKET_TYPE 
         && car(*currentToken)->type != OPEN_TYPE) {
 
-        printf("Just an single token... at ");
-        printValue(car(*currentToken));
-        printf("  Type: %i\n", car(*currentToken)->type);
-        printf("\n");
-
         // This expression is just a single token
         Value *expr = car(*currentToken);
         return expr;

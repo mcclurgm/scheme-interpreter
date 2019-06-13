@@ -105,34 +105,34 @@ bool tokenInExpression(Value *currentToken, valueType closeType) {
 }
 
 Value *parseExpression(Value **currentToken) {
-    if (car(*currentToken)->type != OPEN_BRACKET_TYPE 
-        && car(*currentToken)->type != OPEN_TYPE) {
+    valueType currentType = car(*currentToken)->type;
+    
+    if (currentType == OPEN_BRACKET_TYPE || currentType == OPEN_TYPE) {
+        // The expression is cons-type, so iterate through all its sub-expressions
+        // and cons them onto a subtree.
+        valueType closeType;
+        if (currentType == OPEN_TYPE) {
+            closeType = CLOSE_TYPE;
+        } else if (currentType == OPEN_BRACKET_TYPE) {
+            closeType = CLOSE_BRACKET_TYPE;
+        }
 
+        // Iterate to the first token in the expression, after the open bracket
+        *currentToken = cdr(*currentToken);
+
+        Value *subtree = makeNull();
+        while (tokenInExpression(*currentToken, closeType)) {
+            Value *expr = parseExpression(currentToken);
+            subtree = cons(expr, subtree);
+            *currentToken = cdr(*currentToken);
+        }
+
+        return reverse(subtree);
+    } else {
         // This expression is just a single token
         Value *expr = car(*currentToken);
         return expr;
     }
-
-    // The expression is cons-type, so iterate through all its sub-expressions
-    // and cons them onto a subtree.
-    valueType openType = car(*currentToken)->type;
-    valueType closeType;
-    if (openType == OPEN_TYPE) {
-        closeType = CLOSE_TYPE;
-    } else if (openType == OPEN_BRACKET_TYPE) {
-        closeType = CLOSE_BRACKET_TYPE;
-    }
-
-    Value *subtree = makeNull();
-    *currentToken = cdr(*currentToken);
-
-    while (tokenInExpression(*currentToken, closeType)) {
-        Value *expr = parseExpression(currentToken);
-        subtree = cons(expr, subtree);
-        *currentToken = cdr(*currentToken);
-    }
-
-    return reverse(subtree);
 }
 
 // Takes a list of tokens from a Racket program, and returns a pointer to a

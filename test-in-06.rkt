@@ -2,3 +2,5 @@
 "hello"
 (display "stuff")
 (display "some more stuff")
+
+'(+ 1 2 3)

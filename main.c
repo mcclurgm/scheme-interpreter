@@ -10,6 +10,8 @@ int main() {
 
     Value *list = tokenize(stdin);
     Value *tree = parse(list);
+    // printTree(tree);
+    // printf("\n");
     interpret(tree);
 
     tfree();

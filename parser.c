@@ -128,6 +128,23 @@ Value *parseExpression(Value **currentToken) {
         }
 
         return reverse(subtree);
+    } else if (currentType == QUOTE_TYPE) {
+        // Special case: quote syntax
+        // Iterate the current token to whatever it's quoting
+        *currentToken = cdr(*currentToken);
+        
+        // Parse that expression
+        Value *expr = parseExpression(currentToken);
+        
+        // Construct a (quote expr) expression
+        Value *quoteToken = makeValue();
+        quoteToken->type = SYMBOL_TYPE;
+        quoteToken->s = "quote";
+        
+        Value *quoteExpr = cons(expr, makeNull());
+        quoteExpr = cons(quoteToken, quoteExpr);
+        
+        return quoteExpr;
     } else {
         // This expression is just a single token
         Value *expr = car(*currentToken);

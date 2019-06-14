@@ -278,10 +278,7 @@ Value *primitiveCar(Value *args) {
         texit(1);
     }
 
-    Value *result = makeValue();
-    result = car(car(args));
-
-    return result;
+    return car(car(args));
 }
 
 Value *primitiveCdr(Value *args) {
@@ -306,10 +303,7 @@ Value *primitiveCdr(Value *args) {
         texit(1);
     }
 
-    Value *result = makeValue();
-    result = cdr(car(args));
-
-    return result;
+    return cdr(car(args));
 }
 
 Value *primitiveCons(Value *args) {

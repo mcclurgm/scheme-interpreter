@@ -390,6 +390,34 @@ Value *primitiveAppend(Value *args) {
     
 }
 
+Value *primitiveLength(Value *args) {
+    if (args->type != CONS_TYPE) {
+        printf("length expression has no body: expected 1 argument, given none.\n");
+        texit(1);
+    }
+    
+    if (cdr(args)->type != NULL_TYPE) {
+        printf("length expression has too many arguments: expected 1, given %i\n", length(args));
+        printf("Expression: (length ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    if (car(args)->type != CONS_TYPE) {
+        printf("length expression needs to act on a cons cell\n");
+        printf("Expression: (length ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+    
+    Value *result = makeValue();
+    result->type = INT_TYPE;
+    result->i = length(car(args));
+    return result;
+}
+
 Value *primitiveEqual(Value *args) {
     if (args->type != CONS_TYPE) {
         printf("equal? statement has no body: expected 2 arguments, given none.\n");
@@ -769,6 +797,7 @@ void interpret(Value *tree) {
     bindPrimitive("cons", primitiveCons, global);
     bindPrimitive("list", primitiveList, global);
     bindPrimitive("append", primitiveAppend, global);
+    bindPrimitive("length", primitiveLength, global);
     bindPrimitive("equal?", primitiveEqual, global);
     bindPrimitive("eq?", primitiveEq, global);
     bindPrimitive("=", primitiveEqualNum, global);

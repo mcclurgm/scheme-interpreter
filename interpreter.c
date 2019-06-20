@@ -760,6 +760,35 @@ Value *primitiveModulo(Value *args) {
 
 }
 
+Value *primitiveNot(Value *args) {
+    if (args->type != CONS_TYPE) {
+        printf("not expression has no body: expected 1 argument, given none.\n");
+        texit(1);
+    }
+    
+    if (cdr(args)->type != NULL_TYPE) {
+        printf("not expression has too many arguments: expected 1, given %i\n", length(args));
+        printf("Expression: (not ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    if (car(args)->type != BOOL_TYPE) {
+        printf("not expression expected boolean.\n");
+        printf("Expression: (not ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    bool argValue = car(args)->i;
+
+    Value *result = makeValue();
+    result->i = !argValue;
+    return result;
+}
+
 void bindPrimitive(char *name, Value *(*function)(struct Value *), Frame *frame) {
     // Add primitive functions to top-level bindings list
 	Value *symbol = makeValue();
@@ -798,6 +827,7 @@ void interpret(Value *tree) {
     bindPrimitive("<", primitiveLessThan, global);
     bindPrimitive(">", primitiveGreaterThan, global);
     bindPrimitive("modulo", primitiveModulo, global);
+    bindPrimitive("not", primitiveNot, global);
 
     Value *current = tree;
     while(current->type != NULL_TYPE) {

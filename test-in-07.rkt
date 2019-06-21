@@ -1,3 +1,4 @@
+; Test load (with 06 and 08)
 (define x 3)
 "some things..."
 ;(load "test.rkt")

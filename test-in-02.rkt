@@ -1,3 +1,4 @@
+; Test boolean functions: cond, and, or, if
 (cond
     (#f 1)
     (#t 2)

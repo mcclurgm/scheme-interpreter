@@ -1,3 +1,4 @@
+; Class code: lazy lists
 (define gen-list
   (lambda (start stop)
     (if (> start stop)

@@ -1,3 +1,4 @@
+; Test load (with 06 and 07)
 (define doathing
   (lambda ()
     x))

@@ -256,6 +256,49 @@ Value *primitiveNull(Value *args) {
     return result;
 }
 
+Value *primitiveCheckList(Value *args) {
+    if (args->type != CONS_TYPE) {
+        printf("Arity mismatch:\n");
+        printf("list? statement has no body: expected 1 argument, given none.\n");
+        texit(1);
+    }
+    
+    if (cdr(args)->type != NULL_TYPE) {
+        printf("Arity mismatch:\n");
+        printf("list? statement has too many arguments: expected 1, given %i\n", length(args));
+        printf("Expression: (list? ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *result = makeValue();
+    result->type = BOOL_TYPE;
+    result->i = true;
+
+    // If the argument is not a cons cell, short circuit: it can't be a list
+    if (car(args)->type != CONS_TYPE && car(args)->type != NULL_TYPE) {
+        result->i = false;
+        return result;
+    }
+
+    Value *currentListElement = car(args);
+    if (currentListElement->type != NULL_TYPE) {
+        // If the cdr of the current list element is not a new cons cell, the
+        // list is improper. 
+        // Return false.
+        if (cdr(currentListElement)->type != CONS_TYPE) {
+            result->i = false;
+            return result;
+        }
+
+        currentListElement = cdr(currentListElement);
+    }
+
+    // If we made it here, the argument must be a list.
+    return result;
+}
+
 Value *primitiveCar(Value *args) {
     if (args->type != CONS_TYPE) {
         printf("car statement has no body: expected 1 argument, given none.\n");
@@ -776,6 +819,9 @@ Value *primitiveNot(Value *args) {
 
     if (car(args)->type != BOOL_TYPE) {
         printf("not expression expected boolean.\n");
+        printf("Given: ");
+        printValue(car(args));
+        printf("\n");
         printf("Expression: (not ");
         printTree(args);
         printf(")\n");
@@ -785,7 +831,9 @@ Value *primitiveNot(Value *args) {
     bool argValue = car(args)->i;
 
     Value *result = makeValue();
+    result->type = BOOL_TYPE;
     result->i = !argValue;
+    assert(result->type == BOOL_TYPE);
     return result;
 }
 
@@ -815,6 +863,7 @@ void interpret(Value *tree) {
 	bindPrimitive("*", primitiveMult, global);
 	bindPrimitive("/", primitiveDivide, global);
     bindPrimitive("null?", primitiveNull, global);
+    bindPrimitive("list?", primitiveCheckList, global);
     bindPrimitive("car", primitiveCar, global);
     bindPrimitive("cdr", primitiveCdr, global);
     bindPrimitive("cons", primitiveCons, global);
@@ -1081,8 +1130,17 @@ Value *evalCond(Value *argsTree, Frame *activeFrame) {
             }
         }
 
-        // Assuming condition evaluates to bool
         Value *conditionResult = eval(condition, activeFrame);
+        if (conditionResult->type != BOOL_TYPE) {
+            printf("Condition of cond expression must evaluate to boolean.\n");
+            printf("Expression: (cond ");
+            printTree(argsTree);
+            printf(")\n");
+            printf("Condition expression: ");
+            printValue(condition);
+            printf("\n");
+            texit(1);
+        }
         if (conditionResult->i) {
             return evalBegin(body, activeFrame);
         }

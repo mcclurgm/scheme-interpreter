@@ -33,7 +33,9 @@
 ; length
 (length '()) ; 0
 (length '(a b c)) ; 3
-;(length '(a b . c)) ; exception
+; (length (cons 'a 'c)) ; exception
+; original: (length '(a b . c)) ; exception
+; Next two depend on set-car! or set-cdr!: I don't plan to implement those soon
 ; (length
 ;   (let ([ls (list 'a 'b)])
 ;     (set-cdr! (cdr ls) ls)

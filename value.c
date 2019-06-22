@@ -1,6 +1,7 @@
 #include "value.h"
 #include <stdlib.h>
 #include <stdbool.h>
+#include <assert.h>
 #include "linkedlist.h"
 #include "talloc.h"
 
@@ -39,4 +40,9 @@ bool isList(Value *list) {
     }
 
     return true;
+}
+
+bool isNumber(Value *value) {
+    assert(value != NULL);
+    return (value->type == INT_TYPE || value->type == DOUBLE_TYPE);
 }

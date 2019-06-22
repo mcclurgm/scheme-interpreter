@@ -42,4 +42,6 @@ Value *makeVoid();
 
 bool isList(Value *list);
 
+bool isNumber(Value *value);
+
 #endif

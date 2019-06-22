@@ -1,4 +1,10 @@
 ; Test math operations
+
+; number?
+(number? 1)
+(number? 2.0)
+(number? '())
+
 (*)
 (* 2)
 (* 2 3)

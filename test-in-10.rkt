@@ -94,13 +94,13 @@
 (insert '2 '(10 (7 (3 () ()) (8 () ())) (15 () ()))) ; '(10 (7 (3 (2 () ()) ()) (8 () ())) (15 () ()))
 
 
-; (define proper-tree?
-;   (lambda (bst)
-;     (cond ((null? bst) '#t)
-;           ((not (list? bst)) '#f)
-;           ((not (equal? (length bst) 3)) '#f)
-;           ((not (in-order? bst)) '#f)
-;           (else (and (number? (entry bst)) (proper-tree? (left bst)) (proper-tree? (right bst)))))))
+(define proper-tree?
+  (lambda (bst)
+    (cond ((null? bst) '#t)
+          ((not (list? bst)) '#f)
+          ((not (equal? (length bst) 3)) '#f)
+          ((not (in-order? bst)) '#f)
+          (else (and (number? (entry bst)) (proper-tree? (left bst)) (proper-tree? (right bst)))))))
 
 
 (define sorted?
@@ -118,10 +118,12 @@
 
 
 ; (test (proper-tree? '(10 (20 () ()) (13 () ()))) '#f)
+(proper-tree? '(10 (20 () ()) (13 () ()))) ; '#f
 
 ; (test (proper-tree? '(5 ()())) '#t)
+(proper-tree? '(5 ()())) ; '#t
 
-; (proper-tree? (insert '2 '(10 (7 (3 () ()) (8 () ())) (15 () ()))))
+(proper-tree? (insert '2 '(10 (7 (3 () ()) (8 () ())) (15 () ())))) ; #t
 
 (define bst-from-list
   (lambda (lst)

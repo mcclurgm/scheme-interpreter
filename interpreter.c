@@ -546,6 +546,26 @@ Value *primitiveEq(Value *args) {
 
 }
 
+Value *primitiveIsNumber(Value *args) {
+    if (args->type != CONS_TYPE) {
+        printf("number? expression has no body: expected 1 argument, given none.\n");
+        texit(1);
+    }
+    
+    if (cdr(args)->type != NULL_TYPE) {
+        printf("number? expression has too many arguments: expected 1, given %i\n", length(args));
+        printf("Expression: (number? ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    Value *result = makeValue();
+    result->type = BOOL_TYPE;
+    result->i = isNumber(car(args));
+    return result;
+}
+
 Value *primitiveEqualNum(Value *args) {
     if (args->type != CONS_TYPE) {
         printf("= statement has no arguments: expected at least one.\n");
@@ -855,6 +875,7 @@ void interpret(Value *tree) {
     bindPrimitive("length", primitiveLength, global);
     bindPrimitive("equal?", primitiveEqual, global);
     bindPrimitive("eq?", primitiveEq, global);
+    bindPrimitive("number?", primitiveIsNumber, global);
     bindPrimitive("=", primitiveEqualNum, global);
     bindPrimitive("<", primitiveLessThan, global);
     bindPrimitive(">", primitiveGreaterThan, global);

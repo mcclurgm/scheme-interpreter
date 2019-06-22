@@ -34,6 +34,10 @@
 (append '(a) '(b) '(c)) ; (a b c)
 (append '(a) '(b) '(c) '(d)) ; (a b c d)
 
+; reverse
+(reverse '()) ; ()
+(reverse '(a b c)) ; (c b a)
+
 ; length
 (length '()) ; 0
 (length '(a b c)) ; 3

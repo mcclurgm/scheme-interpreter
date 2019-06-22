@@ -376,6 +376,31 @@ Value *primitiveAppend(Value *args) {
     return currentList;
 }
 
+Value *primitiveReverse(Value *args) {
+    if (args->type != CONS_TYPE) {
+        printf("reverse expression has no body: expected 1 argument, given none.\n");
+        texit(1);
+    }
+    
+    if (cdr(args)->type != NULL_TYPE) {
+        printf("reverse expression has too many arguments: expected 1, given %i\n", length(args));
+        printf("Expression: (reverse ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    if (car(args)->type != CONS_TYPE && car(args)->type != NULL_TYPE) {
+        printf("reverse expression needs to act on a cons cell\n");
+        printf("Expression: (reverse ");
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+
+    return reverse(car(args));
+}
+
 Value *primitiveLength(Value *args) {
     if (args->type != CONS_TYPE) {
         printf("length expression has no body: expected 1 argument, given none.\n");
@@ -826,6 +851,7 @@ void interpret(Value *tree) {
     bindPrimitive("cons", primitiveCons, global);
     bindPrimitive("list", primitiveList, global);
     bindPrimitive("append", primitiveAppend, global);
+    bindPrimitive("reverse", primitiveReverse, global);
     bindPrimitive("length", primitiveLength, global);
     bindPrimitive("equal?", primitiveEqual, global);
     bindPrimitive("eq?", primitiveEq, global);

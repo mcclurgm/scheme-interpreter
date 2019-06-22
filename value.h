@@ -40,6 +40,9 @@ Value *makeNull();
 // Create a new VOID_TYPE Value.
 Value *makeVoid();
 
+// Create a new BOOL_TYPE Value.
+Value *makeBool(bool val);
+
 bool isList(Value *list);
 
 bool isNumber(Value *value);

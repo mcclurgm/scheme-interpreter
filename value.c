@@ -26,6 +26,14 @@ Value *makeVoid() {
     return result;
 }
 
+// Create a new BOOL_TYPE Value.
+Value *makeBool(bool val) {
+    Value *result = makeValue();
+    (*result).type = BOOL_TYPE;
+    (*result).i = val;
+    return result;
+}
+
 bool isList(Value *list) {
     Value *current = list;
     if (current->type != CONS_TYPE && current->type != NULL_TYPE) {

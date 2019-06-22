@@ -14,12 +14,11 @@ a
 (a b c)
 (a b c)
 (a b c d)
+#t
 0
 3
 #t
 #t
-#t
-#f
 #f
 #f
 

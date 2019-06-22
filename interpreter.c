@@ -441,6 +441,16 @@ Value *primitiveLength(Value *args) {
         texit(1);
     }
 
+    Value *result = makeValue();
+    result->type = INT_TYPE;
+    result->i = 0;
+
+    // Null is an empty (zero-length) list
+    if (car(args)->type == NULL_TYPE) {
+        result->i = 0;
+        return result;
+    }
+
     if (car(args)->type != CONS_TYPE) {
         printf("length expression needs to act on a cons cell\n");
         printf("Expression: (length ");
@@ -449,8 +459,6 @@ Value *primitiveLength(Value *args) {
         texit(1);
     }
     
-    Value *result = makeValue();
-    result->type = INT_TYPE;
     result->i = length(car(args));
     return result;
 }

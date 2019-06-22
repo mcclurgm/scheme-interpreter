@@ -244,8 +244,7 @@ Value *primitiveNull(Value *args) {
         texit(1);
     }
 
-    Value *result = makeValue();
-    result->type = BOOL_TYPE;
+    Value *result = makeBool(true);
 
     if (car(args)->type == NULL_TYPE) {
         result->i = true;
@@ -272,10 +271,8 @@ Value *primitiveCheckList(Value *args) {
         texit(1);
     }
 
-    Value *result = makeValue();
-    result->type = BOOL_TYPE;
-    result->i = isList(car(args));
-    return result;
+    Value *listVal = car(args);
+    return makeBool(isList(listVal));
 }
 
 Value *primitiveCar(Value *args) {
@@ -462,38 +459,27 @@ Value *primitiveEqual(Value *args) {
     Value *first = car(args);
     Value *second = car(cdr(args));
 
-    Value *result = makeValue();
-    result->type = BOOL_TYPE;
-
-
     if (first->type != second->type) {
-        result->i = false;
-        return result;
+        return makeBool(false);
     }
 
     if (first->type == INT_TYPE || first->type == BOOL_TYPE) {
         if (first->i == second->i) {
-            result->i = true;
-            return result;
+            return makeBool(true);
         } else {
-            result->i = false;
-            return result;
+            return makeBool(false);
         }
     } else if (first->type == DOUBLE_TYPE) {
         if (first->d == second->d) {
-            result->i = true;
-            return result;
+            return makeBool(true);
         } else {
-            result->i = false;
-            return result;
+            return makeBool(false);
         }
     } else if (first->type == STR_TYPE || first->type == SYMBOL_TYPE) {
         if (!strcmp(first->s, second->s)) {
-            result->i = true;
-            return result;
+            return makeBool(true);
         } else {
-            result->i = false;
-            return result;
+            return makeBool(false);
         }
     } else {
         printf("Unknown type in equal?\n");
@@ -502,9 +488,7 @@ Value *primitiveEqual(Value *args) {
         printf("\n");
         texit(1);
     }
-    
-
-    return result;
+    assert(false && "Internal error: should have returned or texited out of if/else block but did not");
 }
 
 Value *primitiveEq(Value *args) {
@@ -532,18 +516,11 @@ Value *primitiveEq(Value *args) {
     Value *first = car(args);
     Value *second = car(cdr(args));
 
-    Value *result = makeValue();
-    result->type = BOOL_TYPE;
-
-
     if (first == second) {
-        result->i = true;
-        return result;
+        return makeBool(true);
     } else {
-        result->i = false;
-        return result;
+        return makeBool(false);
     }
-
 }
 
 Value *primitiveIsNumber(Value *args) {
@@ -560,10 +537,8 @@ Value *primitiveIsNumber(Value *args) {
         texit(1);
     }
 
-    Value *result = makeValue();
-    result->type = BOOL_TYPE;
-    result->i = isNumber(car(args));
-    return result;
+    Value *val = car(args);
+    return makeBool(isNumber(val));
 }
 
 Value *primitiveEqualNum(Value *args) {
@@ -572,10 +547,6 @@ Value *primitiveEqualNum(Value *args) {
         printf("At: (=)\n");
         texit(1);
     }
-
-    Value *result = makeValue();
-    result->type = BOOL_TYPE;
-    result->i = true;
 
     Value *first = car(args);
     if(first->type != INT_TYPE && first->type != DOUBLE_TYPE) {
@@ -603,13 +574,13 @@ Value *primitiveEqualNum(Value *args) {
             texit(1);
         }
         if (!compareNumbers(first, currentValue)) {
-            result->i = false;
-            return result;
+            return makeBool(false);
         }
         current = cdr(current);
     }
 
-    return result;
+    // If we made it here, they must be equal
+    return makeBool(true);
 }
 
 Value *primitiveLessThan(Value *args) {
@@ -632,16 +603,13 @@ Value *primitiveLessThan(Value *args) {
         texit(1);
     }
 
-    Value *result = makeValue();
-    result->type = BOOL_TYPE;
-
     Value *first = car(args);
     Value *second = car(cdr(args));
     if (first->type == INT_TYPE) {
         if (second->type == INT_TYPE) {
-            result->i = (first->i < second->i);
+            return makeBool(first->i < second->i);
         } else if (second->type == DOUBLE_TYPE) {
-            result->i = (first->i < second->d);
+            return makeBool(first->i < second->d);
         } else {
             printf("Expected number in <\n");
             printf("Given: ");
@@ -654,9 +622,9 @@ Value *primitiveLessThan(Value *args) {
         }
     } else  if (first->type == DOUBLE_TYPE) {
         if (second->type == INT_TYPE) {
-            result->i = (first->d < second->i);
+            return makeBool(first->d < second->i);
         } else if (second->type == DOUBLE_TYPE) {
-            result->i = (first->d < second->d);
+            return makeBool(first->d < second->d);
         } else {
             printf("Expected number in <\n");
             printf("Given: ");
@@ -678,8 +646,7 @@ Value *primitiveLessThan(Value *args) {
         texit(1);
     }
 
-    return result;
-
+    assert(false && "Internal error: should have returned or texited out of if/else block but did not");
 }
 
 Value *primitiveGreaterThan(Value *args) {
@@ -702,16 +669,13 @@ Value *primitiveGreaterThan(Value *args) {
         texit(1);
     }
 
-    Value *result = makeValue();
-    result->type = BOOL_TYPE;
-
     Value *first = car(args);
     Value *second = car(cdr(args));
     if (first->type == INT_TYPE) {
         if (second->type == INT_TYPE) {
-            result->i = (first->i > second->i);
+            return makeBool(first->i > second->i);
         } else if (second->type == DOUBLE_TYPE) {
-            result->i = (first->i > second->d);
+            return makeBool(first->i > second->d);
         } else {
             printf("Expected number in >\n");
             printf("Given: ");
@@ -724,9 +688,9 @@ Value *primitiveGreaterThan(Value *args) {
         }
     } else  if (first->type == DOUBLE_TYPE) {
         if (second->type == INT_TYPE) {
-            result->i = (first->d > second->i);
+            return makeBool(first->d > second->i);
         } else if (second->type == DOUBLE_TYPE) {
-            result->i = (first->d > second->d);
+            return makeBool(first->d > second->d);
         } else {
             printf("Expected number in >\n");
             printf("Given: ");
@@ -748,8 +712,7 @@ Value *primitiveGreaterThan(Value *args) {
         texit(1);
     }
 
-    return result;
-
+    assert(false && "Internal error: should have returned or texited out of if/else block but did not");
 }
 
 Value *primitiveModulo(Value *args) {
@@ -831,12 +794,7 @@ Value *primitiveNot(Value *args) {
     }
 
     bool argValue = car(args)->i;
-
-    Value *result = makeValue();
-    result->type = BOOL_TYPE;
-    result->i = !argValue;
-    assert(result->type == BOOL_TYPE);
-    return result;
+    return makeBool(!argValue);
 }
 
 void bindPrimitive(char *name, Value *(*function)(struct Value *), Frame *frame) {
@@ -1158,42 +1116,34 @@ Value *evalCond(Value *argsTree, Frame *activeFrame) {
 
 Value *evalAnd(Value *argsTree, Frame *activeFrame) {
     // Evaluates to #t until it hits a false case
-    Value *result = makeValue();
-    result->type = BOOL_TYPE;
-    result->i = true;
 
     Value *currentExpr = argsTree;
     while(currentExpr->type != NULL_TYPE) {
         Value *condition = eval(currentExpr, activeFrame);
         // Assuming condition is always a boolean
         if (!condition->i) {
-            result->i = false;
-            return result;
+            return makeBool(false);
         }
         currentExpr = cdr(currentExpr);
     }
     
-    return result;
+    return makeBool(true);
 }
 
 Value *evalOr(Value *argsTree, Frame *activeFrame) {
     // Evaluates to #f until it hits a true case
-    Value *result = makeValue();
-    result->type = BOOL_TYPE;
-    result->i = false;
 
     Value *currentExpr = argsTree;
     while(currentExpr->type != NULL_TYPE) {
         Value *condition = eval(currentExpr, activeFrame);
         // Assuming condition is always a boolean
         if (condition->i) {
-            result->i = true;
-            return result;
+            return makeBool(true);
         }
         currentExpr = cdr(currentExpr);
     }
     
-    return result;
+    return makeBool(false);
 }
 
 Value *evalDisplay(Value *argTree, Frame *activeFrame) {
@@ -1261,9 +1211,7 @@ Value *evalWhen(Value *argsTree, Frame *activeFrame) {
         }
         return result;
     } else {
-        Value *result = makeValue();
-        result->type = VOID_TYPE;
-        return result;
+        return makeVoid();
     }
 }
 
@@ -1309,9 +1257,7 @@ Value *evalUnless(Value *argsTree, Frame *activeFrame) {
         }
         return result;
     } else {
-        Value *result = makeValue();
-        result->type = VOID_TYPE;
-        return result;
+        return makeVoid();
     }
 }
 

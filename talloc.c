@@ -119,9 +119,3 @@ void mark(Value *value) {
     value->marked = true;
 }
 
-// Allocates a Value struct and initializes its marked attribute to false.
-Value *makeValue() {
-    Value *newValue = talloc(sizeof(Value));
-    newValue->marked = false;
-    return newValue;
-}

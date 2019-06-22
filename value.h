@@ -29,7 +29,17 @@ struct Value {
     };
 };
 
-
 typedef struct Value Value;
+
+// Allocates a Value struct and initializes its marked attribute to false.
+Value *makeValue();
+
+// Create a new NULL_TYPE Value.
+Value *makeNull();
+
+// Create a new VOID_TYPE Value.
+Value *makeVoid();
+
+bool isList(Value *list);
 
 #endif

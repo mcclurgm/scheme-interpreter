@@ -4,12 +4,6 @@
 #ifndef _LINKEDLIST
 #define _LINKEDLIST
 
-// Create a new NULL_TYPE value node.
-Value *makeNull();
-
-// Create a new VOID_TYPE value node.
-Value *makeVoid();
-
 // Create a new CONS_TYPE value node.
 //
 // FAQ: If the newCdr contains a string within, do we need to make a copy of
@@ -81,7 +75,5 @@ Value *append(Value *newList, Value *oldList);
 // test = list(3, values);
 // (for example, with an array of length 3 to add 3 elements)
 Value *list(int dim, Value *values[]);
-
-bool isList(Value *list);
 
 #endif

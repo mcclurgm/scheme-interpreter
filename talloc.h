@@ -23,8 +23,5 @@ void texit(int status);
 // Garbage collection algorithm of 'mark and sweep'
 void mark(Value *value);
 
-// Allocates a Value struct and initializes its marked attribute to false.
-Value *makeValue();
-
 #endif
 

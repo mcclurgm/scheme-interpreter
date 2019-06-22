@@ -5,42 +5,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "linkedlist.h"
-#include "value.h"
 #include <assert.h>
-#include "talloc.h"
 #include <stdbool.h>
+#include "value.h"
+#include "linkedlist.h"
+#include "talloc.h"
 #include "parser.h"
 
-// Create a new NULL_TYPE value node.
-Value *makeNull() {
-    Value *null = makeValue();
-    (*null).type = NULL_TYPE;
-    return null;
-}
-
-// Create a new VOID_TYPE value node.
-Value *makeVoid() {
-    Value *result = makeValue();
-    (*result).type = VOID_TYPE;
-    return result;
-}
-
-bool isList(Value *list) {
-    Value *current = list;
-    if (current->type != CONS_TYPE && current->type != NULL_TYPE) {
-        return false;
-    }
-
-    while(current->type != NULL_TYPE) {
-        if (cdr(current)->type != NULL_TYPE && cdr(current)->type != CONS_TYPE) {
-            return false;
-        }
-        current = cdr(current);
-    }
-
-    return true;
-}
 
 // Create a new CONS_TYPE value node.
 //

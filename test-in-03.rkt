@@ -28,7 +28,11 @@
 ; (append '(a b) 'c) ; (a b . c)
 (let ([x (list 'b)])
   (eq? x (cdr (append '(a) x)))) ; #t
-; (append '(a) '(b) '(c)) ; (a b c)
+(append)
+(append '(1))
+(append '())
+(append '(a) '(b) '(c)) ; (a b c)
+(append '(a) '(b) '(c) '(d)) ; (a b c d)
 
 ; length
 (length '()) ; 0

@@ -362,48 +362,18 @@ Value *primitiveList(Value *args) {
 
 Value *primitiveAppend(Value *args) {
     if (args->type != CONS_TYPE) {
-        printf("append statement has no body: expected 2 arguments, given none.\n");
-        texit(1);
+        return makeNull();
     }
 
-    if (cdr(args)->type != CONS_TYPE) {
-        printf("append statement has too few arguments: expected 2, given 1\n");
-        printf("Expression: (append ");
-        printTree(args);
-        printf(")\n");
-        texit(1);
-    }
-    
-    if (cdr(cdr(args))->type != NULL_TYPE) {
-        printf("append statement has too many arguments: expected 2, given %i\n", length(args));
-        printf("Expression: (append ");
-        printTree(args);
-        printf(")\n");
-        texit(1);
-    }
+    Value *orderedArgs = reverse(args);
 
-    Value *first = car(args);
-    Value *second = car(cdr(args));
-
-    if (!isList(first)) {
-        printf("contract violation: list?\n");
-        printf("expected: list?\n");
-        printf("given: ");
-        printValue(first);
-        printf("\n");
-        texit(1);
-    } else if (!isList(second)) {
-        printf("contract violation: list?\n");
-        printf("expected: list?\n");
-        printf("given: ");
-        printValue(second);
-        printf("\n");
-        texit(1);
+    Value *currentList = car(orderedArgs);
+    Value *currentArg = cdr(orderedArgs);
+    while (currentArg->type != NULL_TYPE) {
+        currentList = append(car(currentArg), currentList);
+        currentArg = cdr(currentArg);
     }
-
-    Value *result = append(first, second);
-    return result;
-    
+    return currentList;
 }
 
 Value *primitiveLength(Value *args) {

@@ -96,7 +96,9 @@
   * We can make a `makeBinding(Value *name, Value *val)`
     * `name` is a symbol type and you should just be able to pass it directly from the tree
 
-## `lambda`
+## Special Forms
+
+### `lambda`
 
 * Basic format
   * Must have 2 or more elements
@@ -112,21 +114,19 @@
 * Body:
   * Does not need to use all the parameters
 
-## Bonus Define/Lambda
+* Single variable parameter: eg `(lambda x x)`
+* Maybe add bool to Struct?
+    * isSpecial?
+    * Allows binding single param to body
+    * Ex. (define fun (lambda x x)) -> (define 1 2 3) where x -> (1 2 3)
+
+
+### Define/Lambda
 
 * `Define`
   * Try when first arg is CONS_TYPE vs SYMBOL_TYPE until it breaks
   * Somehow handle bindings and closure type assignment
   * (define (myFn a b c) (+ a b c))
-  * 
-
-* `Lambda`
-  * Maybe add bool to Struct?
-    * isSpecial?
-    * Allows binding single param to body
-    * Ex. (define fun (lambda x x)) -> (define 1 2 3) where x -> (1 2 3)
-
-## Final Special Forms
 
 ### `let*`
 
@@ -164,17 +164,7 @@
   `or` evaluates to `#f` until it hits a true case, then short circuits.
 * Assuming that all arguments are `BOOL_TYPE`
 
-## Final Primitives
-
-### `=`
-
-* Like `equal?` for numbers
-* Requires numbers, exit with error if you get other input
-* Takes at least 1 number
-* Returns true if all of the arguments are equal
-* Returns false if any of them is not equal to the rest
-
-## Bonus: `load`
+### Bonus: `load`
 
 * C file handling: this is the code from main that successfully executes
 ```c
@@ -195,3 +185,27 @@ int main() {
     return 0;
 }
 ```
+
+## Primitives
+
+### `=`
+
+* Like `equal?` for numbers
+* Requires numbers, exit with error if you get other input
+* Takes at least 1 number
+* Returns true if all of the arguments are equal
+* Returns false if any of them is not equal to the rest
+
+### `append`
+
+* Can take any number of arguments
+  * 0: return an empty list
+  * 1: return the argument
+  * 2+: add each one on to the appended versions of the next
+    * From Dybvig: 
+      > append returns a new list consisting of the elements of the first list followed by the elements of the second list, the elements of the third list, and so on. The new list is made from new pairs for all arguments but the last; the last (which need not be a list) is merely placed at the end of the new structure. append may be defined without error checks as follows. 
+* Reverse the list of arguments, so I can iterate through it in the right order.
+* Then, I can just call append() one after the next
+  * `current = car(args);`
+  * Iterate current
+  * `current = append(car(args), current);`

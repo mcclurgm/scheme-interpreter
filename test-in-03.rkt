@@ -47,5 +47,5 @@
 (list? '()) ; #t
 (list? '(a b c)) ; #t
 (list? 'a) ; #f
-; (list? '(3 . 4)) ; #f
+(list? (cons 3 4)) ; #f
 (list? 3) ; #f

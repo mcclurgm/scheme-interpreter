@@ -283,11 +283,12 @@ Value *primitiveCheckList(Value *args) {
     }
 
     Value *currentListElement = car(args);
-    if (currentListElement->type != NULL_TYPE) {
+    while (currentListElement->type != NULL_TYPE) {
         // If the cdr of the current list element is not a new cons cell, the
         // list is improper. 
         // Return false.
-        if (cdr(currentListElement)->type != CONS_TYPE) {
+        if (cdr(currentListElement)->type != CONS_TYPE 
+                && cdr(currentListElement)->type != NULL_TYPE) {
             result->i = false;
             return result;
         }

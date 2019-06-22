@@ -274,29 +274,7 @@ Value *primitiveCheckList(Value *args) {
 
     Value *result = makeValue();
     result->type = BOOL_TYPE;
-    result->i = true;
-
-    // If the argument is not a cons cell, short circuit: it can't be a list
-    if (car(args)->type != CONS_TYPE && car(args)->type != NULL_TYPE) {
-        result->i = false;
-        return result;
-    }
-
-    Value *currentListElement = car(args);
-    while (currentListElement->type != NULL_TYPE) {
-        // If the cdr of the current list element is not a new cons cell, the
-        // list is improper. 
-        // Return false.
-        if (cdr(currentListElement)->type != CONS_TYPE 
-                && cdr(currentListElement)->type != NULL_TYPE) {
-            result->i = false;
-            return result;
-        }
-
-        currentListElement = cdr(currentListElement);
-    }
-
-    // If we made it here, the argument must be a list.
+    result->i = isList(car(args));
     return result;
 }
 

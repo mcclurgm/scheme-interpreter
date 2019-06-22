@@ -33,7 +33,6 @@ bool isList(Value *list) {
     }
 
     while(current->type != NULL_TYPE) {
-
         if (cdr(current)->type != NULL_TYPE && cdr(current)->type != CONS_TYPE) {
             return false;
         }

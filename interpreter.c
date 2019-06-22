@@ -230,7 +230,7 @@ Value *primitiveDivide(Value *args) {
     return result;
 }
 
-Value *primitiveNull(Value *args) {
+Value *primitiveIsNull(Value *args) {
     if (args->type != CONS_TYPE) {
         printf("null? statement has no body: expected 1 argument, given none.\n");
         texit(1);
@@ -255,7 +255,7 @@ Value *primitiveNull(Value *args) {
     return result;
 }
 
-Value *primitiveCheckList(Value *args) {
+Value *primitiveIsList(Value *args) {
     if (args->type != CONS_TYPE) {
         printf("Arity mismatch:\n");
         printf("list? statement has no body: expected 1 argument, given none.\n");
@@ -822,8 +822,8 @@ void interpret(Value *tree) {
 	bindPrimitive("-", primitiveSubtract, global);
 	bindPrimitive("*", primitiveMult, global);
 	bindPrimitive("/", primitiveDivide, global);
-    bindPrimitive("null?", primitiveNull, global);
-    bindPrimitive("list?", primitiveCheckList, global);
+    bindPrimitive("null?", primitiveIsNull, global);
+    bindPrimitive("list?", primitiveIsList, global);
     bindPrimitive("car", primitiveCar, global);
     bindPrimitive("cdr", primitiveCdr, global);
     bindPrimitive("cons", primitiveCons, global);

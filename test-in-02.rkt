@@ -1,4 +1,4 @@
-; Test boolean functions: cond, and, or, if
+; Test boolean functions: cond, and, or, if, not
 
 ; cond
 (cond
@@ -29,3 +29,7 @@ avariable
 avariable
 (or)
 
+; not
+(not #t) ; #f
+(not #f) ; #t
+; (not "false") ; #f

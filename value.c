@@ -34,6 +34,20 @@ Value *makeBool(bool val) {
     return result;
 }
 
+Value *makeInt(int val) {
+    Value *result = makeValue();
+    (*result).type = INT_TYPE;
+    (*result).i = val;
+    return result;
+}
+
+Value *makeDouble(double val) {
+    Value *result = makeValue();
+    (*result).type = DOUBLE_TYPE;
+    (*result).d = val;
+    return result;
+}
+
 bool isList(Value *list) {
     Value *current = list;
     if (current->type != CONS_TYPE && current->type != NULL_TYPE) {

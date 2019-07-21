@@ -40,6 +40,12 @@ Value *makeNull();
 // Create a new VOID_TYPE Value.
 Value *makeVoid();
 
+// Create a new INT_TYPE Value.
+Value *makeInt();
+
+// Create a new DOUBLE_TYPE Value.
+Value *makeDouble();
+
 // Create a new BOOL_TYPE Value.
 Value *makeBool(bool val);
 

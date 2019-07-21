@@ -50,13 +50,11 @@ Value *primitiveAdd(Value *args) {
         current = cdr(current);
     }
 
-    Value *result = makeValue();
+    Value *result;
     if(isInt){
-        result->type = INT_TYPE;
-        result->i = sum;
+        result = makeInt(sum);
     } else {
-        result->type = DOUBLE_TYPE;
-        result->d = sum;
+        result = makeDouble(sum);
     }
     
     return result;
@@ -107,13 +105,11 @@ Value *primitiveSubtract(Value *args) {
         current = cdr(current);
     }
 
-    Value *result = makeValue();
+    Value *result;
     if(isInt){
-        result->type = INT_TYPE;
-        result->i = difference;
+        result = makeInt(difference);
     } else {
-        result->type = DOUBLE_TYPE;
-        result->d = difference;
+        result = makeDouble(difference);
     }
 
     return result;
@@ -141,13 +137,11 @@ Value *primitiveMult(Value *args) {
     }
 
     // Package result in a Value
-    Value *result = makeValue();
+    Value *result;
     if(isInt){
-        result->type = INT_TYPE;
-        result->i = product;
+        result = makeInt(product);
     } else {
-        result->type = DOUBLE_TYPE;
-        result->d = product;
+        result = makeDouble(product);
     }
     
     return result;
@@ -173,22 +167,19 @@ Value *primitiveDivide(Value *args) {
         texit(1);
     }
 
-    Value *result = makeValue();
+    Value *result;
     
     Value *numerator = car(args);
     Value *denominator = car(cdr(args));
     if (numerator->type == INT_TYPE) {
         if (denominator->type == INT_TYPE) {
             if (numerator->i % denominator->i != 0) {
-                result->type = DOUBLE_TYPE;
-                result->d = (1.0 * numerator->i) / denominator->i;
+                result = makeDouble((1.0 * numerator->i) / denominator->i);
             } else {
-                result->type = INT_TYPE;
-                result->i = numerator->i / denominator->i;
+                result = makeInt(numerator->i / denominator->i);
             }
         } else if (denominator->type == DOUBLE_TYPE) {
-            result->type = DOUBLE_TYPE;
-            result->d = numerator->i / denominator->d;
+            result = makeDouble(numerator->i / denominator->d);
         } else {
             printf("Expected number in /\n");
             printf("Given: ");
@@ -201,11 +192,9 @@ Value *primitiveDivide(Value *args) {
         }
     } else  if (numerator->type == DOUBLE_TYPE) {
         if (denominator->type == INT_TYPE) {
-            result->type = DOUBLE_TYPE;
-            result->d = numerator->d / denominator->i;
+            result = makeDouble(numerator->d / denominator->i);
         } else if (denominator->type == DOUBLE_TYPE) {
-            result->type = DOUBLE_TYPE;
-            result->d = numerator->d / denominator->d;
+            result = makeDouble(numerator->d / denominator->d);
         } else {
             printf("Expected number in /\n");
             printf("Given: ");
@@ -412,9 +401,7 @@ Value *primitiveLength(Value *args) {
         texit(1);
     }
 
-    Value *result = makeValue();
-    result->type = INT_TYPE;
-    result->i = 0;
+    Value *result = makeInt(0);
 
     // Null is an empty (zero-length) list
     if (car(args)->type == NULL_TYPE) {
@@ -735,14 +722,13 @@ Value *primitiveModulo(Value *args) {
         texit(1);
     }
 
-    Value *result = makeValue();
-    result->type = INT_TYPE;
+    Value *result;
 
     Value *first = car(args);
     Value *second = car(cdr(args));
     if (first->type == INT_TYPE) {
         if (second->type == INT_TYPE) {
-            result->i = (first->i % second->i);
+            result = makeInt(first->i % second->i);
         } else {
             printf("Expected integer in modulo\n");
             printf("Given: ");

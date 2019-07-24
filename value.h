@@ -41,10 +41,10 @@ Value *makeNull();
 Value *makeVoid();
 
 // Create a new INT_TYPE Value.
-Value *makeInt();
+Value *makeInt(int val);
 
 // Create a new DOUBLE_TYPE Value.
-Value *makeDouble();
+Value *makeDouble(double val);
 
 // Create a new BOOL_TYPE Value.
 Value *makeBool(bool val);

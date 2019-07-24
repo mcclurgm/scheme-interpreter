@@ -73,7 +73,7 @@ Value *primitiveSubtract(Value *args) {
         texit(1);
     }
 
-        double difference = 0;
+    double difference = 0;
     bool isInt = true;
     if(car(args)->type != INT_TYPE && car(args)->type != DOUBLE_TYPE) {
         printf("Expected number in +\n");
@@ -168,15 +168,16 @@ Value *primitiveDivide(Value *args) {
     }
 
     Value *result;
-    
     Value *numerator = car(args);
     Value *denominator = car(cdr(args));
     if (numerator->type == INT_TYPE) {
         if (denominator->type == INT_TYPE) {
             if (numerator->i % denominator->i != 0) {
-                result = makeDouble((1.0 * numerator->i) / denominator->i);
+                double dividend = (1.0 * numerator->i) / denominator->i;
+                result = makeDouble(dividend);
             } else {
-                result = makeInt(numerator->i / denominator->i);
+                int dividend = numerator->i / denominator->i;
+                result = makeInt(dividend);
             }
         } else if (denominator->type == DOUBLE_TYPE) {
             result = makeDouble(numerator->i / denominator->d);
@@ -401,12 +402,9 @@ Value *primitiveLength(Value *args) {
         texit(1);
     }
 
-    Value *result = makeInt(0);
-
     // Null is an empty (zero-length) list
     if (car(args)->type == NULL_TYPE) {
-        result->i = 0;
-        return result;
+        return makeInt(0);
     }
 
     if (car(args)->type != CONS_TYPE) {
@@ -417,8 +415,8 @@ Value *primitiveLength(Value *args) {
         texit(1);
     }
     
-    result->i = length(car(args));
-    return result;
+    int len = length(car(args));
+    return makeInt(len);
 }
 
 Value *primitiveEqual(Value *args) {
@@ -722,13 +720,11 @@ Value *primitiveModulo(Value *args) {
         texit(1);
     }
 
-    Value *result;
-
     Value *first = car(args);
     Value *second = car(cdr(args));
     if (first->type == INT_TYPE) {
         if (second->type == INT_TYPE) {
-            result = makeInt(first->i % second->i);
+            return makeInt(first->i % second->i);
         } else {
             printf("Expected integer in modulo\n");
             printf("Given: ");
@@ -750,8 +746,7 @@ Value *primitiveModulo(Value *args) {
         texit(1);
     }
 
-    return result;
-
+    assert(false && "Reached end of primitiveModulo without returning\n");
 }
 
 Value *primitiveNot(Value *args) {

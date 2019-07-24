@@ -237,9 +237,9 @@ Value *primitiveIsNull(Value *args) {
     Value *result = makeBool(true);
 
     if (car(args)->type == NULL_TYPE) {
-        result->i = true;
+        return makeBool(true);
     } else {
-        result->i = false;
+        return makeBool(false);
     }
 
     return result;

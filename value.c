@@ -5,7 +5,7 @@
 #include "linkedlist.h"
 #include "talloc.h"
 
-// Allocates a Value struct and initializes its marked attribute to false.
+// Allocates a Value struct, sets its type, and initializes it as unmarked.
 Value *makeValue() {
     Value *newValue = talloc(sizeof(Value));
     newValue->marked = false;
@@ -45,6 +45,13 @@ Value *makeDouble(double val) {
     Value *result = makeValue();
     (*result).type = DOUBLE_TYPE;
     (*result).d = val;
+    return result;
+}
+
+Value *makeString(char *val) {
+    Value *result = makeValue();
+    (*result).type = STR_TYPE;
+    (*result).s = val;
     return result;
 }
 

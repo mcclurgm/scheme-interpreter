@@ -50,7 +50,7 @@ Value *makeDouble(double val);
 Value *makeBool(bool val);
 
 // Create a new STR_TYPE Value.
-Value *makeString(bool val);
+Value *makeString(char * val);
 
 // Create a new SYMBOL_TYPE Value.
 Value *makeSymbol(char *val);

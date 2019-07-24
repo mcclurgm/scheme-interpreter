@@ -1143,8 +1143,7 @@ Value *evalDisplay(Value *argTree, Frame *activeFrame) {
     Value *evalResult = eval(argTree, activeFrame);
     printValue(evalResult);
 
-    Value *result = makeValue();
-    result->type = VOID_TYPE;
+    Value *result = makeValue(VOID_TYPE);
     return result;
 }
 
@@ -1433,8 +1432,7 @@ Value *evalLetRec(Value *argsTree, Frame *activeFrame)  {
     letFrame->bindings = makeNull();
 
     // Make bindings: first pass
-    Value *uninitializedValue = makeValue();
-    uninitializedValue->type = UNINITIALIZED;
+    Value *uninitializedValue = makeValue(UNINITIALIZED);
 
     Value *currentBindingPair = car(argsTree);
     while (currentBindingPair->type != NULL_TYPE) {
@@ -1547,8 +1545,7 @@ Value *evalLambda(Value *argsTree, Frame *activeFrame) {
         texit(1);
     }
 
-    Value *closure = makeValue();
-    closure->type = CLOSURE_TYPE;
+    Value *closure = makeValue(CLOSURE_TYPE);
     closure->cl.frame = activeFrame;
     closure->cl.paramNames = params;
     closure->cl.functionCode = body;
@@ -1640,8 +1637,8 @@ Value *evalDefine(Value *argsTree, Frame *activeFrame) {
         currentBindingValue->c.car = exprResult;
     }
 
-    Value *result = makeValue();
-    result->type = VOID_TYPE;
+    //TODO Use makeVoid here
+    Value *result = makeValue(VOID_TYPE);
     return result;
 }
 
@@ -1697,8 +1694,8 @@ Value *evalSetBang(Value *argsTree, Frame *activeFrame) {
         currentBinding->c.car = exprResult;
     }
 
-    Value *result = makeValue();
-    result->type = VOID_TYPE;
+    //TODO use makeVoid here
+    Value *result = makeValue(VOID_TYPE);
     return result;
 }
 

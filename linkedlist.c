@@ -25,8 +25,7 @@ Value *cons(Value *newCar, Value *newCdr) {
     assert(newCar != NULL);
     assert(newCdr != NULL);
 
-    Value *cell = makeValue();
-    (*cell).type = CONS_TYPE;
+    Value *cell = makeValue(CONS_TYPE);
 
     if ((*newCar).type == STR_TYPE){
         char* newString = talloc(sizeof(char) * (strlen((*newCar).s)+1));

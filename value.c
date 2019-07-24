@@ -6,58 +6,52 @@
 #include "talloc.h"
 
 // Allocates a Value struct, sets its type, and initializes it as unmarked.
-Value *makeValue() {
+Value *makeValue(valueType type) {
     Value *newValue = talloc(sizeof(Value));
     newValue->marked = false;
+    newValue->type = type;
     return newValue;
 }
 
 // Create a new NULL_TYPE value node.
 Value *makeNull() {
-    Value *null = makeValue();
-    (*null).type = NULL_TYPE;
+    Value *null = makeValue(NULL_TYPE);
     return null;
 }
 
 // Create a new VOID_TYPE value node.
 Value *makeVoid() {
-    Value *result = makeValue();
-    (*result).type = VOID_TYPE;
+    Value *result = makeValue(VOID_TYPE);
     return result;
 }
 
 // Create a new BOOL_TYPE Value.
 Value *makeBool(bool val) {
-    Value *result = makeValue();
-    (*result).type = BOOL_TYPE;
+    Value *result = makeValue(BOOL_TYPE);
     (*result).i = val;
     return result;
 }
 
 Value *makeInt(int val) {
-    Value *result = makeValue();
-    (*result).type = INT_TYPE;
+    Value *result = makeValue(INT_TYPE);
     (*result).i = val;
     return result;
 }
 
 Value *makeDouble(double val) {
-    Value *result = makeValue();
-    (*result).type = DOUBLE_TYPE;
+    Value *result = makeValue(DOUBLE_TYPE);
     (*result).d = val;
     return result;
 }
 
 Value *makeString(char *val) {
-    Value *result = makeValue();
-    (*result).type = STR_TYPE;
+    Value *result = makeValue(STR_TYPE);
     (*result).s = val;
     return result;
 }
 
 Value *makeSymbol(char *val) {
-    Value *result = makeValue();
-    (*result).type = SYMBOL_TYPE;
+    Value *result = makeValue(SYMBOL_TYPE);
     (*result).s = val;
     return result;
 }

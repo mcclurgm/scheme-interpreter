@@ -31,8 +31,8 @@ struct Value {
 
 typedef struct Value Value;
 
-// Allocates a Value struct and initializes its marked attribute to false.
-Value *makeValue();
+// Allocates a Value struct, sets its type, and initializes it as unmarked.
+Value *makeValue(valueType type);
 
 // Create a new NULL_TYPE Value.
 Value *makeNull();
@@ -54,6 +54,10 @@ Value *makeString(char * val);
 
 // Create a new SYMBOL_TYPE Value.
 Value *makeSymbol(char *val);
+
+// Note that there is not a makeCons() function. This is intentional, since
+// cons() should be used instead. It is both easier and ensures that cons cells
+// are Scheme-valid.
 
 bool isList(Value *list);
 

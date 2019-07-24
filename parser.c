@@ -59,9 +59,7 @@ Value *parseExpression(Value **currentToken) {
         Value *expr = parseExpression(currentToken);
         
         // Construct a (quote expr) expression
-        Value *quoteToken = makeValue();
-        quoteToken->type = SYMBOL_TYPE;
-        quoteToken->s = "quote";
+        Value *quoteToken = makeSymbol("quote");
         
         Value *quoteExpr = cons(expr, makeNull());
         quoteExpr = cons(quoteToken, quoteExpr);

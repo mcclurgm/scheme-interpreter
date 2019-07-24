@@ -780,9 +780,7 @@ Value *primitiveNot(Value *args) {
 
 void bindPrimitive(char *name, Value *(*function)(struct Value *), Frame *frame) {
     // Add primitive functions to top-level bindings list
-	Value *symbol = makeValue();
-	symbol->type = SYMBOL_TYPE;
-	symbol->s = name;
+    Value *symbol = makeSymbol(name);
 
     Value *value = talloc(sizeof(Value));
     value->type = PRIMITIVE_TYPE;

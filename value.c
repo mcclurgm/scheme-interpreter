@@ -48,6 +48,13 @@ Value *makeDouble(double val) {
     return result;
 }
 
+Value *makeSymbol(char *val) {
+    Value *result = makeValue();
+    (*result).type = SYMBOL_TYPE;
+    (*result).s = val;
+    return result;
+}
+
 bool isList(Value *list) {
     Value *current = list;
     if (current->type != CONS_TYPE && current->type != NULL_TYPE) {

@@ -49,6 +49,12 @@ Value *makeDouble(double val);
 // Create a new BOOL_TYPE Value.
 Value *makeBool(bool val);
 
+// Create a new STR_TYPE Value.
+Value *makeString(bool val);
+
+// Create a new SYMBOL_TYPE Value.
+Value *makeSymbol(char *val);
+
 bool isList(Value *list);
 
 bool isNumber(Value *value);

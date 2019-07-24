@@ -782,8 +782,7 @@ void bindPrimitive(char *name, Value *(*function)(struct Value *), Frame *frame)
     // Add primitive functions to top-level bindings list
     Value *symbol = makeSymbol(name);
 
-    Value *value = talloc(sizeof(Value));
-    value->type = PRIMITIVE_TYPE;
+    Value *value = makeValue(PRIMITIVE_TYPE);
     value->pf = function;
     
 	Value *binding = makeNull();
@@ -1637,9 +1636,7 @@ Value *evalDefine(Value *argsTree, Frame *activeFrame) {
         currentBindingValue->c.car = exprResult;
     }
 
-    //TODO Use makeVoid here
-    Value *result = makeValue(VOID_TYPE);
-    return result;
+    return makeVoid();
 }
 
 Value *evalSetBang(Value *argsTree, Frame *activeFrame) {
@@ -1694,9 +1691,7 @@ Value *evalSetBang(Value *argsTree, Frame *activeFrame) {
         currentBinding->c.car = exprResult;
     }
 
-    //TODO use makeVoid here
-    Value *result = makeValue(VOID_TYPE);
-    return result;
+    return makeVoid();
 }
 
 Value *evalLoad(Value *args, Frame *activeFrame) {

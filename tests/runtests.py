@@ -11,7 +11,7 @@ for filename in sorted(os.listdir()):
     if filename.endswith(".rkt"):
         m = re.match('test-in-(.*).rkt', filename)
         expectedOutput = 'test-out-'+m.group(1)+'.txt'
-        result = subprocess.run('./interpreter',stdin=open(filename),
+        result = subprocess.run('../interpreter',stdin=open(filename),
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         print(type(result))
         # Get expected output

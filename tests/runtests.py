@@ -9,12 +9,11 @@ import pprint
 subprocess.run(['make', '-C', '..'])
 
 # Try clang scan-build, just for fun.
-# clangresult = subprocess.run(['scan-build', 'make', '-C', '..'],
-#                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-# if "No bugs found." not in clangresult.stdout.decode():
-#     print("Clang static analyzer thinks it found a bug.")
-#     print(clangresult.stdout.decode())
-#     exit()
+clangresult = subprocess.run(['scan-build', 'make', '-C', '..'],
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+if "No bugs found." not in clangresult.stdout.decode():
+    print("Clang static analyzer thinks it found a bug.")
+    print(clangresult.stdout.decode())
 
 allTestsPass = True
 for filename in sorted(os.listdir()):

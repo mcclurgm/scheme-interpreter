@@ -3,9 +3,9 @@ CFLAGS = -g
 #DEBUG = -DBINARYDEBUG
 
 #SRCS = linkedlist.c value.c talloc.c tokenizer.c parser.c interpreter.c main.c
-SRCS = $(wildcard */*.c)
+SRCS = $(wildcard src/*.c)
 #HDRS = linkedlist.h value.h talloc.h tokenizer.h parser.h interpreter.h
-HDRS = $(wildcard */*.h)
+HDRS = $(wildcard src/*.h)
 OBJS = $(SRCS:.c=.o)
 
 interpreter: $(OBJS)
@@ -15,6 +15,6 @@ interpreter: $(OBJS)
 	$(CC)  $(CFLAGS) $(DEBUG) -c $<  -o $@
 
 clean:
-	rm *.o
+	rm src/*.o
 	rm interpreter
 

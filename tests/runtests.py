@@ -5,38 +5,48 @@ import subprocess
 import filecmp
 import pprint
 
-
 allTestsPass = True
 for filename in sorted(os.listdir()):
-    if filename.endswith(".rkt"):
+    if filename.endswith('.rkt'):
+        # Get files
         m = re.match('test-in-(.*).rkt', filename)
         expectedOutput = 'test-out-'+m.group(1)+'.txt'
-        result = subprocess.run('../interpreter',stdin=open(filename),
+        sourcefile = open(filename)
+
+        # Check for correct output
+        result = subprocess.run('./valgrind.sh',stdin=open(filename),
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print(type(result))
-        # Get expected output
+        output = result.stdout
+        valgrind_output = result.stderr.decode('utf-8')
+        
+        # Check output
         with open(expectedOutput,"rb") as expOut:
             expResults = expOut.read()
         with open(expectedOutput,"r") as expOut:
             expResultsPretty = expOut.read()
+        testPassesCorrectness = result.stdout==expResults
+        testPassesMemory = "ERROR SUMMARY: 0 errors from 0 contexts" in valgrind_output
 
-        testPasses = result.stdout==expResults
+        testPasses = testPassesCorrectness and testPassesMemory
+        allTestsPass = allTestsPass and testPasses
         print("Input:",filename,"Expected output:",expectedOutput,
               "Success:",testPasses)
-
-        allTestsPass = allTestsPass and testPasses
-        if not testPasses:
+        if not testPassesCorrectness:
+            print("Correctness error.")
             print("Actual output in bytes:")
-            print(result.stdout)
+            print(output)
             print("Expected output in bytes:")
             print(expResults)
-            
             print()
-            
             print("Actual output:")
-            print(result.stdout.decode('utf-8'))
+            print(output.decode())
             print("Expected output:")
             print(expResultsPretty)
+        if not testPassesMemory:
+            print("Valgrind error.")
+            print("Output:")
+            print(valgrind_output)
+        sourcefile.close()
 
 if allTestsPass:
     print('All tests passed!')

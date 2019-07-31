@@ -9,6 +9,10 @@
 #include "talloc.h"
 #include "tokenizer.h"
 
+//==================
+// Helper Functions
+//==================
+
 /* 
 Assumes that both arguments are numbers.
 Check this before you call it.
@@ -28,6 +32,25 @@ bool compareNumbers(Value *one, Value *two) {
         }
     }
 }
+
+/*
+Evaluates each expression in body.
+Returns a linked list of all the expression results.
+*/
+Value *evalEach(Value *body, Frame *activeFrame) {
+    Value *result = makeNull();
+    Value *currentExpr = body;
+    while(currentExpr->type != NULL_TYPE) {
+        result = cons(eval(currentExpr, activeFrame), result);
+        currentExpr = cdr(currentExpr);
+    }
+
+    return reverse(result);
+}
+
+//==================
+// Primitives
+//==================
 
 Value *primitiveAdd(Value *args) {
     double sum = 0;
@@ -787,46 +810,9 @@ void bindPrimitive(char *name, Value *(*function)(struct Value *), Frame *frame)
 	frame->bindings = cons(binding, frame->bindings);
 }
 
-void interpret(Value *tree) {
-    Frame *global = talloc(sizeof(Frame));
-    global->parent = NULL;
-    global->bindings = makeNull();
-
-	bindPrimitive("+", primitiveAdd, global);
-	bindPrimitive("-", primitiveSubtract, global);
-	bindPrimitive("*", primitiveMult, global);
-	bindPrimitive("/", primitiveDivide, global);
-    bindPrimitive("null?", primitiveIsNull, global);
-    bindPrimitive("list?", primitiveIsList, global);
-    bindPrimitive("car", primitiveCar, global);
-    bindPrimitive("cdr", primitiveCdr, global);
-    bindPrimitive("cons", primitiveCons, global);
-    bindPrimitive("list", primitiveList, global);
-    bindPrimitive("append", primitiveAppend, global);
-    bindPrimitive("reverse", primitiveReverse, global);
-    bindPrimitive("length", primitiveLength, global);
-    bindPrimitive("equal?", primitiveEqual, global);
-    bindPrimitive("eq?", primitiveEq, global);
-    bindPrimitive("number?", primitiveIsNumber, global);
-    bindPrimitive("=", primitiveEqualNum, global);
-    bindPrimitive("<", primitiveLessThan, global);
-    bindPrimitive(">", primitiveGreaterThan, global);
-    bindPrimitive("modulo", primitiveModulo, global);
-    bindPrimitive("not", primitiveNot, global);
-
-    Value *current = tree;
-    while(current->type != NULL_TYPE) {
-        Value *result = eval(current, global);
-
-        if (result->type != VOID_TYPE) {
-            printValue(result);
-            printf("\n");
-        }
-
-        current = cdr(current);
-    }
-    printf("\n");
-}
+//============================
+// Standard Evaluation: apply
+//============================
 
 Value *lookupBindingInFrame(Value *symbol, Frame *frame) {
     Value *currentBinding = frame->bindings;
@@ -1012,6 +998,10 @@ Value *apply(Value *function, Value *argsTree) {
     
     return result;
 }
+
+//==================
+// Special Forms
+//==================
 
 Value *evalBegin(Value *argsTree, Frame *activeFrame) {
     Value *result = makeVoid();
@@ -1750,23 +1740,11 @@ Value *evalLoad(Value *args, Frame *activeFrame) {
     }
 
     return evalBegin(tree, globalFrame);
-
 }
 
-/*
-Evaluates each expression in body.
-Returns a linked list of all the expression results.
-*/
-Value *evalEach(Value *body, Frame *activeFrame) {
-    Value *result = makeNull();
-    Value *currentExpr = body;
-    while(currentExpr->type != NULL_TYPE) {
-        result = cons(eval(currentExpr, activeFrame), result);
-        currentExpr = cdr(currentExpr);
-    }
-
-    return reverse(result);
-}
+//=======================================================
+// Fundamentals: Base Function and Expression Evaluation
+//=======================================================
 
 Value *eval(Value *tree, Frame *frame) {
     assert(tree != NULL);
@@ -1870,4 +1848,46 @@ Value *eval(Value *tree, Frame *frame) {
     printf("\n");
     texit(2);
     return NULL;
+}
+
+
+void interpret(Value *tree) {
+    Frame *global = talloc(sizeof(Frame));
+    global->parent = NULL;
+    global->bindings = makeNull();
+
+	bindPrimitive("+", primitiveAdd, global);
+	bindPrimitive("-", primitiveSubtract, global);
+	bindPrimitive("*", primitiveMult, global);
+	bindPrimitive("/", primitiveDivide, global);
+    bindPrimitive("null?", primitiveIsNull, global);
+    bindPrimitive("list?", primitiveIsList, global);
+    bindPrimitive("car", primitiveCar, global);
+    bindPrimitive("cdr", primitiveCdr, global);
+    bindPrimitive("cons", primitiveCons, global);
+    bindPrimitive("list", primitiveList, global);
+    bindPrimitive("append", primitiveAppend, global);
+    bindPrimitive("reverse", primitiveReverse, global);
+    bindPrimitive("length", primitiveLength, global);
+    bindPrimitive("equal?", primitiveEqual, global);
+    bindPrimitive("eq?", primitiveEq, global);
+    bindPrimitive("number?", primitiveIsNumber, global);
+    bindPrimitive("=", primitiveEqualNum, global);
+    bindPrimitive("<", primitiveLessThan, global);
+    bindPrimitive(">", primitiveGreaterThan, global);
+    bindPrimitive("modulo", primitiveModulo, global);
+    bindPrimitive("not", primitiveNot, global);
+
+    Value *current = tree;
+    while(current->type != NULL_TYPE) {
+        Value *result = eval(current, global);
+
+        if (result->type != VOID_TYPE) {
+            printValue(result);
+            printf("\n");
+        }
+
+        current = cdr(current);
+    }
+    printf("\n");
 }

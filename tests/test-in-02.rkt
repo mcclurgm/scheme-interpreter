@@ -37,7 +37,7 @@ avariable
 (and)
 
 ; or
-(or 1 2)
+; (or 1 2)
 ; use side effects to test short circuit
 (or (ohno 5) #t #f)
 avariable

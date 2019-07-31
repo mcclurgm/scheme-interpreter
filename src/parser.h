@@ -1,7 +1,7 @@
-#include "value.h"
-
 #ifndef _PARSER
 #define _PARSER
+
+#include "value.h"
 
 // Takes a list of tokens from a Racket program, and returns a pointer to a
 // parse tree representing that program.

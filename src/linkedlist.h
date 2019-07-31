@@ -1,8 +1,8 @@
-#include <stdbool.h>
-#include "value.h"
-
 #ifndef _LINKEDLIST
 #define _LINKEDLIST
+
+#include <stdbool.h>
+#include "value.h"
 
 // Create a new CONS_TYPE value node.
 //

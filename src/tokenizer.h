@@ -1,9 +1,9 @@
+#ifndef _TOKENIZER
+#define _TOKENIZER
+
 #include "value.h"
 #include "linkedlist.h"
 #include "talloc.h"
-
-#ifndef _TOKENIZER
-#define _TOKENIZER
 
 // Read all of the input from stdin, and return a linked list consisting of the
 // tokens.

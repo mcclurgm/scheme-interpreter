@@ -24,6 +24,7 @@
 ; (income-tax 50000) ; 6800.0 
 
 ; and
+; (and 1 2)
 ; use side effects to test short circuit
 (define avariable 1)
 (define (ohno x)
@@ -36,6 +37,8 @@ avariable
 (and)
 
 ; or
+(or 1 2)
+; use side effects to test short circuit
 (or (ohno 5) #t #f)
 avariable
 (or #t #f (ohno 6))

@@ -1,8 +1,8 @@
-#include <stdlib.h>
-#include "value.h"
-
 #ifndef _TALLOC
 #define _TALLOC
+
+#include <stdlib.h>
+#include "value.h"
 
 // Replacement for malloc that stores the pointers allocated. It should store
 // the pointers in some kind of list; a linked list would do fine, but insert

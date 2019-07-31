@@ -34,6 +34,20 @@ bool compareNumbers(Value *one, Value *two) {
 }
 
 /*
+ Returns the global frame of the evaluation environment.
+ 
+ Iterates through the parents of activeFrame until it finds the global,
+ which does not have a parent. This is denoted by a NULL pointer.
+ */
+Frame *getGlobalFrame(Frame *activeFrame) {
+    Frame *globalFrame = activeFrame;
+    while (globalFrame->parent != NULL) {
+        globalFrame = globalFrame->parent;
+    }
+    return globalFrame;
+}
+
+/*
 Evaluates each expression in body.
 Returns a linked list of all the expression results.
 */
@@ -1620,11 +1634,7 @@ Value *evalDefine(Value *argsTree, Frame *activeFrame) {
         texit(1);
     }
 
-    // Get the global frame
-    Frame *globalFrame = activeFrame;
-    while (globalFrame->parent != NULL) {
-        globalFrame = globalFrame->parent;
-    }
+    Frame *globalFrame = getGlobalFrame(activeFrame);
 
     Value *currentBindingValue = lookupBindingInFrame(symbol, globalFrame);
     if (currentBindingValue == NULL) {
@@ -1733,11 +1743,7 @@ Value *evalLoad(Value *args, Frame *activeFrame) {
     Value *tree = parse(tokenList);
     fclose(fp);
     
-    // Get the global frame
-    Frame *globalFrame = activeFrame;
-    while (globalFrame->parent != NULL) {
-        globalFrame = globalFrame->parent;
-    }
+    Frame *globalFrame = getGlobalFrame(activeFrame);
 
     return evalBegin(tree, globalFrame);
 }

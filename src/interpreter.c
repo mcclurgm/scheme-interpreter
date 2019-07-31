@@ -1090,17 +1090,26 @@ Value *evalCond(Value *argsTree, Frame *activeFrame) {
 
 Value *evalAnd(Value *argsTree, Frame *activeFrame) {
     // Evaluates to #t until it hits a false case
-
     Value *currentExpr = argsTree;
     while(currentExpr->type != NULL_TYPE) {
         Value *condition = eval(currentExpr, activeFrame);
-        // Assuming condition is always a boolean
+        if (condition->type != BOOL_TYPE) {
+            printf("and expression expected boolean.\n");
+            printf("Given: ");
+            printValue(car(currentExpr));
+            printf(", which evaluates to ");
+            printValue(condition);
+            printf("\n");
+            printf("Expression: (and ");
+            printTree(argsTree);
+            printf(")\n");
+            texit(1);
+        }
         if (!condition->i) {
             return makeBool(false);
         }
         currentExpr = cdr(currentExpr);
     }
-    
     return makeBool(true);
 }
 
@@ -1110,7 +1119,18 @@ Value *evalOr(Value *argsTree, Frame *activeFrame) {
     Value *currentExpr = argsTree;
     while(currentExpr->type != NULL_TYPE) {
         Value *condition = eval(currentExpr, activeFrame);
-        // Assuming condition is always a boolean
+        if (condition->type != BOOL_TYPE) {
+            printf("or expression expected boolean.\n");
+            printf("Given: ");
+            printValue(car(currentExpr));
+            printf(", which evaluates to ");
+            printValue(condition);
+            printf("\n");
+            printf("Expression: (or ");
+            printTree(argsTree);
+            printf(")\n");
+            texit(1);
+        }
         if (condition->i) {
             return makeBool(true);
         }

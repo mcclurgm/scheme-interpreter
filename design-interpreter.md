@@ -162,7 +162,8 @@
   * `or`: `#f`
 * `and` evaluates to `#t` until it hits a false case, then short circuits.
   `or` evaluates to `#f` until it hits a true case, then short circuits.
-* Assuming that all arguments are `BOOL_TYPE`
+* Requires that all arguments by boolean. 
+  This is not standard Scheme behavior, but is currently implemented that way.
 
 ### Bonus: `load`
 

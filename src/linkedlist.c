@@ -176,13 +176,11 @@ Value *append(Value *newList, Value *oldList) {
     if (isList(newList) && isList(oldList)) {
         Value *result = oldList;
         Value *current = reverse(newList);
-        Value *freeMe = current;
         while ((*current).type != NULL_TYPE) {
             assert((*current).type == CONS_TYPE || (*current).type == NULL_TYPE);
             result = cons(car(current), result);
             current = cdr(current);
         }
-        //cleanup(freeMe);
         return result;
     } else {
         printf("append: contract violation\n");

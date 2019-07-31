@@ -234,15 +234,11 @@ Value *primitiveIsNull(Value *args) {
         texit(1);
     }
 
-    Value *result = makeBool(true);
-
     if (car(args)->type == NULL_TYPE) {
         return makeBool(true);
     } else {
         return makeBool(false);
     }
-
-    return result;
 }
 
 Value *primitiveIsList(Value *args) {
@@ -1277,14 +1273,12 @@ Value *evalIf(Value *argsTree, Frame *activeFrame) {
         texit(1);
     }
 
-    Value *result = makeNull();
     if (cond->i) {
         // Condition is true
-        result = eval(thenExpr, activeFrame);
+        return eval(thenExpr, activeFrame);
     } else {
-        result = eval(elseExpr, activeFrame);
+        return eval(elseExpr, activeFrame);
     }
-    return result;
 }
 
 Value *evalLet(Value *argsTree, Frame *activeFrame) {

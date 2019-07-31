@@ -9,7 +9,7 @@ void catLetter(char *str, char letter) {
     int strLength = strlen(str);
     str[strLength] = letter;
     str[strLength +1] = '\0';
-    strLength = strlen(str);
+    assert(strLength+1 ==  strlen(str) && "catLetter produces wrong length string");
 }
 
 bool isSymbolInitial(char c) {

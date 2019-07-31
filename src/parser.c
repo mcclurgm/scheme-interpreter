@@ -124,7 +124,7 @@ void printValue(Value *val) {
     else if (val->type == CLOSE_TYPE) {
         printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO CLOSE_TYPE\n");
     }
-    else if (val->type == BOOL_TYPE) {
+    else if (isBoolean(val)) {
         if (val->i > 0) {
             printf("#t");
         } else {
@@ -225,7 +225,7 @@ void printTreeTest(Value *tree, int indent) {
         else if (car(current)->type == CLOSE_TYPE) {
             printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO CLOSE_TYPE\n");
         }
-        else if (car(current)->type == BOOL_TYPE) {
+        else if (isBoolean(car(current))) {
             if (car(current)->i > 0) {
                 printf("#t\n");
             } else {

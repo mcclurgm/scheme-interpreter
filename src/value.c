@@ -82,3 +82,9 @@ bool isNumber(Value *value) {
     assert(value != NULL);
     return (value->type == INT_TYPE || value->type == DOUBLE_TYPE);
 }
+
+// Check that the value is a boolean.
+bool isBoolean(Value *value) {
+    assert(value != NULL);
+    return value->type == BOOL_TYPE;
+}

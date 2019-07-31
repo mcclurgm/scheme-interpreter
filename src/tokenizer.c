@@ -72,7 +72,7 @@ Value *endToken(Value *tokens) {
     else if (car(tokens)->type == DOUBLE_TYPE) {
         car(tokens)->d = atof(car(tokens)->s);
     }
-    else if (car(tokens)->type == BOOL_TYPE) {
+    else if (isBoolean(car(tokens))) {
         if (car(tokens)->i == -1) {
             printf("Syntax error: invalid bool declaration.\n");
             printf("Isolated '#' is invalid.\n");
@@ -311,7 +311,7 @@ Value *tokenize(FILE *fp) {
             tokens = parseNumber(charRead, tokens);
         }
 
-        else if (car(tokens)->type == BOOL_TYPE) {
+        else if (isBoolean(car(tokens))) {
             if (car(tokens)->i == -1) {
                 if (charRead == 't') {
                     car(tokens)->i = 1;
@@ -378,7 +378,7 @@ void displayTokens(Value *list) {
         else if (car(current)->type == CLOSE_TYPE) {
             printf("%s:close\n", car(current)->s);
         }
-        else if (car(current)->type == BOOL_TYPE) {
+        else if (isBoolean(car(current))) {
             if (car(current)->i > 0) {
                 printf("#t:bool\n");
             } else {

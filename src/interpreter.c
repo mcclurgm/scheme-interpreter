@@ -481,7 +481,8 @@ Value *primitiveEqual(Value *args) {
         return makeBool(false);
     }
 
-    if (first->type == INT_TYPE || first->type == BOOL_TYPE) {
+    if (first->type == INT_TYPE || isBoolean(first)) {
+        // Booleans are really C ints, so they can be treated identically
         if (first->i == second->i) {
             return makeBool(true);
         } else {
@@ -1757,14 +1758,14 @@ Value *eval(Value *tree, Frame *frame) {
 
     Value *expr = car(tree);
 
-    // Primitive types
+    // Primitive (atomic) types
     if (expr->type == INT_TYPE) {
         return expr;
     } else if (expr->type == DOUBLE_TYPE) {
         return expr;
     } else if (expr->type == STR_TYPE) {
         return expr;
-    } else if (expr->type == BOOL_TYPE) {
+    } else if (isBoolean(expr)) {
         return expr;
     } else if (expr->type == PRIMITIVE_TYPE) {
         return expr;

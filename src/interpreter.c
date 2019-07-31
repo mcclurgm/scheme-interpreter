@@ -295,7 +295,7 @@ Value *primitiveIsList(Value *args) {
     }
 
     Value *listVal = car(args);
-    return makeBool(isList(listVal));
+    return makeBool(isProperList(listVal));
 }
 
 Value *primitiveCar(Value *args) {

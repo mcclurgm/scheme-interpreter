@@ -56,12 +56,16 @@ Value *makeSymbol(char *val) {
     return result;
 }
 
-bool isList(Value *list) {
-    Value *current = list;
+// Check that the value is the head of a proper list structure.
+//TODO Note, this does not check for circular lists.
+bool isProperList(Value *value) {
+    Value *current = value;
+    // Check that the current value is either a cons cell or null
     if (current->type != CONS_TYPE && current->type != NULL_TYPE) {
         return false;
     }
 
+    // Check that each subsequent value also starts a valid list
     while(current->type != NULL_TYPE) {
         if (cdr(current)->type != NULL_TYPE && cdr(current)->type != CONS_TYPE) {
             return false;
@@ -72,6 +76,8 @@ bool isList(Value *list) {
     return true;
 }
 
+// Check that the value is a numeric type.
+// Currently implemented are integer and float types.
 bool isNumber(Value *value) {
     assert(value != NULL);
     return (value->type == INT_TYPE || value->type == DOUBLE_TYPE);

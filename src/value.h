@@ -55,12 +55,16 @@ Value *makeString(char * val);
 // Create a new SYMBOL_TYPE Value.
 Value *makeSymbol(char *val);
 
-// Note that there is not a makeCons() function. This is intentional, since
-// cons() should be used instead. It is both easier and ensures that cons cells
-// are Scheme-valid.
+// Note that there is not a makeCons() function. This is intentional, since the
+// cons() function should be used instead. It is both easier and ensures that 
+// cons cells are Scheme-valid, with values in both car and cdr.
 
-bool isList(Value *list);
+// Check that the value is the head of a proper list structure.
+//TODO Note, this does not check for circular lists.
+bool isProperList(Value *value);
 
+// Check that the value is a numeric type.
+// Currently implemented are integer and float types.
 bool isNumber(Value *value);
 
 #endif

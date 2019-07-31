@@ -86,7 +86,7 @@ void display(Value *list) {
 Value *reverse(Value *list) {
     assert(list != NULL);
     assert((*list).type == CONS_TYPE || (*list).type == NULL_TYPE);
-    if (isList(list)) {
+    if (isProperList(list)) {
         Value *partial = makeNull();
         Value *current = list;
         while ((*current).type != NULL_TYPE) {
@@ -124,7 +124,7 @@ int length(Value *value) {
     assert(value != NULL);
     assert((*value).type == CONS_TYPE || (*value).type == NULL_TYPE);
 
-    if (isList(value)) {
+    if (isProperList(value)) {
         Value *current = value;
         int length = 0;
         while ((*current).type != NULL_TYPE) {
@@ -173,7 +173,7 @@ Value *append(Value *newList, Value *oldList) {
     assert(oldList != NULL);
     assert((*newList).type == CONS_TYPE || isNull(newList));
     assert((*oldList).type == CONS_TYPE || isNull(oldList));
-    if (isList(newList) && isList(oldList)) {
+    if (isProperList(newList) && isProperList(oldList)) {
         Value *result = oldList;
         Value *current = reverse(newList);
         while ((*current).type != NULL_TYPE) {

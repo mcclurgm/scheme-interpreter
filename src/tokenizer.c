@@ -187,6 +187,41 @@ Value *parseSymbol(char charRead, Value *tokens) {
     return tokens;
 }
 
+Value *parseBool(char charRead, Value *tokens) {
+    if (car(tokens)->i == -1) {
+        if (charRead == 't') {
+            car(tokens)->i = 1;
+        }
+        else if (charRead == 'f') {
+            car(tokens)->i = 0;
+        }
+        else {
+            printf("Syntax error. Invalid Bool Type declaration at char:\n");
+            printf("%c\n", charRead);
+            texit(1);
+        }
+    }
+    else {
+        printf("Syntax error. Invalid Bool Type declaration at char:\n");
+        printf("%c\n", charRead);
+        texit(1);
+    }
+    return tokens;
+}
+
+Value *parseDot(char charRead, Value *tokens) {
+    if (isdigit(charRead)) {
+        car(tokens)->type = DOUBLE_TYPE;
+        catLetter(car(tokens)->s, charRead);
+    } else {
+        printf("Syntax error: dot must be on its own or in number.\n");
+        catLetter(car(tokens)->s, charRead);
+        printf("At token: %s\n", car(tokens)->s);
+        texit(1);
+    }
+    return tokens;
+}
+
 Value *parseFirstChar(char charRead, Value *tokens) {
     if (isdigit(charRead)) {
         car(tokens)->type = INT_TYPE;
@@ -214,19 +249,6 @@ Value *parseFirstChar(char charRead, Value *tokens) {
         texit(1);
     }
 
-    return tokens;
-}
-
-Value *parseDot(char charRead, Value *tokens) {
-    if (isdigit(charRead)) {
-        car(tokens)->type = DOUBLE_TYPE;
-        catLetter(car(tokens)->s, charRead);
-    } else {
-        printf("Syntax error: dot must be on its own or in number.\n");
-        catLetter(car(tokens)->s, charRead);
-        printf("At token: %s\n", car(tokens)->s);
-        texit(1);
-    }
     return tokens;
 }
 
@@ -312,24 +334,7 @@ Value *tokenize(FILE *fp) {
         }
 
         else if (isBoolean(car(tokens))) {
-            if (car(tokens)->i == -1) {
-                if (charRead == 't') {
-                    car(tokens)->i = 1;
-                }
-                else if (charRead == 'f') {
-                    car(tokens)->i = 0;
-                }
-                else {
-                    printf("Syntax error. Invalid Bool Type declaration at char:\n");
-                    printf("%c\n", charRead);
-                    texit(1);
-                }
-            }
-            else {
-                printf("Syntax error. Invalid Bool Type declaration at char:\n");
-                printf("%c\n", charRead);
-                texit(1);
-            }
+            tokens = parseBool(charRead, tokens);
         } else if (car(tokens)->type == DOT_TYPE) {
             tokens = parseDot(charRead, tokens);
         } else if (car(tokens)->type == SYMBOL_TYPE) {

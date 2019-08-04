@@ -66,14 +66,24 @@ bool isSymbolSubsequent(char c) {
 }
 
 Value *endToken(Value *tokens) {
+    char *tokenString = car(tokens)->s;
     if (car(tokens)->type == INT_TYPE) {
-        car(tokens)->i = atoi(car(tokens)->s);
+        car(tokens)->i = atoi(tokenString);
     }
     else if (car(tokens)->type == DOUBLE_TYPE) {
-        car(tokens)->d = atof(car(tokens)->s);
+        car(tokens)->d = atof(tokenString);
     }
     else if (isBoolean(car(tokens))) {
-        if (car(tokens)->i == -1) {
+        if (!strcmp(tokenString, "#t")) {
+            car(tokens)->i = true;
+        } else if (!strcmp(tokenString, "#f")) {
+            car(tokens)->i = false;
+        } else {
+            // Invalid boolean.
+            // Trying to end token before it reaches multiple characters: 
+            // just "#". Other cases (invalid character, too long, etc) should 
+            // be caught in parseBool.
+            assert(!strcmp(tokenString, "#t") && "Invalid token made it past parseBool");
             printf("Syntax error: invalid bool declaration.\n");
             printf("Isolated '#' is invalid.\n");
             texit(1);
@@ -159,10 +169,8 @@ Value *parseNumber(char charRead, Value *tokens) {
 }
 
 Value *parseSymbol(char charRead, Value *tokens) {
-    // These cases create numbers, not symbols.
-    if (strcmp(car(tokens)->s, "+") == 0
-        || strcmp(car(tokens)->s, "-") == 0) {
-
+    if (strcmp(car(tokens)->s, "+") == 0 || strcmp(car(tokens)->s, "-") == 0) {
+        // These cases create numbers, not symbols
         if (isdigit(charRead)) {
             car(tokens)->type = INT_TYPE;
             catLetter(car(tokens)->s, charRead);
@@ -188,21 +196,19 @@ Value *parseSymbol(char charRead, Value *tokens) {
 }
 
 Value *parseBool(char charRead, Value *tokens) {
-    if (car(tokens)->i == -1) {
-        if (charRead == 't') {
-            car(tokens)->i = 1;
-        }
-        else if (charRead == 'f') {
-            car(tokens)->i = 0;
-        }
-        else {
-            printf("Syntax error. Invalid Bool Type declaration at char:\n");
+    // Note: this assumes that it is appending to an existing bool (which must
+    // start with '#'), and can't handle a first character.
+    if (!strcmp(car(tokens)->s, "#")) {
+        if (charRead == 't' || charRead == 'f') {
+            catLetter(car(tokens)->s, charRead);
+        } else {
+            printf("Syntax error. Invalid character in Boolean declaration at char:\n");
             printf("%c\n", charRead);
             texit(1);
         }
-    }
-    else {
-        printf("Syntax error. Invalid Bool Type declaration at char:\n");
+    } else {
+        catLetter(car(tokens)->s, charRead);
+        printf("Syntax error. Invalid Boolean declaration: %s at char: ", car(tokens)->s);
         printf("%c\n", charRead);
         texit(1);
     }
@@ -237,7 +243,8 @@ Value *parseFirstChar(char charRead, Value *tokens) {
     }
     else if (charRead == '#') {
         car(tokens)->type = BOOL_TYPE;
-        car(tokens)->i = -1;
+        car(tokens)->s = talloc(255*sizeof(char));
+        strcpy(car(tokens)->s, "#");
     }
     else if (isSymbolInitial(charRead) || charRead == '+' || charRead == '-') {
         car(tokens)->type = SYMBOL_TYPE;

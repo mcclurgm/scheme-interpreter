@@ -18,14 +18,14 @@ Assumes that both arguments are numbers.
 Check this before you call it.
 */
 bool compareNumbers(Value *one, Value *two) {
-    if (one->type == INT_TYPE) {
-        if (two->type == INT_TYPE) {
+    if (isInteger(one)) {
+        if (isInteger(two)) {
             return one->i == two->i;
         } else {
             return one->i == two->d;
         }
     } else {
-        if (two->type == INT_TYPE) {
+        if (isInteger(two)) {
             return one->d == two->i;
         } else {
             return one->d == two->d;
@@ -78,7 +78,7 @@ Value *primitiveAdd(Value *args) {
             printTree(current);
             printf("\n");
             texit(1);
-        } else if (car(current)->type == INT_TYPE) {
+        } else if (isInteger(car(current))) {
             sum += car(current)->i;
         } else {
             sum += car(current)->d;
@@ -118,7 +118,7 @@ Value *primitiveSubtract(Value *args) {
         printTree(args);
         printf("\n");
         texit(1);
-    } else if (car(args)->type == INT_TYPE) {
+    } else if (isInteger(car(args))) {
         difference = car(args)->i;
     } else {
         difference = car(args)->d;
@@ -133,7 +133,7 @@ Value *primitiveSubtract(Value *args) {
             printTree(current);
             printf("\n");
             texit(1);
-        } else if (car(current)->type == INT_TYPE) {
+        } else if (isInteger(car(current))) {
             difference -= car(current)->i;
         } else {
             difference -= car(current)->d;
@@ -164,7 +164,7 @@ Value *primitiveMult(Value *args) {
             printTree(current);
             printf("\n");
             texit(1);
-        } else if (car(current)->type == INT_TYPE) {
+        } else if (isInteger(car(current))) {
             product *= car(current)->i;
         } else {
             product *= car(current)->d;
@@ -207,8 +207,8 @@ Value *primitiveDivide(Value *args) {
     Value *result;
     Value *numerator = car(args);
     Value *denominator = car(cdr(args));
-    if (numerator->type == INT_TYPE) {
-        if (denominator->type == INT_TYPE) {
+    if (isInteger(numerator)) {
+        if (isInteger(denominator)) {
             if (numerator->i % denominator->i != 0) {
                 double dividend = (1.0 * numerator->i) / denominator->i;
                 result = makeDouble(dividend);
@@ -229,7 +229,7 @@ Value *primitiveDivide(Value *args) {
             texit(1);
         }
     } else  if (numerator->type == DOUBLE_TYPE) {
-        if (denominator->type == INT_TYPE) {
+        if (isInteger(denominator)) {
             result = makeDouble(numerator->d / denominator->i);
         } else if (denominator->type == DOUBLE_TYPE) {
             result = makeDouble(numerator->d / denominator->d);
@@ -481,7 +481,7 @@ Value *primitiveEqual(Value *args) {
         return makeBool(false);
     }
 
-    if (first->type == INT_TYPE || isBoolean(first)) {
+    if (isInteger(first) || isBoolean(first)) {
         // Booleans are really C ints, so they can be treated identically
         if (first->i == second->i) {
             return makeBool(true);
@@ -624,8 +624,8 @@ Value *primitiveLessThan(Value *args) {
 
     Value *first = car(args);
     Value *second = car(cdr(args));
-    if (first->type == INT_TYPE) {
-        if (second->type == INT_TYPE) {
+    if (isInteger(first)) {
+        if (isInteger(second)) {
             return makeBool(first->i < second->i);
         } else if (second->type == DOUBLE_TYPE) {
             return makeBool(first->i < second->d);
@@ -639,8 +639,8 @@ Value *primitiveLessThan(Value *args) {
             printf(")\n");
             texit(1);
         }
-    } else  if (first->type == DOUBLE_TYPE) {
-        if (second->type == INT_TYPE) {
+    } else if (first->type == DOUBLE_TYPE) {
+        if (isInteger(second)) {
             return makeBool(first->d < second->i);
         } else if (second->type == DOUBLE_TYPE) {
             return makeBool(first->d < second->d);
@@ -690,8 +690,8 @@ Value *primitiveGreaterThan(Value *args) {
 
     Value *first = car(args);
     Value *second = car(cdr(args));
-    if (first->type == INT_TYPE) {
-        if (second->type == INT_TYPE) {
+    if (isInteger(first)) {
+        if (isInteger(second)) {
             return makeBool(first->i > second->i);
         } else if (second->type == DOUBLE_TYPE) {
             return makeBool(first->i > second->d);
@@ -705,8 +705,8 @@ Value *primitiveGreaterThan(Value *args) {
             printf(")\n");
             texit(1);
         }
-    } else  if (first->type == DOUBLE_TYPE) {
-        if (second->type == INT_TYPE) {
+    } else if (first->type == DOUBLE_TYPE) {
+        if (isInteger(second)) {
             return makeBool(first->d > second->i);
         } else if (second->type == DOUBLE_TYPE) {
             return makeBool(first->d > second->d);
@@ -756,8 +756,8 @@ Value *primitiveModulo(Value *args) {
 
     Value *first = car(args);
     Value *second = car(cdr(args));
-    if (first->type == INT_TYPE) {
-        if (second->type == INT_TYPE) {
+    if (isInteger(first)) {
+        if (isInteger(second)) {
             return makeInt(first->i % second->i);
         } else {
             printf("Expected integer in modulo\n");
@@ -1759,7 +1759,7 @@ Value *eval(Value *tree, Frame *frame) {
     Value *expr = car(tree);
 
     // Primitive (atomic) types
-    if (expr->type == INT_TYPE) {
+    if (isInteger(expr)) {
         return expr;
     } else if (expr->type == DOUBLE_TYPE) {
         return expr;

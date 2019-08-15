@@ -80,7 +80,19 @@ bool isProperList(Value *value) {
 // Currently implemented are integer and float types.
 bool isNumber(Value *value) {
     assert(value != NULL);
-    return (value->type == INT_TYPE || value->type == DOUBLE_TYPE);
+    return (isInteger(value) || value->type == DOUBLE_TYPE);
+}
+
+// Check that the value is an integer.
+bool isInteger(Value *value) {
+    assert(value != NULL);
+    return value->type == INT_TYPE;
+}
+
+// Check that the value is a double (float).
+bool isDouble(Value *value) {
+    assert(value != NULL);
+    return value->type == DOUBLE_TYPE;
 }
 
 // Check that the value is a boolean.

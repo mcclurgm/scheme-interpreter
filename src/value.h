@@ -67,6 +67,12 @@ bool isProperList(Value *value);
 // Currently implemented are integer and float types.
 bool isNumber(Value *value);
 
+// Check that the value is an integer.
+bool isInteger(Value *value);
+
+// Check that the value is a double (float).
+bool isDouble(Value *value);
+
 // Check that the value is a boolean.
 bool isBoolean(Value *value);
 

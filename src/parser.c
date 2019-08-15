@@ -106,7 +106,7 @@ void printValue(Value *val) {
         printTree(val);
         printf(")");
     }
-    if (val->type == INT_TYPE) {
+    if (isInteger(val)) {
         printf("%i", val->i);
     }
     else if (val->type == DOUBLE_TYPE) {
@@ -207,7 +207,7 @@ void printTreeTest(Value *tree, int indent) {
             printTreeTest(car(current), indent + 4);
             // printf(")\n");
         }
-        if (car(current)->type == INT_TYPE) {
+        if (isInteger(car(current))) {
             printf("%i\n", car(current)->i);
         }
         else if (car(current)->type == DOUBLE_TYPE) {

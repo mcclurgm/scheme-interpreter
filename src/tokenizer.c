@@ -67,7 +67,7 @@ bool isSymbolSubsequent(char c) {
 
 Value *endToken(Value *tokens) {
     char *tokenString = car(tokens)->s;
-    if (car(tokens)->type == INT_TYPE) {
+    if (isInteger(car(tokens))) {
         car(tokens)->i = atoi(tokenString);
     }
     else if (car(tokens)->type == DOUBLE_TYPE) {
@@ -336,7 +336,7 @@ Value *tokenize(FILE *fp) {
         }
 
         // In the middle of an existing token
-        else if (car(tokens)->type == INT_TYPE || car(tokens)->type == DOUBLE_TYPE) {
+        else if (isInteger(car(tokens)) || car(tokens)->type == DOUBLE_TYPE) {
             tokens = parseNumber(charRead, tokens);
         }
 
@@ -372,7 +372,7 @@ void displayTokens(Value *list) {
 
     Value *current = list;
     while(current->type != NULL_TYPE) {
-        if (car(current)->type == INT_TYPE) {
+        if (isInteger(car(current))) {
             printf("%i:integer\n", car(current)->i);
         }
         else if (car(current)->type == DOUBLE_TYPE) {

@@ -216,7 +216,7 @@ Value *primitiveDivide(Value *args) {
                 int dividend = numerator->i / denominator->i;
                 result = makeInt(dividend);
             }
-        } else if (denominator->type == DOUBLE_TYPE) {
+        } else if (isDouble(denominator)) {
             result = makeDouble(numerator->i / denominator->d);
         } else {
             printf("Expected number in /\n");
@@ -228,10 +228,10 @@ Value *primitiveDivide(Value *args) {
             printf(")\n");
             texit(1);
         }
-    } else  if (numerator->type == DOUBLE_TYPE) {
+    } else  if (isDouble(numerator)) {
         if (isInteger(denominator)) {
             result = makeDouble(numerator->d / denominator->i);
-        } else if (denominator->type == DOUBLE_TYPE) {
+        } else if (isDouble(denominator)) {
             result = makeDouble(numerator->d / denominator->d);
         } else {
             printf("Expected number in /\n");
@@ -488,7 +488,7 @@ Value *primitiveEqual(Value *args) {
         } else {
             return makeBool(false);
         }
-    } else if (first->type == DOUBLE_TYPE) {
+    } else if (isDouble(first)) {
         if (first->d == second->d) {
             return makeBool(true);
         } else {
@@ -627,7 +627,7 @@ Value *primitiveLessThan(Value *args) {
     if (isInteger(first)) {
         if (isInteger(second)) {
             return makeBool(first->i < second->i);
-        } else if (second->type == DOUBLE_TYPE) {
+        } else if (isDouble(second)) {
             return makeBool(first->i < second->d);
         } else {
             printf("Expected number in <\n");
@@ -639,10 +639,10 @@ Value *primitiveLessThan(Value *args) {
             printf(")\n");
             texit(1);
         }
-    } else if (first->type == DOUBLE_TYPE) {
+    } else if (isDouble(first)) {
         if (isInteger(second)) {
             return makeBool(first->d < second->i);
-        } else if (second->type == DOUBLE_TYPE) {
+        } else if (isDouble(second)) {
             return makeBool(first->d < second->d);
         } else {
             printf("Expected number in <\n");
@@ -693,7 +693,7 @@ Value *primitiveGreaterThan(Value *args) {
     if (isInteger(first)) {
         if (isInteger(second)) {
             return makeBool(first->i > second->i);
-        } else if (second->type == DOUBLE_TYPE) {
+        } else if (isDouble(second)) {
             return makeBool(first->i > second->d);
         } else {
             printf("Expected number in >\n");
@@ -705,10 +705,10 @@ Value *primitiveGreaterThan(Value *args) {
             printf(")\n");
             texit(1);
         }
-    } else if (first->type == DOUBLE_TYPE) {
+    } else if (isDouble(first)) {
         if (isInteger(second)) {
             return makeBool(first->d > second->i);
-        } else if (second->type == DOUBLE_TYPE) {
+        } else if (isDouble(second)) {
             return makeBool(first->d > second->d);
         } else {
             printf("Expected number in >\n");
@@ -1761,7 +1761,7 @@ Value *eval(Value *tree, Frame *frame) {
     // Primitive (atomic) types
     if (isInteger(expr)) {
         return expr;
-    } else if (expr->type == DOUBLE_TYPE) {
+    } else if (isDouble(expr)) {
         return expr;
     } else if (expr->type == STR_TYPE) {
         return expr;

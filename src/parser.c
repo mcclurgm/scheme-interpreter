@@ -109,7 +109,7 @@ void printValue(Value *val) {
     if (isInteger(val)) {
         printf("%i", val->i);
     }
-    else if (val->type == DOUBLE_TYPE) {
+    else if (isDouble(val)) {
         printf("%f", val->d);
     }
     else if (val->type == STR_TYPE) {
@@ -210,7 +210,7 @@ void printTreeTest(Value *tree, int indent) {
         if (isInteger(car(current))) {
             printf("%i\n", car(current)->i);
         }
-        else if (car(current)->type == DOUBLE_TYPE) {
+        else if (isDouble(car(current))) {
             printf("%f\n", car(current)->d);
         }
         else if (car(current)->type == STR_TYPE) {

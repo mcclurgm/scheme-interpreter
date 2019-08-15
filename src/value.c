@@ -80,7 +80,7 @@ bool isProperList(Value *value) {
 // Currently implemented are integer and float types.
 bool isNumber(Value *value) {
     assert(value != NULL);
-    return (isInteger(value) || value->type == DOUBLE_TYPE);
+    return (isInteger(value) || isDouble(value));
 }
 
 // Check that the value is an integer.

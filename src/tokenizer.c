@@ -70,7 +70,7 @@ Value *endToken(Value *tokens) {
     if (isInteger(car(tokens))) {
         car(tokens)->i = atoi(tokenString);
     }
-    else if (car(tokens)->type == DOUBLE_TYPE) {
+    else if (isDouble(car(tokens))) {
         car(tokens)->d = atof(tokenString);
     }
     else if (isBoolean(car(tokens))) {
@@ -336,7 +336,7 @@ Value *tokenize(FILE *fp) {
         }
 
         // In the middle of an existing token
-        else if (isInteger(car(tokens)) || car(tokens)->type == DOUBLE_TYPE) {
+        else if (isInteger(car(tokens)) || isDouble(car(tokens))) {
             tokens = parseNumber(charRead, tokens);
         }
 
@@ -375,7 +375,7 @@ void displayTokens(Value *list) {
         if (isInteger(car(current))) {
             printf("%i:integer\n", car(current)->i);
         }
-        else if (car(current)->type == DOUBLE_TYPE) {
+        else if (isDouble(car(current))) {
             printf("%f:decimal\n", car(current)->d);
         }
         else if (car(current)->type == STR_TYPE) {

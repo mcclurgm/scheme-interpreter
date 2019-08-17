@@ -49,8 +49,8 @@ bool compareNumbers(Value *one, Value *two) {
  * expressionType: the name of the predicate, for use in error reporting.
  */
 void enforceArgumentArity(Value *args, int numArgs, char *expressionType) {
+    //TODO "has no body" error
     int arity = length(args);
-    printf("Given arity: %i in %s\n", arity, expressionType);
     if (arity < numArgs) {
         printf("%s expression has too few arguments: expected %i, given %i\n",
                expressionType, numArgs, arity);
@@ -66,7 +66,6 @@ void enforceArgumentArity(Value *args, int numArgs, char *expressionType) {
         printf(")\n");
         texit(1);
     }
-    texit(0);
 }
 
 /* Stops execution with an error if given the wrong arity; supports ranges.
@@ -93,6 +92,22 @@ void enforceArgumentArity(Value *args, int numArgs, char *expressionType) {
  */
 void enforceArgumentArityRange(Value *args, int minArgs, int maxArgs,
                                char *expressionType) {
+    int arity = length(args);
+    if (minArgs >= 0 && arity < minArgs) {
+        printf("%s expression has too few arguments: expected at least %i, given %i\n",
+               expressionType, minArgs, arity);
+        printf("Expression: (%s ", expressionType);
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    } else if (maxArgs >= 0 && arity > maxArgs) {
+        printf("%s expression has too many arguments: expected at most %i, given %i\n",
+               expressionType, maxArgs, arity);
+        printf("Expression: (%s ", expressionType);
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
 }
 
 /* Returns the global frame of the evaluation environment.
@@ -624,6 +639,8 @@ Value *primitiveIsNumber(Value *args) {
 }
 
 Value *primitiveEqualNum(Value *args) {
+    enforceArgumentArityRange(args, 1, -1, "=");
+
     if (args->type != CONS_TYPE) {
         printf("= statement has no arguments: expected at least one.\n");
         printf("At: (=)\n");

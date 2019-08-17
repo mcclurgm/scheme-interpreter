@@ -49,8 +49,16 @@ bool compareNumbers(Value *one, Value *two) {
  * expressionType: the name of the predicate, for use in error reporting.
  */
 void enforceArgumentArity(Value *args, int numArgs, char *expressionType) {
-    //TODO "has no body" error
     int arity = length(args);
+    if (arity == 0 && numArgs > 0) {
+        printf("%s expression has no body: expected at least %i argument, "
+               "given none.",
+               expressionType, numArgs);
+        printf("Expression: (%s ", expressionType);
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
     if (arity < numArgs) {
         printf("%s expression has too few arguments: expected %i, given %i\n",
                expressionType, numArgs, arity);
@@ -93,6 +101,15 @@ void enforceArgumentArity(Value *args, int numArgs, char *expressionType) {
 void enforceArgumentArityRange(Value *args, int minArgs, int maxArgs,
                                char *expressionType) {
     int arity = length(args);
+    if (arity == 0 && minArgs > 0) {
+        printf("%s expression has no body: expected at least %i argument, "
+               "given none.",
+               expressionType, minArgs);
+        printf("Expression: (%s ", expressionType);
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
     if (minArgs >= 0 && arity < minArgs) {
         printf("%s expression has too few arguments: expected at least %i, given %i\n",
                expressionType, minArgs, arity);

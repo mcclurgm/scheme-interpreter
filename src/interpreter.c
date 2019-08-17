@@ -13,10 +13,11 @@
 // Helper Functions
 //==================
 
-/* 
-Assumes that both arguments are numbers.
-Check this before you call it.
-*/
+/* Compares the value of two number-type Values.
+ *
+ * Assumes that both arguments are numbers.
+ * Check this before you call it.
+ */
 bool compareNumbers(Value *one, Value *two) {
     if (isInteger(one)) {
         if (isInteger(two)) {
@@ -33,11 +34,71 @@ bool compareNumbers(Value *one, Value *two) {
     }
 }
 
-/*
- Returns the global frame of the evaluation environment.
- 
- Iterates through the parents of activeFrame until it finds the global,
- which does not have a parent. This is denoted by a NULL pointer.
+/* Stops execution with an error if given the wrong arity, for use in predicates.
+ *
+ * Checks that the args list has length numArgs. If it does not, stops execution
+ * and prints a helpful error message to the console.
+ *
+ * This function enforces a single acceptable arity, useful for predicates
+ * like not, <, car, if, etc. To enforce a range of acceptable arities, use
+ * enforceArgumentArityRange.
+ *
+ * args: the cons cell containing the arguments passed to a predicate.
+ *       Can be obtained using cdr(expression).
+ * numArgs: the number of arguments to be enforced.
+ * expressionType: the name of the predicate, for use in error reporting.
+ */
+void enforceArgumentArity(Value *args, int numArgs, char *expressionType) {
+    int arity = length(args);
+    printf("Given arity: %i in %s\n", arity, expressionType);
+    if (arity < numArgs) {
+        printf("%s expression has too few arguments: expected %i, given %i\n",
+               expressionType, numArgs, arity);
+        printf("Expression: (%s ", expressionType);
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    } else if (arity > numArgs) {
+        printf("%s expression has too many arguments: expected %i, given %i\n",
+               expressionType, numArgs, arity);
+        printf("Expression: (%s ", expressionType);
+        printTree(args);
+        printf(")\n");
+        texit(1);
+    }
+    texit(0);
+}
+
+/* Stops execution with an error if given the wrong arity; supports ranges.
+ *
+ * Checks that the args list has length between minArgs and maxArgs. If it does
+ * not, stops execution and prints a helpful error message to the console.
+ *
+ * This function enforces a range of acceptable arities. This range can be
+ * bounded or not. To set an unbounded min and/or max number of arguments, set
+ * the corresponding parameter to negative (typically -1). For example, = requires a minimum of two arguments. It can
+ * accept an arbitrary number of arguments larger than two, so its maximum is
+ * unbounded. To support this, use minArgs = 2 and maxArgs = -1. It also
+ * supports a minimum of zero arguments, like * that can accept zero or more.
+ *
+ * args: the cons cell containing the arguments passed to a predicate.
+ *       Can be obtained using cdr(expression).
+ * minArgs: the minimum number of arguments to be enforced.
+ *          A negative value sets the range to have no minimum (be unbounded
+ *          at the lower end).
+ * maxArgs: the maximum number of arguments to be enforced.
+ *          A negative value sets the range to have no maximum (be unbounded
+ *          at the upper end).
+ * expressionType: the name of the predicate, for use in error reporting.
+ */
+void enforceArgumentArityRange(Value *args, int minArgs, int maxArgs,
+                               char *expressionType) {
+}
+
+/* Returns the global frame of the evaluation environment.
+ *
+ * Iterates through the parents of activeFrame until it finds the global,
+ * which does not have a parent. This is denoted by a NULL pointer.
  */
 Frame *getGlobalFrame(Frame *activeFrame) {
     Frame *globalFrame = activeFrame;
@@ -48,9 +109,9 @@ Frame *getGlobalFrame(Frame *activeFrame) {
 }
 
 /*
-Evaluates each expression in body.
-Returns a linked list of all the expression results.
-*/
+ * Evaluates each expression in body.
+ * Returns a linked list of all the expression results.
+ */
 Value *evalEach(Value *body, Frame *activeFrame) {
     Value *result = makeNull();
     Value *currentExpr = body;
@@ -93,7 +154,7 @@ Value *primitiveAdd(Value *args) {
     } else {
         result = makeDouble(sum);
     }
-    
+
     return result;
 }
 
@@ -155,7 +216,7 @@ Value *primitiveSubtract(Value *args) {
 Value *primitiveMult(Value *args) {
     double product = 1;
     bool isInt = true;
-    
+
     Value *current = args;
     while(current->type != NULL_TYPE) {
         if(car(current)->type != INT_TYPE && car(current)->type != DOUBLE_TYPE) {
@@ -180,7 +241,7 @@ Value *primitiveMult(Value *args) {
     } else {
         result = makeDouble(product);
     }
-    
+
     return result;
 }
 
@@ -262,7 +323,7 @@ Value *primitiveIsNull(Value *args) {
         printf("null? statement has no body: expected 1 argument, given none.\n");
         texit(1);
     }
-    
+
     if (cdr(args)->type != NULL_TYPE) {
         printf("null? statement has too many arguments: expected 1, given %i\n", length(args));
         printf("Expression: (null? ");
@@ -279,12 +340,13 @@ Value *primitiveIsNull(Value *args) {
 }
 
 Value *primitiveIsList(Value *args) {
+    enforceArgumentArity(args, 1, "list?");
     if (args->type != CONS_TYPE) {
         printf("Arity mismatch:\n");
         printf("list? statement has no body: expected 1 argument, given none.\n");
         texit(1);
     }
-    
+
     if (cdr(args)->type != NULL_TYPE) {
         printf("Arity mismatch:\n");
         printf("list? statement has too many arguments: expected 1, given %i\n", length(args));
@@ -303,7 +365,7 @@ Value *primitiveCar(Value *args) {
         printf("car statement has no body: expected 1 argument, given none.\n");
         texit(1);
     }
-    
+
     if (cdr(args)->type != NULL_TYPE) {
         printf("car statement has too many arguments: expected 1, given %i\n", length(args));
         printf("Expression: (car ");
@@ -328,7 +390,7 @@ Value *primitiveCdr(Value *args) {
         printf("cdr statement has no body: expected 1 argument, given none.\n");
         texit(1);
     }
-    
+
     if (cdr(args)->type != NULL_TYPE) {
         printf("cdr statement has too many arguments: expected 1, given %i\n", length(args));
         printf("Expression: (cdr ");
@@ -349,6 +411,7 @@ Value *primitiveCdr(Value *args) {
 }
 
 Value *primitiveCons(Value *args) {
+    enforceArgumentArity(args, 2, "cons");
     if (args->type != CONS_TYPE) {
         printf("cons statement has no body: expected 2 arguments, given none.\n");
         texit(1);
@@ -361,7 +424,7 @@ Value *primitiveCons(Value *args) {
         printf(")\n");
         texit(1);
     }
-    
+
     if (cdr(cdr(args))->type != NULL_TYPE) {
         printf("cons statement has too many arguments: expected 2, given %i\n", length(args));
         printf("Expression: (cons ");
@@ -401,7 +464,7 @@ Value *primitiveReverse(Value *args) {
         printf("reverse expression has no body: expected 1 argument, given none.\n");
         texit(1);
     }
-    
+
     if (cdr(args)->type != NULL_TYPE) {
         printf("reverse expression has too many arguments: expected 1, given %i\n", length(args));
         printf("Expression: (reverse ");
@@ -426,7 +489,7 @@ Value *primitiveLength(Value *args) {
         printf("length expression has no body: expected 1 argument, given none.\n");
         texit(1);
     }
-    
+
     if (cdr(args)->type != NULL_TYPE) {
         printf("length expression has too many arguments: expected 1, given %i\n", length(args));
         printf("Expression: (length ");
@@ -447,7 +510,7 @@ Value *primitiveLength(Value *args) {
         printf(")\n");
         texit(1);
     }
-    
+
     int len = length(car(args));
     return makeInt(len);
 }
@@ -465,7 +528,7 @@ Value *primitiveEqual(Value *args) {
         printf(")\n");
         texit(1);
     }
-    
+
     if (cdr(cdr(args))->type != NULL_TYPE) {
         printf("equal? statement has too many arguments: expected 2, given %i\n", length(args));
         printf("Expression: (equal? ");
@@ -523,7 +586,7 @@ Value *primitiveEq(Value *args) {
         printf(")\n");
         texit(1);
     }
-    
+
     if (cdr(cdr(args))->type != NULL_TYPE) {
         printf("eq? statement has too many arguments: expected 2, given %i\n", length(args));
         printf("Expression: (eq? ");
@@ -547,7 +610,7 @@ Value *primitiveIsNumber(Value *args) {
         printf("number? expression has no body: expected 1 argument, given none.\n");
         texit(1);
     }
-    
+
     if (cdr(args)->type != NULL_TYPE) {
         printf("number? expression has too many arguments: expected 1, given %i\n", length(args));
         printf("Expression: (number? ");
@@ -788,7 +851,7 @@ Value *primitiveNot(Value *args) {
         printf("not expression has no body: expected 1 argument, given none.\n");
         texit(1);
     }
-    
+
     if (cdr(args)->type != NULL_TYPE) {
         printf("not expression has too many arguments: expected 1, given %i\n", length(args));
         printf("Expression: (not ");
@@ -818,7 +881,7 @@ void bindPrimitive(char *name, Value *(*function)(struct Value *), Frame *frame)
 
     Value *value = makeValue(PRIMITIVE_TYPE);
     value->pf = function;
-    
+
 	Value *binding = makeNull();
 	binding = cons(value, binding);
 	binding = cons(symbol, binding);
@@ -908,7 +971,7 @@ Frame *makeBinding(Value *bindingPair, Frame *activeFrame) {
     Value *newBinding = makeNull();
     newBinding = cons(exprResult, newBinding);
     newBinding = cons(name, newBinding);
-    
+
     activeFrame->bindings = cons(newBinding, activeFrame->bindings);
     return activeFrame;
 }
@@ -920,7 +983,7 @@ bool checkValidParameters(Value *paramsList) {
     if (paramsList->type == SYMBOL_TYPE) {
         return true;
     }
-    
+
     Value *currentParam = paramsList;
     if (car(currentParam)->type != SYMBOL_TYPE) {
         return false;
@@ -959,7 +1022,7 @@ Frame *makeApplyBindings(Value *functionParams, Value *args, Frame *functionFram
             printf("given %i.\n", length(args));
             texit(1);
         }
-        
+
         Value *currentParam = functionParams;
         Value *currentArg = args;
 
@@ -1010,7 +1073,7 @@ Value *apply(Value *function, Value *argsTree) {
         result = eval(currentExpr, evalFrame);
         currentExpr = cdr(currentExpr);
     }
-    
+
     return result;
 }
 
@@ -1025,7 +1088,7 @@ Value *evalBegin(Value *argsTree, Frame *activeFrame) {
         result = eval(currentExpr, activeFrame);
         currentExpr = cdr(currentExpr);
     }
-    
+
     return result;
 }
 
@@ -1088,7 +1151,7 @@ Value *evalCond(Value *argsTree, Frame *activeFrame) {
 
         currentExpr = cdr(currentExpr);
     }
-    
+
     // Return void if none of the conditions are true
     return makeVoid();
 }
@@ -1141,7 +1204,7 @@ Value *evalOr(Value *argsTree, Frame *activeFrame) {
         }
         currentExpr = cdr(currentExpr);
     }
-    
+
     return makeBool(false);
 }
 
@@ -1150,7 +1213,7 @@ Value *evalDisplay(Value *argTree, Frame *activeFrame) {
         printf("display statement has no body: expected 1 argument, given none.\n");
         texit(1);
     }
-    
+
     if (cdr(argTree)->type != NULL_TYPE) {
         printf("display statement has too many arguments: expected 1, given %i\n", length(argTree));
         printf("Expression: (display ");
@@ -1350,7 +1413,7 @@ Value *evalLet(Value *argsTree, Frame *activeFrame) {
         letFrame = makeBinding(car(currentBindingPair), letFrame);
         currentBindingPair = cdr(currentBindingPair);
     }
-    
+
     // Evaluate the body expressions
     Value *result = makeNull();
     Value *currentExpr = cdr(argsTree);
@@ -1358,7 +1421,7 @@ Value *evalLet(Value *argsTree, Frame *activeFrame) {
         result = eval(currentExpr, letFrame);
         currentExpr = cdr(currentExpr);
     }
-    
+
     return result;
 }
 
@@ -1409,7 +1472,7 @@ Value *evalLetStar(Value *argsTree, Frame *activeFrame)  {
         letFrame = makeBinding(car(currentBindingPair), newFrame);
         currentBindingPair = cdr(currentBindingPair);
     }
-    
+
     // Evaluate the body expressions
     Value *result = makeNull();
     Value *currentExpr = cdr(argsTree);
@@ -1417,7 +1480,7 @@ Value *evalLetStar(Value *argsTree, Frame *activeFrame)  {
         result = eval(currentExpr, letFrame);
         currentExpr = cdr(currentExpr);
     }
-    
+
     return result;
 }
 
@@ -1492,13 +1555,13 @@ Value *evalLetRec(Value *argsTree, Frame *activeFrame)  {
             printf(")\n");
             texit(1);
         }
-        
+
         Value *currentBinding = lookUpSymbol(name, letFrame);
         currentBinding->c.car = exprResult;
 
         currentBindingPair = cdr(currentBindingPair);
     }
-    
+
     Value *body = cdr(argsTree);
     return evalBegin(body, letFrame);
 }
@@ -1509,7 +1572,7 @@ Value *evalQuote(Value *argsTree, Frame *activeFrame) {
         printf("quote statement has no body: expected 1 argument, given none.\n");
         texit(1);
     }
-    
+
     if (cdr(argsTree)->type != NULL_TYPE) {
         printf("quote statement has too many arguments: expected 1, given %i\n", length(argsTree));
         printf("Expression: (quote ");
@@ -1524,7 +1587,7 @@ Value *evalQuote(Value *argsTree, Frame *activeFrame) {
 Value *evalLambda(Value *argsTree, Frame *activeFrame) {
     assert(argsTree != NULL);
     assert(activeFrame != NULL);
-    
+
     if (argsTree->type != CONS_TYPE) {
         printf("Lambda statement has no or invalid parameters.\n");
         printf("Expected either a list or ().");
@@ -1546,7 +1609,7 @@ Value *evalLambda(Value *argsTree, Frame *activeFrame) {
     Value *body = cdr(argsTree);
 
     // Check parameters list: can be cons or null
-    if (params->type != CONS_TYPE && params->type != NULL_TYPE 
+    if (params->type != CONS_TYPE && params->type != NULL_TYPE
             && params->type != SYMBOL_TYPE) {
         printf("Parameters in lambda statement are not a list.\n");
         printf("At expression: (lambda ");
@@ -1626,7 +1689,7 @@ Value *evalDefine(Value *argsTree, Frame *activeFrame) {
         }
 
         exprResult = eval(expr, activeFrame);
-    
+
     } else {
         printf("Define must bind a value to symbol; wrong token type found for symbol name.\n");
         printf("At expression: (define ");
@@ -1643,7 +1706,7 @@ Value *evalDefine(Value *argsTree, Frame *activeFrame) {
         Value *newBinding = makeNull();
         newBinding = cons(exprResult, newBinding);
         newBinding = cons(symbol, newBinding);
-        
+
         globalFrame->bindings = cons(newBinding, globalFrame->bindings);
     } else {
         // Binding already exists
@@ -1714,7 +1777,7 @@ Value *evalLoad(Value *args, Frame *activeFrame) {
         printf("load statement has no body: expected 1 argument, given none.\n");
         texit(1);
     }
-    
+
     if (cdr(args)->type != NULL_TYPE) {
         printf("load statement has too many arguments: expected 1, given %i\n", length(args));
         printf("Expression: (load ");
@@ -1743,7 +1806,7 @@ Value *evalLoad(Value *args, Frame *activeFrame) {
     Value *tokenList = tokenize(fp);
     Value *tree = parse(tokenList);
     fclose(fp);
-    
+
     Frame *globalFrame = getGlobalFrame(activeFrame);
 
     return evalBegin(tree, globalFrame);

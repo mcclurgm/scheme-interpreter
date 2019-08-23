@@ -357,18 +357,7 @@ Value *primitiveDivide(Value *args) {
 }
 
 Value *primitiveIsNull(Value *args) {
-    if (args->type != CONS_TYPE) {
-        printf("null? statement has no body: expected 1 argument, given none.\n");
-        texit(1);
-    }
-
-    if (cdr(args)->type != NULL_TYPE) {
-        printf("null? statement has too many arguments: expected 1, given %i\n", length(args));
-        printf("Expression: (null? ");
-        printTree(args);
-        printf(")\n");
-        texit(1);
-    }
+    enforceArgumentArity(args, 1, "null?");
 
     if (car(args)->type == NULL_TYPE) {
         return makeBool(true);
@@ -379,39 +368,13 @@ Value *primitiveIsNull(Value *args) {
 
 Value *primitiveIsList(Value *args) {
     enforceArgumentArity(args, 1, "list?");
-    if (args->type != CONS_TYPE) {
-        printf("Arity mismatch:\n");
-        printf("list? statement has no body: expected 1 argument, given none.\n");
-        texit(1);
-    }
-
-    if (cdr(args)->type != NULL_TYPE) {
-        printf("Arity mismatch:\n");
-        printf("list? statement has too many arguments: expected 1, given %i\n", length(args));
-        printf("Expression: (list? ");
-        printTree(args);
-        printf(")\n");
-        texit(1);
-    }
 
     Value *listVal = car(args);
     return makeBool(isProperList(listVal));
 }
 
 Value *primitiveCar(Value *args) {
-    if (args->type != CONS_TYPE) {
-        printf("car statement has no body: expected 1 argument, given none.\n");
-        texit(1);
-    }
-
-    if (cdr(args)->type != NULL_TYPE) {
-        printf("car statement has too many arguments: expected 1, given %i\n", length(args));
-        printf("Expression: (car ");
-        printTree(args);
-        printf(")\n");
-        texit(1);
-    }
-
+    enforceArgumentArity(args, 1, "cons");
     if (car(args)->type != CONS_TYPE) {
         printf("car statement needs to act on a cons cell\n");
         printf("Expression: (car ");
@@ -424,19 +387,7 @@ Value *primitiveCar(Value *args) {
 }
 
 Value *primitiveCdr(Value *args) {
-    if (args->type != CONS_TYPE) {
-        printf("cdr statement has no body: expected 1 argument, given none.\n");
-        texit(1);
-    }
-
-    if (cdr(args)->type != NULL_TYPE) {
-        printf("cdr statement has too many arguments: expected 1, given %i\n", length(args));
-        printf("Expression: (cdr ");
-        printTree(args);
-        printf(")\n");
-        texit(1);
-    }
-
+    enforceArgumentArity(args, 1, "cdr");
     if (car(args)->type != CONS_TYPE) {
         printf("cdr statement needs to act on a cons cell\n");
         printf("Expression: (cdr ");
@@ -450,29 +401,8 @@ Value *primitiveCdr(Value *args) {
 
 Value *primitiveCons(Value *args) {
     enforceArgumentArity(args, 2, "cons");
-    if (args->type != CONS_TYPE) {
-        printf("cons statement has no body: expected 2 arguments, given none.\n");
-        texit(1);
-    }
-
-    if (cdr(args)->type != CONS_TYPE) {
-        printf("cons statement has too few arguments: expected 2, given 1\n");
-        printf("Expression: (cons ");
-        printTree(args);
-        printf(")\n");
-        texit(1);
-    }
-
-    if (cdr(cdr(args))->type != NULL_TYPE) {
-        printf("cons statement has too many arguments: expected 2, given %i\n", length(args));
-        printf("Expression: (cons ");
-        printTree(args);
-        printf(")\n");
-        texit(1);
-    }
 
     Value *result = cons(car(args), car(cdr(args)));
-
     return result;
 }
 
@@ -498,19 +428,7 @@ Value *primitiveAppend(Value *args) {
 }
 
 Value *primitiveReverse(Value *args) {
-    if (args->type != CONS_TYPE) {
-        printf("reverse expression has no body: expected 1 argument, given none.\n");
-        texit(1);
-    }
-
-    if (cdr(args)->type != NULL_TYPE) {
-        printf("reverse expression has too many arguments: expected 1, given %i\n", length(args));
-        printf("Expression: (reverse ");
-        printTree(args);
-        printf(")\n");
-        texit(1);
-    }
-
+    enforceArgumentArity(args, 1, "reverse");
     if (car(args)->type != CONS_TYPE && car(args)->type != NULL_TYPE) {
         printf("reverse expression needs to act on a cons cell\n");
         printf("Expression: (reverse ");
@@ -523,18 +441,7 @@ Value *primitiveReverse(Value *args) {
 }
 
 Value *primitiveLength(Value *args) {
-    if (args->type != CONS_TYPE) {
-        printf("length expression has no body: expected 1 argument, given none.\n");
-        texit(1);
-    }
-
-    if (cdr(args)->type != NULL_TYPE) {
-        printf("length expression has too many arguments: expected 1, given %i\n", length(args));
-        printf("Expression: (length ");
-        printTree(args);
-        printf(")\n");
-        texit(1);
-    }
+    enforceArgumentArity(args, 1, "length");
 
     // Null is an empty (zero-length) list
     if (car(args)->type == NULL_TYPE) {
@@ -554,26 +461,7 @@ Value *primitiveLength(Value *args) {
 }
 
 Value *primitiveEqual(Value *args) {
-    if (args->type != CONS_TYPE) {
-        printf("equal? statement has no body: expected 2 arguments, given none.\n");
-        texit(1);
-    }
-
-    if (cdr(args)->type != CONS_TYPE) {
-        printf("equal? statement has too few arguments: expected 2, given 1\n");
-        printf("Expression: (equal? ");
-        printTree(args);
-        printf(")\n");
-        texit(1);
-    }
-
-    if (cdr(cdr(args))->type != NULL_TYPE) {
-        printf("equal? statement has too many arguments: expected 2, given %i\n", length(args));
-        printf("Expression: (equal? ");
-        printTree(args);
-        printf(")\n");
-        texit(1);
-    }
+    enforceArgumentArity(args, 2, "equal?");
 
     Value *first = car(args);
     Value *second = car(cdr(args));
@@ -612,26 +500,7 @@ Value *primitiveEqual(Value *args) {
 }
 
 Value *primitiveEq(Value *args) {
-    if (args->type != CONS_TYPE) {
-        printf("eq? statement has no body: expected 2 arguments, given none.\n");
-        texit(1);
-    }
-
-    if (cdr(args)->type != CONS_TYPE) {
-        printf("eq? statement has too few arguments: expected 2, given 1\n");
-        printf("Expression: (eq? ");
-        printTree(args);
-        printf(")\n");
-        texit(1);
-    }
-
-    if (cdr(cdr(args))->type != NULL_TYPE) {
-        printf("eq? statement has too many arguments: expected 2, given %i\n", length(args));
-        printf("Expression: (eq? ");
-        printTree(args);
-        printf(")\n");
-        texit(1);
-    }
+    enforceArgumentArity(args, 2, "eq?");
 
     Value *first = car(args);
     Value *second = car(cdr(args));
@@ -644,18 +513,7 @@ Value *primitiveEq(Value *args) {
 }
 
 Value *primitiveIsNumber(Value *args) {
-    if (args->type != CONS_TYPE) {
-        printf("number? expression has no body: expected 1 argument, given none.\n");
-        texit(1);
-    }
-
-    if (cdr(args)->type != NULL_TYPE) {
-        printf("number? expression has too many arguments: expected 1, given %i\n", length(args));
-        printf("Expression: (number? ");
-        printTree(args);
-        printf(")\n");
-        texit(1);
-    }
+    enforceArgumentArity(args, 1, "equal?");
 
     Value *val = car(args);
     return makeBool(isNumber(val));
@@ -887,18 +745,8 @@ Value *primitiveModulo(Value *args) {
 }
 
 Value *primitiveNot(Value *args) {
-    if (args->type != CONS_TYPE) {
-        printf("not expression has no body: expected 1 argument, given none.\n");
-        texit(1);
-    }
+    enforceArgumentArity(args, 1, "not");
 
-    if (cdr(args)->type != NULL_TYPE) {
-        printf("not expression has too many arguments: expected 1, given %i\n", length(args));
-        printf("Expression: (not ");
-        printTree(args);
-        printf(")\n");
-        texit(1);
-    }
 
     if (car(args)->type != BOOL_TYPE) {
         printf("not expression expected boolean.\n");
@@ -1249,18 +1097,7 @@ Value *evalOr(Value *argsTree, Frame *activeFrame) {
 }
 
 Value *evalDisplay(Value *argTree, Frame *activeFrame) {
-    if (argTree->type != CONS_TYPE) {
-        printf("display statement has no body: expected 1 argument, given none.\n");
-        texit(1);
-    }
-
-    if (cdr(argTree)->type != NULL_TYPE) {
-        printf("display statement has too many arguments: expected 1, given %i\n", length(argTree));
-        printf("Expression: (display ");
-        printTree(argTree);
-        printf(")\n");
-        texit(1);
-    }
+    enforceArgumentArity(argTree, 1, "display");
 
     // Evaluate the argument to display it
     Value *evalResult = eval(argTree, activeFrame);
@@ -1608,18 +1445,7 @@ Value *evalLetRec(Value *argsTree, Frame *activeFrame)  {
 
 Value *evalQuote(Value *argsTree, Frame *activeFrame) {
     assert(argsTree != NULL);
-    if (argsTree->type != CONS_TYPE) {
-        printf("quote statement has no body: expected 1 argument, given none.\n");
-        texit(1);
-    }
-
-    if (cdr(argsTree)->type != NULL_TYPE) {
-        printf("quote statement has too many arguments: expected 1, given %i\n", length(argsTree));
-        printf("Expression: (quote ");
-        printTree(argsTree);
-        printf(")\n");
-        texit(1);
-    }
+    enforceArgumentArity(argsTree, 1, "quote");
 
     return car(argsTree);
 }
@@ -1813,18 +1639,7 @@ Value *evalSetBang(Value *argsTree, Frame *activeFrame) {
 }
 
 Value *evalLoad(Value *args, Frame *activeFrame) {
-    if (args->type != CONS_TYPE) {
-        printf("load statement has no body: expected 1 argument, given none.\n");
-        texit(1);
-    }
-
-    if (cdr(args)->type != NULL_TYPE) {
-        printf("load statement has too many arguments: expected 1, given %i\n", length(args));
-        printf("Expression: (load ");
-        printTree(args);
-        printf(")\n");
-        texit(1);
-    }
+    enforceArgumentArity(args, 1, "load");
 
     Value *filePath = eval(args, activeFrame);
 

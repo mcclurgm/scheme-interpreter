@@ -51,15 +51,17 @@ bool compareNumbers(Value *one, Value *two) {
 void enforceArgumentArity(Value *args, int numArgs, char *expressionType) {
     int arity = length(args);
     if (arity == 0 && numArgs > 0) {
+        printf("Arity mismatch.\n");
         printf("%s expression has no body: expected at least %i argument, "
-               "given none.",
+               "given none.\n",
                expressionType, numArgs);
-        printf("Expression: (%s ", expressionType);
+        printf("Expression: (%s", expressionType);
         printTree(args);
         printf(")\n");
         texit(1);
     }
     if (arity < numArgs) {
+        printf("Arity mismatch.\n");
         printf("%s expression has too few arguments: expected %i, given %i\n",
                expressionType, numArgs, arity);
         printf("Expression: (%s ", expressionType);
@@ -67,6 +69,7 @@ void enforceArgumentArity(Value *args, int numArgs, char *expressionType) {
         printf(")\n");
         texit(1);
     } else if (arity > numArgs) {
+        printf("Arity mismatch.\n");
         printf("%s expression has too many arguments: expected %i, given %i\n",
                expressionType, numArgs, arity);
         printf("Expression: (%s ", expressionType);
@@ -102,6 +105,7 @@ void enforceArgumentArityRange(Value *args, int minArgs, int maxArgs,
                                char *expressionType) {
     int arity = length(args);
     if (arity == 0 && minArgs > 0) {
+        printf("Arity mismatch.\n");
         printf("%s expression has no body: expected at least %i argument, "
                "given none.",
                expressionType, minArgs);
@@ -111,6 +115,7 @@ void enforceArgumentArityRange(Value *args, int minArgs, int maxArgs,
         texit(1);
     }
     if (minArgs >= 0 && arity < minArgs) {
+        printf("Arity mismatch.\n");
         printf("%s expression has too few arguments: expected at least %i, given %i\n",
                expressionType, minArgs, arity);
         printf("Expression: (%s ", expressionType);
@@ -118,6 +123,7 @@ void enforceArgumentArityRange(Value *args, int minArgs, int maxArgs,
         printf(")\n");
         texit(1);
     } else if (maxArgs >= 0 && arity > maxArgs) {
+        printf("Arity mismatch.\n");
         printf("%s expression has too many arguments: expected at most %i, given %i\n",
                expressionType, maxArgs, arity);
         printf("Expression: (%s ", expressionType);

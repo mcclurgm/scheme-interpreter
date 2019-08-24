@@ -1,8 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 #include "arithmetic.h"
 #include "parser.h"
 #include "talloc.h"
+#include "number.h"
 
 /* Defines the hierarchical order of numeric types.
  * This uses the fact that an enum is really an ordered collection of ints.
@@ -39,7 +41,21 @@ numericType getNumericType(Value *val) {
     }
 }
 
-/* Resolves the type of Value to be returned by an arithmetic expression.
+/* Convert a numericType to a valueType. */
+valueType getValueType(numericType type) {
+    if (type == NUMBER_INTEGER) {
+        return INT_TYPE;
+    } else if (type == NUMBER_REAL) {
+        return DOUBLE_TYPE;
+    } else {
+        assert(false && "numericType that isn't implemented");
+    }
+}
+
+/* Resolves the type of number to be returned by an arithmetic expression.
+ *
+ * This type is represented as a numericType. It cannot be directly used as
+ * a valueType.
  *
  * Each expression must return a single type. The type to be returned follows
  * a hierarchical structure.
@@ -58,7 +74,7 @@ numericType getNumericType(Value *val) {
  *
  * Currently, only integer and real types are implemented.
  */
-valueType getResultType(Value *a, Value *b) {
+numericType getResultType(Value *a, Value *b) {
     // Get numeric types of inputs
     numericType aType = getNumericType(a);
     numericType bType = getNumericType(b);
@@ -74,9 +90,28 @@ valueType getResultType(Value *a, Value *b) {
 
 /* Calculates the result of a + b.
  */
-// Value *add(Value *a, Value *b) {
-//     return makeNull();
-// }
+Value *add(Value *a, Value *b) {
+    numericType resultType = getResultType(a, b);
+
+    // Convert numbers to the same type to be operated on
+    Value *convertedA;
+    Value *convertedB;
+    if (resultType == NUMBER_INTEGER) {
+        convertedA = convertInteger(a);
+        convertedB = convertInteger(b);
+    } else {
+        assert(false && "Numeric type that is invalid or not implemented");
+    }
+
+    if (resultType == NUMBER_INTEGER) {
+        return intAdd(a, b);
+    } else {
+        printf("INTERNAL ERROR.\n");
+        printf("It seems like we're trying to add two numbers, and they have an invalid type.\n");
+        texit(2);
+    }
+    return makeNull();
+}
 
 /* Calculates the result of a - b.
  */

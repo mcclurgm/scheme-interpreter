@@ -28,6 +28,10 @@ int main() {
     assert(getResultType(a, c) == 2);
     assert(getResultType(c, b) == 2);
 
+    Value *result = add(makeInt(1), makeInt(2));
+    assert(result->type == INT_TYPE);
+    assert(result->i == 3);
+
     printf("Well done\n");
     return 0;
 }

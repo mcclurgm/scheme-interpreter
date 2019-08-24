@@ -38,7 +38,7 @@ numericType getNumericType(Value *val);
  */
 valueType getResultType(Value *a, Value *b);
 
-// Value *add(Value *a, Value *b);
+Value *add(Value *a, Value *b);
 
 // Value *subtract(Value *a, Value *b);
 

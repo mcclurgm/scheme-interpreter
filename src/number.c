@@ -1,5 +1,6 @@
+#include <stdio.h>
+#include <assert.h>
 #include "number.h"
-#include "assert.h"
 #include "talloc.h"
 
 /* Convert input to an integer-typed Value.
@@ -24,7 +25,7 @@ Value *convertInteger(Value *val) {
         printf("Converting to integer from lower rank number (valueType %i).\n", val->type);
         texit(2);
     } else {
-        assert(false && "Converting a numeric type that is invalid or not implemented");
+        assert(false && "Converting a numeric type that is not implemented");
     }
 }
 
@@ -40,6 +41,29 @@ Value *intAdd(Value *a, Value * b) {
     return makeInt(a->i + b->i);
 }
 
+/* Convert input to a real-typed Value.
+ *
+ * Requires that its input is of numeric type. It is an error to pass
+ * anything else.
+ */
+Value *convertReal(Value *val) {
+    assert(isNumber(val));
+    if (val->type == INT_TYPE) {
+        double doubleVal = (double)(val->i);
+        return makeDouble(doubleVal);
+    } else if (val->type == DOUBLE_TYPE) {
+        return val;
+    } else if (isNumber(val)) {
+        printf("INTERNAL ERROR.");
+        printf("Attempting to perform an invalid number conversion,\n");
+        printf("to a type that is not allowed.\n");
+        printf("Converting to integer from lower rank number (valueType %i).\n", val->type);
+        texit(2);
+    } else {
+        assert(false && "Converting a numeric type that is not implemented");
+    }
+}
+
 /* Return the result of adding two real numbers.
  *
  * This function requires that its arguments are both real typed
@@ -47,6 +71,6 @@ Value *intAdd(Value *a, Value * b) {
  */
 Value *realAdd(Value *a, Value *b) {
     assert(a->type == DOUBLE_TYPE && b->type == DOUBLE_TYPE &&
-           "Wrong type being passed to intAdd: requires integer only.");
+           "Wrong type being passed to realAdd: requires real only.");
     return makeDouble(a->d + b->d);
 }

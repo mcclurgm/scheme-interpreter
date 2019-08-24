@@ -99,15 +99,21 @@ Value *add(Value *a, Value *b) {
     if (resultType == NUMBER_INTEGER) {
         convertedA = convertInteger(a);
         convertedB = convertInteger(b);
+    } else if (resultType == NUMBER_REAL) {
+        convertedA = convertReal(a);
+        convertedB = convertReal(b);
     } else {
         assert(false && "Numeric type that is invalid or not implemented");
     }
 
     if (resultType == NUMBER_INTEGER) {
-        return intAdd(a, b);
+        return intAdd(convertedA, convertedB);
+    } else if (resultType == NUMBER_REAL) {
+        return realAdd(convertedA, convertedB);
     } else {
         printf("INTERNAL ERROR.\n");
-        printf("It seems like we're trying to add two numbers, and they have an invalid type.\n");
+        printf("It seems like we're trying to add two numbers, \n");
+        printf("and they have an invalid or not implemented result type.\n");
         texit(2);
     }
     return makeNull();

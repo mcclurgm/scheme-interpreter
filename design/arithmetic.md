@@ -62,6 +62,7 @@ This gets a little more complicated when operations can cast (back?) up. For exa
 - I could perform the conversions in the operation functions themselves. For example, the rational `add` function could convert its arguments to rationals.
   - This fits within the current design, where the type of the result is the type of operation that's called. So within that operation, it could simply convert the inputs to the proper types.
   - This doesn't fit with the goal of reducing duplicate code, though. Instead of being in the single primary `add` function, it would have to be in all four types.
+- **I can actually optimize integer conversions away completely.** No number can be implicitly converted to an integer following the hierarchy of types. It is consistent design to keep an conversion function, but it is a waste of resources to call it. It would be necessary to implement polymorphism in a rigidly structured way (like in Java, for example), but it is not necessary here.
 
 ## The Actual Operations
 After performing the type matching process, I can then check what type the numbers are and perform the operation. The operations would be performed using typed function calls: `intAdd`, `complexAdd`, etc. This part should be very simple, essentially a switch statement on the type of the numbers and a single function call in each.

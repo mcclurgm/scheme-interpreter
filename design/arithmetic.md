@@ -6,8 +6,7 @@ I will also have to deal with scientific notation at some point. I need to figur
 
 ## Numeric Types
 
-Numeric types follow a hierarchy, in line with mathematics. Scheme implements `integer`, `rational` (fraction), `real` (real), and `complex` types. This list is in order of hierarchy: an `integer` is a type of `rational`, which is a
- * type of `real`, which is a type of `complex`.
+Numeric types follow a hierarchy, in line with mathematics. Scheme implements `integer`, `rational` (fraction), `real` (real), and `complex` types. This list is in order of hierarchy: an `integer` is a type of `rational`, which is a type of `real`, which is a type of `complex`.
 
 * Rationals cannot be complex. Something like `4i/5` is an invalid number in Scheme. (To do something like that, you have to compute `(/ 4i 5)`.)
 

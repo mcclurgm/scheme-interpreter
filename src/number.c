@@ -7,8 +7,9 @@
  *
  * This only performs conversions "down" the numeric hierarchy, from one type
  * to another type that is a subset of the original type. Passing a number of a
- * "lower" type is invalid and an error.
- * Note that in the case of integers, only other integers can be converted to
+ * "lower" type (in the case of integers: rational, real, complex) is invalid
+ * and an error.
+ * Note that in the case of integers, only integers can be converted to
  * integers. This function only accepts integers, and in effect does nothing.
  *
  * Requires that its input is of numeric type. It is an error to pass
@@ -43,6 +44,10 @@ Value *intAdd(Value *a, Value * b) {
 
 /* Convert input to a real-typed Value.
  *
+ * This only performs conversions "down" the numeric hierarchy, from one type
+ * to another type that is a subset of the original type. Passing a number of a
+ * "lower" type (in the case of reals: complex) is invalid and an error.
+ *
  * Requires that its input is of numeric type. It is an error to pass
  * anything else.
  */
@@ -57,7 +62,7 @@ Value *convertReal(Value *val) {
         printf("INTERNAL ERROR.");
         printf("Attempting to perform an invalid number conversion,\n");
         printf("to a type that is not allowed.\n");
-        printf("Converting to integer from lower rank number (valueType %i).\n", val->type);
+        printf("Converting to real from lower rank number (valueType %i).\n", val->type);
         texit(2);
     } else {
         assert(false && "Converting a numeric type that is not implemented");

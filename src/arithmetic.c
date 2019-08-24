@@ -7,13 +7,31 @@
 #include "number.h"
 
 /* Defines the hierarchical order of numeric types.
- * This uses the fact that an enum is really an ordered collection of ints.
- * It depends on the fact that the order is rigidly defined to increment up.
- * This behavior is C standard, so should be dependable.
  *
- * This can be used to determine conversion logic. Any type higher in the list
- * is in a higher position in the hierarchy, and can be implicitly converted
- * down to any lower type.
+ * This hierarchy is as follows:
+ *   1. Integer
+ *   2. Rational
+ *   3. Real
+ *   4. Complex
+ * In words: an integer is a type of rational, which is a type of real,
+ * which is a type of complex.
+ *
+ * This hierarchy can be used to determine conversion logic. Any number can be
+ * converted to a another type if the result is a type of the original number.
+ * For instance, an integer can be converted to a rational, since a rational
+ * number is a type of integer.
+ * In other words, any type higher in the hierarchy can be converted to any type
+ * that is lower in the hierarchy. And of course, any type can be converted to
+ * itself.
+ *
+ * This hierarchy is implemented as a C standard enum. It uses the fact that an
+ * enum is really an ordered collection of ints. It depends on the fact that the
+ * order is rigidly defined to increment up. This behavior is C standard, so
+ * should be dependable.
+ *
+ * In this context, a type's position in the list corresponds to its position in
+ * the hierarchy. A type earlier in the list is higher in the hierarchy, and can
+ * be converted to any lower (ie later) type.
  *
  * Yes, this duplicates functionality from valueType. But it is a good way to
  * guarantee that the hierarchy is respected and documented.
@@ -58,21 +76,19 @@ valueType getValueType(numericType type) {
  * a valueType.
  *
  * Each expression must return a single type. The type to be returned follows
- * a hierarchical structure.
- * It uses the least "specific" type of number passed to it, following the
- * hierarchy of numberic types. An integer is a type of rational, which is a
- * type of real, which is a type of complex. The least specific type is the
- * lowest type on this list. For example, 1 + 2.3 contains an integer and a
- * real. Since real is lower on the hierarchy (an integer is a type of real),
- * the resulting type would be real.
+ * the numericType hierarchical structure.
+ *
+ * It uses the lowest type of number passed to it, following the hierarchy.
+ * An integer is a type of rational, which is a type of real, which is a type of
+ * complex. For example, 1 + 2.3 contains an integer and a real. Since real is
+ * lower on the hierarchy (an integer is a type of real), the resulting type
+ * would be real.
  *
  * The type is also exactness preserving. Given any inexact number(s), it
- * returns an inexact number of the least specific type. Given two exact
+ * returns an inexact number of the lowest hierarchical type. Given two exact
  * numbers, it returns an exact number of the least specific type.
- * Complex numbers can be either exact or inexact, depending on the exactness
- * of their components.
- *
- * Currently, only integer and real types are implemented.
+ * Note complex numbers can be either exact or inexact, depending on the
+ * exactness of their components.
  */
 numericType getResultType(Value *a, Value *b) {
     // Get numeric types of inputs

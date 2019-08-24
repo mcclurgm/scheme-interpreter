@@ -58,10 +58,13 @@ This gets a little more complicated when operations can cast (back?) up. For exa
 - I could implement this hierarchy using compiler constants. It may be a little too "clever"/hacky (ie not readable), but it would be easy enough to implement.
   - I could define an `enum` of the numeric types. It would go in order from `integer` to `complex`.
   - If it converts to `complex`, I have to deal with exactness. This can be dealt with after the process of deciding the type, since the exactness of the resulting `complex` doesn't change the fact that the answers will be complex.
-    - This could actually be dealt with in the `complex`-type arithmetic functions. Converting any higher-level number to a `complex` could handle the exactness in the conversion code. Performing the calculation itself would also preserve the
+    - This could actually be dealt with in the `complex`-typed arithmetic functions. Converting any higher-level number to a `complex` could handle the exactness in the conversion code. Performing the calculation itself would also preserve the exactness.
+- I could perform the conversions in the operation functions themselves. For example, the rational `add` function could convert its arguments to rationals.
+  - This fits within the current design, where the type of the result is the type of operation that's called. So within that operation, it could simply convert the inputs to the proper types.
+  - This doesn't fit with the goal of reducing duplicate code, though. Instead of being in the single primary `add` function, it would have to be in all four types.
 
 ## The Actual Operations
-After performing the type matching process, I can then check what type the numbers are and perform the operation. C types would use the built-in arithmetic and struct types would use typed function calls. This part should be very simple, essentially a switch statement on the type of the numbers and a single function call in each.
+After performing the type matching process, I can then check what type the numbers are and perform the operation. The operations would be performed using typed function calls: `intAdd`, `complexAdd`, etc. This part should be very simple, essentially a switch statement on the type of the numbers and a single function call in each.
 
 With up-casting implemented it could get more complex. However, I should be able to check this at the end of the entire process. Each type that can be up-cast (complex and rational, which will conveniently already have a bunch of logic and functions associated with them anyway) could have functions to perform up-casting, if applicable (presumably return the input unmodified if not). This should actually be fairly simple, since I only see two paths so far: `a+0i` and `a/1`.
 
@@ -72,8 +75,9 @@ For the purposes of the interpreter functions like `+` and `-` that take many ar
 ### Basic Arithmetic Operations
 
 Goals:
-- I want the implementations of these functions to be independent of what type the inputs are. They should have a branching if/else statement at the end that switches based on the casted type of *both* inputs, but before that it shouldn't care. It should also not branch based on the types of the *individual* inputs.
+- I want the implementations of these functions to be independent of what type the inputs are. Essentially, I want to get as close to polymorphism as possible within the restrictions of C. They should have a branching if/else statement at the end that switches based on the casted type of *both* inputs, but before that it shouldn't care. It should also not branch based on the types of the *individual* inputs.
 
+Functions:
 - `add`
 - `subtract`
 - `multiply`
@@ -81,6 +85,22 @@ Goals:
 - Accept all types of number: integer, real, rational, complex.
 - Take two arguments to apply the operation to
 - Return the type of the least exact value. Two exact numbers will yield an exact number.
+
+Implementing the Functions
+- I need to pass the values around somehow. I need to know whether to do that as `Values` or as the resulting types. This will affect the design of other functions, since the add functions need to accept the proper type. Their API would be nicer if they took their own type, like `Complex`, instead of a generic `Value`. But it could make using them more difficult.
+  - Passing `Values` around would make the code in arithmetic functions like `add` more elegant. I wouldn't have to worry about the types much, and I would never have to pull the value of of the `Value` struct.
+    - Method signature: `intAdd(Value *a, Value *b)`
+    - Also, if I can find a way to break the conversion process into a function, it would need to return a Value.
+    - This might make it possible to use the functions outside of `arithmetic` (although I don't think I want that).
+  - It's possible (although probably not necessary) that I could create wrappers around the "elegant" `intAdd` functions that take in `Values`, unwrap them, and then call the actual operation functions that accept only the proper type. Then the type error checking could ensure that the
+  - The other option is that I could require the proper type.
+    - `intAdd(int a, int b)`
+    - It would make the operation functions (`intAdd`) more elegant. They wouldn't have to deal with type checking, because other types couldn't even be passed into them.
+	- I also don't want to get `Value` logic into the number functions if I can avoid it at all.
+      - One consideration: if I want to support up-casting, then if that's going to be a part of the functions (for encapsulation, I think it should), then I can't guarantee the returning type.
+      - Another thing. I probably have to return a `Value` anyway (if I have to put `Value` stuff into these), or else I would have to pack the result into a `Value` in the calling function. Although I'll already by in an if statement to figure out which type, it would be a little less nice.
+  - I think the decision is to just pass around `Values`. There are enough advantages that it's probably worth it. And for encapsulation, it doesn't quite make sense to force all the operation functinos to take and return only their own (raw) type.
+    - I may do the wrapper functions though. That could add both the advantages, except making the codebase more complicated.
 
 ### Helpers
 

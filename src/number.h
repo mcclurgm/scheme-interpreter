@@ -23,7 +23,7 @@ Value *intAdd(Value *a, Value * b);
  * Requires that its input is of numeric type. It is an error to pass
  * anything else.
  */
-Value *convertInteger(Value *val);
+Value *convertReal(Value *val);
 
 /* Return the result of adding two real numbers.
  *

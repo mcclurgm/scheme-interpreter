@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 typedef enum {INT_TYPE,DOUBLE_TYPE,STR_TYPE,CONS_TYPE,NULL_TYPE,PTR_TYPE,
-              OPEN_TYPE,CLOSE_TYPE,BOOL_TYPE,SYMBOL_TYPE, 
+              OPEN_TYPE,CLOSE_TYPE,BOOL_TYPE,SYMBOL_TYPE,
               DOT_TYPE, OPEN_BRACKET_TYPE, CLOSE_BRACKET_TYPE, QUOTE_TYPE,
               VOID_TYPE, CLOSURE_TYPE, PRIMITIVE_TYPE, UNINITIALIZED} valueType;
 
@@ -56,7 +56,7 @@ Value *makeString(char * val);
 Value *makeSymbol(char *val);
 
 // Note that there is not a makeCons() function. This is intentional, since the
-// cons() function should be used instead. It is both easier and ensures that 
+// cons() function should be used instead. It is both easier and ensures that
 // cons cells are Scheme-valid, with values in both car and cdr.
 
 // Check that the value is the head of a proper list structure.
@@ -75,5 +75,9 @@ bool isDouble(Value *value);
 
 // Check that the value is a boolean.
 bool isBoolean(Value *value);
+
+// Gets a Value's truth value: either true or false.
+// All values except the Boolean type #f have the value true.
+bool isTrue(Value *value);
 
 #endif

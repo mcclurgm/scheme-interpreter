@@ -746,20 +746,7 @@ Value *primitiveModulo(Value *args) {
 
 Value *primitiveNot(Value *args) {
     enforceArgumentArity(args, 1, "not");
-
-
-    if (car(args)->type != BOOL_TYPE) {
-        printf("not expression expected boolean.\n");
-        printf("Given: ");
-        printValue(car(args));
-        printf("\n");
-        printf("Expression: (not ");
-        printTree(args);
-        printf(")\n");
-        texit(1);
-    }
-
-    bool argValue = car(args)->i;
+    bool argValue = isTrue(car(args));
     return makeBool(!argValue);
 }
 
@@ -1023,17 +1010,7 @@ Value *evalCond(Value *argsTree, Frame *activeFrame) {
         }
 
         Value *conditionResult = eval(condition, activeFrame);
-        if (conditionResult->type != BOOL_TYPE) {
-            printf("Condition of cond expression must evaluate to boolean.\n");
-            printf("Expression: (cond ");
-            printTree(argsTree);
-            printf(")\n");
-            printf("Condition expression: ");
-            printValue(condition);
-            printf("\n");
-            texit(1);
-        }
-        if (conditionResult->i) {
+        if (isTrue(conditionResult)) {
             return evalBegin(body, activeFrame);
         }
 
@@ -1049,20 +1026,9 @@ Value *evalAnd(Value *argsTree, Frame *activeFrame) {
     Value *currentExpr = argsTree;
     while(currentExpr->type != NULL_TYPE) {
         Value *condition = eval(currentExpr, activeFrame);
-        if (condition->type != BOOL_TYPE) {
-            printf("and expression expected boolean.\n");
-            printf("Given: ");
-            printValue(car(currentExpr));
-            printf(", which evaluates to ");
-            printValue(condition);
-            printf("\n");
-            printf("Expression: (and ");
-            printTree(argsTree);
-            printf(")\n");
-            texit(1);
-        }
-        if (!condition->i) {
+        if (!isTrue(condition)) {
             return makeBool(false);
+            //TODO implement arbitrary typed returns, instead of hard-coding
         }
         currentExpr = cdr(currentExpr);
     }
@@ -1075,19 +1041,8 @@ Value *evalOr(Value *argsTree, Frame *activeFrame) {
     Value *currentExpr = argsTree;
     while(currentExpr->type != NULL_TYPE) {
         Value *condition = eval(currentExpr, activeFrame);
-        if (condition->type != BOOL_TYPE) {
-            printf("or expression expected boolean.\n");
-            printf("Given: ");
-            printValue(car(currentExpr));
-            printf(", which evaluates to ");
-            printValue(condition);
-            printf("\n");
-            printf("Expression: (or ");
-            printTree(argsTree);
-            printf(")\n");
-            texit(1);
-        }
-        if (condition->i) {
+        if (isTrue(condition)) {
+            //TODO implement arbitrary typed returns, instead of hard-coding
             return makeBool(true);
         }
         currentExpr = cdr(currentExpr);
@@ -1127,19 +1082,7 @@ Value *evalWhen(Value *argsTree, Frame *activeFrame) {
     }
 
     Value *cond = eval(condExpr, activeFrame);
-    if (cond->type != BOOL_TYPE) {
-        printf("Error: condition of when statement must evaluate to boolean.\n");
-        printf("Expression: (when ");
-        printTree(argsTree);
-        printf(")\n");
-        printf("Condition expression: ");
-        printValue(car(condExpr));
-        printf("\n");
-        texit(1);
-    }
-
-    if (cond->i) {
-        // Condition is true
+    if (isTrue(cond)) {
         // Evaluate the body expressions
         Value *result = makeNull();
         Value *currentExpr = thenExpr;
@@ -1173,19 +1116,7 @@ Value *evalUnless(Value *argsTree, Frame *activeFrame) {
     }
 
     Value *cond = eval(condExpr, activeFrame);
-    if (cond->type != BOOL_TYPE) {
-        printf("Error: condition of unless statement must evaluate to boolean.\n");
-        printf("Expression: (unless ");
-        printTree(argsTree);
-        printf(")\n");
-        printf("Condition expression: ");
-        printValue(car(condExpr));
-        printf("\n");
-        texit(1);
-    }
-
-    if (!cond->i) {
-        // Condition is true
+    if (!isTrue(cond)) {
         // Evaluate the body expressions
         Value *result = makeNull();
         Value *currentExpr = thenExpr;
@@ -1227,19 +1158,7 @@ Value *evalIf(Value *argsTree, Frame *activeFrame) {
     }
 
     Value *cond = eval(condExpr, activeFrame);
-    if (cond->type != BOOL_TYPE) {
-        printf("Condition of if statement must evaluate to boolean.\n");
-        printf("Expression: (if ");
-        printTree(argsTree);
-        printf(")\n");
-        printf("Condition expression: ");
-        printValue(car(condExpr));
-        printf("\n");
-        texit(1);
-    }
-
-    if (cond->i) {
-        // Condition is true
+    if (isTrue(cond)) {
         return eval(thenExpr, activeFrame);
     } else {
         return eval(elseExpr, activeFrame);

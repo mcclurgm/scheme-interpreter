@@ -100,3 +100,14 @@ bool isBoolean(Value *value) {
     assert(value != NULL);
     return value->type == BOOL_TYPE;
 }
+
+// Gets a Value's truth value: either true or false.
+// All values except the Boolean type #f have the value true.
+bool isTrue(Value *value) {
+    assert(value != NULL);
+    if (value->type != BOOL_TYPE) {
+        return true;
+    } else {
+        return value->i;
+    }
+}

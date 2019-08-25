@@ -23,12 +23,10 @@
     * `if`
       * Call function `evalIf`
         * Arguments: everything after the `if` token
-        * Evaluate each expression (using `eval`, probably) 
+        * Evaluate each expression (using `eval`, probably)
       * Evaluate the condition
-      * If `true`, evaluate and return the second argument
-      * Else (`false`), evaluate and return the third argument
-      * *Technically*, if the result is not `#f` then it's considered true
-        * But Dave's spec requires a `boolean` type so let's not go there.
+      * If true, evaluate and return the second argument
+      * Else (`#f`), evaluate and return the third argument
     * `let`
       * Evaluate binding pairs: arbitrary number of expressions
         * Each is a pair of an identifier name and a value
@@ -45,12 +43,12 @@
           * Simply prints the result of whatever's in it to the console
             * Does not include a line break
       * `when`
-        * If the condition evaluates to `#t`, evaluate all body expressions and return the result of the last
+        * If the condition evaluates to true, evaluate all body expressions and return the result of the last
         * If `#f`, don't evaluate anything
           * This should not return anything
       * `unless`
         * If the condition evaluates to `#f`, evaluate all body expressions and return the result of the last
-        * If `#t`, don't evaluate anything
+        * If true, don't evaluate anything
           * This should not return anything
 
 ## Evaluation errors
@@ -148,9 +146,9 @@
     * Also returns `VOID_TYPE` if all are false (unless there's an `else`)
   * Expression format:
     * `(test body)`
-      * Test: must evaluate to `#t` or `#f`
-        * We can assume this for the test code...
+      * Test: evaluate, get its truth value
       * Body: any number of expressions, evaluated like begin or let
+      * If test is true, evaluate body
 * `else`:
   * There can't be any other expressions after an `else`
 
@@ -162,8 +160,17 @@
   * `or`: `#f`
 * `and` evaluates to `#t` until it hits a false case, then short circuits.
   `or` evaluates to `#f` until it hits a true case, then short circuits.
-* Requires that all arguments by boolean. 
-  This is not standard Scheme behavior, but is currently implemented that way.
+* Following typical Boolean logic, anything except the literal `#f` is considered true.
+  * It returns the value that determines the expression's truth value. So instead of always returning `#t` or `#f`, it can return any object
+    * This works with short-circuiting.
+    * `or`: returns the first true parameter (which initializes the short-circuit), otherwise `#f`
+      * Example: `(or #f 1 2 3 #f) -> 1`
+      * `(or #f) -> #f`
+    * `and` follows similar logic, although it's expressed differently. It returns the value that short-circuits it (which will always be `#f`, since that's the only false value), otherwise the last value before a short-circuit exit.
+      * Since the only way to return true is for everything to evaluate to true (ie, no short-circuiting), the true value returned is the last parameter.
+      * Any false value (`#f`) returns `#f`.
+      * `(and 1 2 #f 3) -> #f`
+      * `(and 1 2 3) -> 3`
 
 ### Bonus: `load`
 
@@ -203,8 +210,8 @@ int main() {
   * 0: return an empty list
   * 1: return the argument
   * 2+: add each one on to the appended versions of the next
-    * From Dybvig: 
-      > append returns a new list consisting of the elements of the first list followed by the elements of the second list, the elements of the third list, and so on. The new list is made from new pairs for all arguments but the last; the last (which need not be a list) is merely placed at the end of the new structure. append may be defined without error checks as follows. 
+    * From Dybvig:
+      > append returns a new list consisting of the elements of the first list followed by the elements of the second list, the elements of the third list, and so on. The new list is made from new pairs for all arguments but the last; the last (which need not be a list) is merely placed at the end of the new structure. append may be defined without error checks as follows.
 * Reverse the list of arguments, so I can iterate through it in the right order.
 * Then, I can just call append() one after the next
   * `current = car(args);`

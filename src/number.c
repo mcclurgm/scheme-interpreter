@@ -28,6 +28,8 @@ Value *convertInteger(Value *val) {
     } else {
         assert(false && "Converting a numeric type that is not implemented");
     }
+    assert(false && "Unreachable code reached");
+    return makeNull();
 }
 
 /* Return the result of adding two integers.
@@ -67,6 +69,8 @@ Value *convertReal(Value *val) {
     } else {
         assert(false && "Converting a numeric type that is not implemented");
     }
+    assert(false && "Unreachable code reached");
+    return makeNull();
 }
 
 /* Return the result of adding two real numbers.

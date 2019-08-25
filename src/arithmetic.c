@@ -57,6 +57,8 @@ numericType getNumericType(Value *val) {
         texit(2);
         //TODO Is this an internal error or an input error?
     }
+    assert(false && "Unreachable code reached");
+    return -1;
 }
 
 /* Convert a numericType to a valueType. */
@@ -68,6 +70,8 @@ valueType getValueType(numericType type) {
     } else {
         assert(false && "numericType that isn't implemented");
     }
+    assert(false && "Unreachable code reached");
+    return -1;
 }
 
 /* Resolves the type of number to be returned by an arithmetic expression.
@@ -122,6 +126,7 @@ Value *add(Value *a, Value *b) {
         assert(false && "Numeric type that is invalid or not implemented");
     }
 
+    // Perform the operation and return
     if (resultType == NUMBER_INTEGER) {
         return intAdd(convertedA, convertedB);
     } else if (resultType == NUMBER_REAL) {
@@ -132,6 +137,7 @@ Value *add(Value *a, Value *b) {
         printf("and they have an invalid or not implemented result type.\n");
         texit(2);
     }
+    assert(false && "Unreachable code reached");
     return makeNull();
 }
 

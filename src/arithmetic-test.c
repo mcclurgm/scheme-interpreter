@@ -28,11 +28,11 @@ int main() {
     assert(getResultType(a, c) == 2);
     assert(getResultType(c, b) == 2);
 
+    // ADDITION
     // Integer result
     Value *result = add(makeInt(1), makeInt(2));
     assert(result->type == INT_TYPE);
     assert(result->i == 3);
-
     // Real result
     result = add(makeDouble(1.5), makeDouble(2.5));
     assert(result->type == DOUBLE_TYPE);
@@ -43,6 +43,22 @@ int main() {
     result = add(makeDouble(2.5), makeInt(1));
     assert(result->type == DOUBLE_TYPE);
     assert(result->d == 3.5);
+
+    // SUBTRACTION
+    // Integer result
+    result = subtract(makeInt(1), makeInt(2));
+    assert(result->type == INT_TYPE);
+    assert(result->i == -1);
+    // Real result
+    result = subtract(makeDouble(1.5), makeDouble(2.5));
+    assert(result->type == DOUBLE_TYPE);
+    assert(result->d == -1);
+    result = subtract(makeInt(1), makeDouble(2.5));
+    assert(result->type == DOUBLE_TYPE);
+    assert(result->d == -1.5);
+    result = subtract(makeDouble(2.5), makeInt(1));
+    assert(result->type == DOUBLE_TYPE);
+    assert(result->d == 1.5);
 
     printf("Well done\n");
     return 0;

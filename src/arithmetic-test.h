@@ -40,7 +40,9 @@ valueType getResultType(Value *a, Value *b);
 
 Value *add(Value *a, Value *b);
 
-// Value *subtract(Value *a, Value *b);
+/* Calculates the result of a - b.
+ */
+Value *subtract(Value *a, Value *b);
 
 // Value *multiply(Value *a, Value *b);
 

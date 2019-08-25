@@ -44,6 +44,18 @@ Value *intAdd(Value *a, Value * b) {
     return makeInt(a->i + b->i);
 }
 
+/* Return the result of subtracting two integers.
+ *
+ * This function requires that its arguments are both integer typed
+ * (ie, INT_TYPE). It does not convert values. It is an error to pass it
+ * anything else.
+ */
+Value *intSubtract(Value *a, Value * b) {
+    assert(a->type == INT_TYPE && b->type == INT_TYPE &&
+           "Wrong type being passed to intSubtract: requires integer only.");
+    return makeInt(a->i - b->i);
+}
+
 /* Convert input to a real-typed Value.
  *
  * This only performs conversions "down" the numeric hierarchy, from one type
@@ -82,4 +94,15 @@ Value *realAdd(Value *a, Value *b) {
     assert(a->type == DOUBLE_TYPE && b->type == DOUBLE_TYPE &&
            "Wrong type being passed to realAdd: requires real only.");
     return makeDouble(a->d + b->d);
+}
+
+/* Return the result of subtracting two real numbers.
+ *
+ * This function requires that its arguments are both real typed
+ * (ie, DOUBLE_TYPE). It does not convert values.
+ */
+Value *realSubtract(Value *a, Value *b) {
+    assert(a->type == DOUBLE_TYPE && b->type == DOUBLE_TYPE &&
+           "Wrong type being passed to realAdd: requires real only.");
+    return makeDouble(a->d - b->d);
 }

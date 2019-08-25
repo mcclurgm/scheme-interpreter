@@ -109,11 +109,14 @@ numericType getResultType(Value *a, Value *b) {
 }
 
 /* Calculates the result of a + b.
+ *
+ * a and b are numeric-typed Values.
  */
 Value *add(Value *a, Value *b) {
     numericType resultType = getResultType(a, b);
 
     // Convert numbers to the same type to be operated on
+    // (reusable for all arithmetic)
     Value *convertedA;
     Value *convertedB;
     if (resultType == NUMBER_INTEGER) {
@@ -127,6 +130,7 @@ Value *add(Value *a, Value *b) {
     }
 
     // Perform the operation and return
+    // (unique to addition)
     if (resultType == NUMBER_INTEGER) {
         return intAdd(convertedA, convertedB);
     } else if (resultType == NUMBER_REAL) {
@@ -143,9 +147,37 @@ Value *add(Value *a, Value *b) {
 
 /* Calculates the result of a - b.
  */
-// Value *subtract(Value *a, Value *b) {
-//     return makeNull();
-// }
+Value *subtract(Value *a, Value *b) {
+    numericType resultType = getResultType(a, b);
+
+    // Convert numbers to the same type to be operated on
+    Value *convertedA;
+    Value *convertedB;
+    if (resultType == NUMBER_INTEGER) {
+        convertedA = convertInteger(a);
+        convertedB = convertInteger(b);
+    } else if (resultType == NUMBER_REAL) {
+        convertedA = convertReal(a);
+        convertedB = convertReal(b);
+    } else {
+        assert(false && "Numeric type that is invalid or not implemented");
+    }
+
+    // Perform the operation and return
+    // (unique to addition)
+    if (resultType == NUMBER_INTEGER) {
+        return intSubtract(convertedA, convertedB);
+    } else if (resultType == NUMBER_REAL) {
+        return realSubtract(convertedA, convertedB);
+    } else {
+        printf("INTERNAL ERROR.\n");
+        printf("It seems like we're trying to add two numbers, \n");
+        printf("and they have an invalid or not implemented result type.\n");
+        texit(2);
+    }
+    assert(false && "Unreachable code reached");
+    return makeNull();
+}
 
 /* Calculates the result of a * b
  */

@@ -171,7 +171,7 @@ Value *primitiveAdd(Value *args) {
 
     Value *current = args;
     while(current->type != NULL_TYPE) {
-        if(car(current)->type != INT_TYPE && car(current)->type != DOUBLE_TYPE) {
+        if(!isNumber(car(current))) {
             printf("Expected number in +\n");
             printf("Given: ");
             printTree(current);
@@ -211,7 +211,8 @@ Value *primitiveSubtract(Value *args) {
 
     double difference = 0;
     bool isInt = true;
-    if(car(args)->type != INT_TYPE && car(args)->type != DOUBLE_TYPE) {
+    if(!isNumber(car(args))) {
+        //TODO Reorganize if statement flow here
         printf("Expected number in +\n");
         printf("Given: ");
         printTree(args);
@@ -226,7 +227,7 @@ Value *primitiveSubtract(Value *args) {
 
     Value *current = cdr(args);
     while(current->type != NULL_TYPE) {
-        if(car(current)->type != INT_TYPE && car(current)->type != DOUBLE_TYPE) {
+        if(!isNumber(car(current))) {
             printf("Expected number in +\n");
             printf("Given: ");
             printTree(current);
@@ -257,7 +258,7 @@ Value *primitiveMult(Value *args) {
 
     Value *current = args;
     while(current->type != NULL_TYPE) {
-        if(car(current)->type != INT_TYPE && car(current)->type != DOUBLE_TYPE) {
+        if(!isNumber(car(current))) {
             printf("Expected number in *\n");
             printf("Given: ");
             printTree(current);
@@ -530,7 +531,7 @@ Value *primitiveEqualNum(Value *args) {
     }
 
     Value *first = car(args);
-    if(first->type != INT_TYPE && first->type != DOUBLE_TYPE) {
+    if(!isNumber(first)) {
         printf("Expected number in =\n");
         printf("Given ");
         printValue(first);
@@ -544,7 +545,7 @@ Value *primitiveEqualNum(Value *args) {
     Value *current = cdr(args);
     while (current->type != NULL_TYPE) {
         Value *currentValue = car(current);
-        if(currentValue->type != INT_TYPE && currentValue->type != DOUBLE_TYPE) {
+        if(!isNumber(currentValue)) {
             printf("Expected number in =\n");
             printf("Given ");
             printValue(currentValue);

@@ -101,6 +101,12 @@ bool isBoolean(Value *value) {
     return value->type == BOOL_TYPE;
 }
 
+// Check that the value is a string.
+bool isString(Value *value) {
+    assert(value != NULL);
+    return value->type == STR_TYPE;
+}
+
 // Check that the value is a symbol.
 bool isSymbol(Value *value) {
     assert(value != NULL);

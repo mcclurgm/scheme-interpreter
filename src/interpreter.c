@@ -483,7 +483,7 @@ Value *primitiveEqual(Value *args) {
         } else {
             return makeBool(false);
         }
-    } else if (first->type == STR_TYPE || isSymbol(first)) {
+    } else if (isString(first) || isSymbol(first)) {
         //TEST test coverage
         if (!strcmp(first->s, second->s)) {
             return makeBool(true);
@@ -1564,7 +1564,8 @@ Value *evalLoad(Value *args, Frame *activeFrame) {
 
     Value *filePath = eval(args, activeFrame);
 
-    if (car(args)->type != STR_TYPE) {
+    if (!isString(car(args))) {
+        //TEST test coverage
         printf("load needs a string file path.\n");
         printf("Given wrong type. \n");
         printf("Expression: (load ");
@@ -1602,7 +1603,7 @@ Value *eval(Value *tree, Frame *frame) {
         return expr;
     } else if (isDouble(expr)) {
         return expr;
-    } else if (expr->type == STR_TYPE) {
+    } else if (isString(expr)) {
         return expr;
     } else if (isBoolean(expr)) {
         return expr;

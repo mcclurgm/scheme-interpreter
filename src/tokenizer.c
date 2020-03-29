@@ -378,7 +378,7 @@ void displayTokens(Value *list) {
         else if (isDouble(car(current))) {
             printf("%f:decimal\n", car(current)->d);
         }
-        else if (car(current)->type == STR_TYPE) {
+        else if (isString(car(current))) {
             printf("\"%s\":string\n", car(current)->s);
         }
         else if (isSymbol(car(current))) {

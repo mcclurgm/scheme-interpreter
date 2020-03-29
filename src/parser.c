@@ -112,7 +112,7 @@ void printValue(Value *val) {
     else if (isDouble(val)) {
         printf("%f", val->d);
     }
-    else if (val->type == STR_TYPE) {
+    else if (isString(val)) {
         printf("\"%s\"", val->s);
     }
     else if (isSymbol(val)) {
@@ -213,7 +213,7 @@ void printTreeTest(Value *tree, int indent) {
         else if (isDouble(car(current))) {
             printf("%f\n", car(current)->d);
         }
-        else if (car(current)->type == STR_TYPE) {
+        else if (isString(car(current))) {
             printf("\"%s\"\n", car(current)->s);
         }
         else if (isSymbol(car(current))) {

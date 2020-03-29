@@ -56,6 +56,12 @@ Value *makeSymbol(char *val) {
     return result;
 }
 
+// Check that the value is a cons type (ie cons cell).
+bool isCons(Value *value) {
+    assert(value != NULL);
+    return value->type == CONS_TYPE;
+}
+
 // Check that the value is the head of a proper list structure.
 //TODO Note, this does not check for circular lists.
 bool isProperList(Value *value) {

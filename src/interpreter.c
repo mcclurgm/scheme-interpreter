@@ -891,7 +891,8 @@ Frame *makeApplyBindings(Value *functionParams, Value *args, Frame *functionFram
             newBinding = cons(functionParams, newBinding);
             functionFrame->bindings = cons(newBinding, functionFrame->bindings);
     } else {
-        assert(functionParams->type == CONS_TYPE || functionParams->type == NULL_TYPE);
+        //TEST test coverage
+        assert(isCons(functionParams) || functionParams->type == NULL_TYPE);
 
         if (length(functionParams) != length(args)) {
             printf("Arity mismatch in function application.\n");
@@ -1440,7 +1441,7 @@ Value *evalDefine(Value *argsTree, Frame *activeFrame) {
     Value *symbol;
     Value *exprResult;
     // Lambda shorthand syntax
-    if (car(argsTree)->type == CONS_TYPE) {
+    if (isCons(car(argsTree))) {
         symbol = car(car(argsTree));
         if (!isSymbol(symbol)) {
             printf("Function name must be a symbol; wrong token type found.\n");
@@ -1619,7 +1620,7 @@ Value *eval(Value *tree, Frame *frame) {
         return expr;
     }
     // This means that the expression is a complete S-expression
-    else if (expr->type == CONS_TYPE) {
+    else if (isCons(expr)) {
 
         Value *first = car(expr);
         Value *args = cdr(expr);

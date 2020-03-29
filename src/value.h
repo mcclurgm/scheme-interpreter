@@ -59,6 +59,9 @@ Value *makeSymbol(char *val);
 // cons() function should be used instead. It is both easier and ensures that
 // cons cells are Scheme-valid, with values in both car and cdr.
 
+// Check that the value is a cons type (ie cons cell).
+bool isCons(Value *value);
+
 // Check that the value is the head of a proper list structure.
 //TODO Note, this does not check for circular lists.
 bool isProperList(Value *value);

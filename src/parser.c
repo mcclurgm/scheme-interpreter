@@ -100,7 +100,7 @@ Value *parse(Value *tokens) {
 }
 
 void printValue(Value *val) {
-    if (val->type == CONS_TYPE) {
+    if (isCons(val)) {
         // This is a subtree expression.
         printf("(");
         printTree(val);
@@ -200,7 +200,7 @@ void printTreeTest(Value *tree, int indent) {
             }
         }
 
-        if (car(current)->type == CONS_TYPE) {
+        if (isCons(car(current))) {
             // This is a subtree expression.
             // printf("(\n");
             printf("CONS:\n");

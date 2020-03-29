@@ -16,9 +16,9 @@ bool tokenInExpression(Value *currentToken, valueType closeType) {
         texit(1);
     } else if (car(currentToken)->type == closeType) {
         return false;
-    } else if (car(currentToken)->type == CLOSE_TYPE 
+    } else if (car(currentToken)->type == CLOSE_TYPE
             || car(currentToken)->type == CLOSE_BRACKET_TYPE) {
-        
+
         // This means the first open token we hit is the wrong type.
         printf("Syntax error: bracket type mismatch.\n");
         texit(1);
@@ -28,7 +28,7 @@ bool tokenInExpression(Value *currentToken, valueType closeType) {
 
 Value *parseExpression(Value **currentToken) {
     valueType currentType = car(*currentToken)->type;
-    
+
     if (currentType == OPEN_BRACKET_TYPE || currentType == OPEN_TYPE) {
         // The expression is cons-type, so iterate through all its sub-expressions
         // and cons them onto a subtree.
@@ -54,16 +54,16 @@ Value *parseExpression(Value **currentToken) {
         // Special case: quote syntax
         // Iterate the current token to whatever it's quoting
         *currentToken = cdr(*currentToken);
-        
+
         // Parse that expression
         Value *expr = parseExpression(currentToken);
-        
+
         // Construct a (quote expr) expression
         Value *quoteToken = makeSymbol("quote");
-        
+
         Value *quoteExpr = cons(expr, makeNull());
         quoteExpr = cons(quoteToken, quoteExpr);
-        
+
         return quoteExpr;
     } else {
         // This expression is just a single token
@@ -95,7 +95,7 @@ Value *parse(Value *tokens) {
         stack = cons(parseExpression(&currentToken), stack);
         currentToken = cdr(currentToken);
     }
-    
+
     return reverse(stack);
 }
 
@@ -115,7 +115,7 @@ void printValue(Value *val) {
     else if (val->type == STR_TYPE) {
         printf("\"%s\"", val->s);
     }
-    else if (val->type == SYMBOL_TYPE) {
+    else if (isSymbol(val)) {
         printf("%s", val->s);
     }
     else if (val->type == OPEN_TYPE) {
@@ -178,7 +178,7 @@ void printTree(Value *tree) {
         if (cdr(current)->type != NULL_TYPE) {
             printf(" ");
         }
-        
+
         if (cdr(current)->type != NULL_TYPE && cdr(current)->type != CONS_TYPE) {
             printf(". ");
             printValue(cdr(current));
@@ -216,7 +216,7 @@ void printTreeTest(Value *tree, int indent) {
         else if (car(current)->type == STR_TYPE) {
             printf("\"%s\"\n", car(current)->s);
         }
-        else if (car(current)->type == SYMBOL_TYPE) {
+        else if (isSymbol(car(current))) {
             printf("%s\n", car(current)->s);
         }
         else if (car(current)->type == OPEN_TYPE) {

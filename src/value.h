@@ -76,6 +76,9 @@ bool isDouble(Value *value);
 // Check that the value is a boolean.
 bool isBoolean(Value *value);
 
+// Check that the value is a symbol.
+bool isSymbol(Value *value);
+
 // Gets a Value's truth value: either true or false.
 // All values except the Boolean type #f have the value true.
 bool isTrue(Value *value);

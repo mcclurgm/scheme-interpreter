@@ -101,6 +101,12 @@ bool isBoolean(Value *value) {
     return value->type == BOOL_TYPE;
 }
 
+// Check that the value is a symbol.
+bool isSymbol(Value *value) {
+    assert(value != NULL);
+    return value->type == SYMBOL_TYPE;
+}
+
 // Gets a Value's truth value: either true or false.
 // All values except the Boolean type #f have the value true.
 bool isTrue(Value *value) {

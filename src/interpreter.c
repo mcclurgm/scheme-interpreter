@@ -483,7 +483,8 @@ Value *primitiveEqual(Value *args) {
         } else {
             return makeBool(false);
         }
-    } else if (first->type == STR_TYPE || first->type == SYMBOL_TYPE) {
+    } else if (first->type == STR_TYPE || isSymbol(first)) {
+        //TEST test coverage
         if (!strcmp(first->s, second->s)) {
             return makeBool(true);
         } else {
@@ -784,7 +785,7 @@ Value *lookupBindingInFrame(Value *symbol, Frame *frame) {
 }
 
 Value *lookUpSymbol(Value *symbol, Frame *activeFrame) {
-    assert(symbol->type == SYMBOL_TYPE);
+    assert(isSymbol(symbol));
 
     // Check bindings in current frame
     Frame *currentFrame = activeFrame;
@@ -816,7 +817,7 @@ Frame *makeBinding(Value *bindingPair, Frame *activeFrame) {
         texit(1);
     }
 
-    if (name->type != SYMBOL_TYPE) {
+    if (!isSymbol(name)) {
         printf("Binding must assign a value to symbol; wrong token type found.\n");
         printf("Given: ");
         printValue(name);
@@ -855,19 +856,19 @@ bool checkValidParameters(Value *paramsList) {
     if (paramsList->type == NULL_TYPE) {
         return true;
     }
-    if (paramsList->type == SYMBOL_TYPE) {
+    if (isSymbol(paramsList)) {
         return true;
     }
 
     Value *currentParam = paramsList;
-    if (car(currentParam)->type != SYMBOL_TYPE) {
+    if (!isSymbol(car(currentParam))) {
         return false;
     }
     // Check that parameter name can't show up twice
     while (currentParam->type != NULL_TYPE) {
         Value *compareParam = cdr(currentParam);
         while (compareParam->type != NULL_TYPE) {
-            if (car(compareParam)->type != SYMBOL_TYPE) {
+            if (!isSymbol(car(compareParam))) {
                 return false;
             }
             if (!strcmp(car(compareParam)->s, car(currentParam)->s)) {
@@ -883,7 +884,7 @@ bool checkValidParameters(Value *paramsList) {
 
 // Yes, we know how this name sounds...
 Frame *makeApplyBindings(Value *functionParams, Value *args, Frame *functionFrame) {
-    if (functionParams->type == SYMBOL_TYPE) {
+    if (isSymbol(functionParams)) {
             Value *newBinding = makeNull();
             newBinding = cons(args, newBinding);
             newBinding = cons(functionParams, newBinding);
@@ -975,7 +976,7 @@ Value *evalCond(Value *argsTree, Frame *activeFrame) {
         Value *body = cdr(car(currentExpr));
 
         // Check for else special case
-        if (car(condition)->type == SYMBOL_TYPE) {
+        if (isSymbol(car(condition))) {
             if (!strcmp(car(condition)->s, "else")) {
                 if (body->type == NULL_TYPE) {
                     printf("Else clause must have a body.\n");
@@ -1003,7 +1004,7 @@ Value *evalCond(Value *argsTree, Frame *activeFrame) {
         Value *body = cdr(car(currentExpr));
 
         // Check for else special case
-        if (car(condition)->type == SYMBOL_TYPE) {
+        if (isSymbol(car(condition))) {
             if (!strcmp(car(condition)->s, "else")) {
                 return evalBegin(body, activeFrame);
             }
@@ -1395,7 +1396,8 @@ Value *evalLambda(Value *argsTree, Frame *activeFrame) {
 
     // Check parameters list: can be cons or null
     if (params->type != CONS_TYPE && params->type != NULL_TYPE
-            && params->type != SYMBOL_TYPE) {
+            && !isSymbol(params)) {
+        //TEST test coverage
         printf("Parameters in lambda statement are not a list.\n");
         printf("At expression: (lambda ");
         printTree(argsTree);
@@ -1439,7 +1441,7 @@ Value *evalDefine(Value *argsTree, Frame *activeFrame) {
     // Lambda shorthand syntax
     if (car(argsTree)->type == CONS_TYPE) {
         symbol = car(car(argsTree));
-        if (symbol->type != SYMBOL_TYPE) {
+        if (!isSymbol(symbol)) {
             printf("Function name must be a symbol; wrong token type found.\n");
             printf("At expression: (define ");
             printTree(argsTree);
@@ -1461,7 +1463,7 @@ Value *evalDefine(Value *argsTree, Frame *activeFrame) {
         Value *lambdaExpr = cons(params, body);
         exprResult = evalLambda(lambdaExpr, activeFrame);
     // Standard define
-    } else if (car(argsTree)->type == SYMBOL_TYPE) {
+    } else if (isSymbol(car(argsTree))) {
         symbol = car(argsTree);
         Value *expr = cdr(argsTree);
 
@@ -1522,7 +1524,7 @@ Value *evalSetBang(Value *argsTree, Frame *activeFrame) {
     Value *symbol = car(argsTree);
     Value *expr = cdr(argsTree);
 
-    if (car(argsTree)->type != SYMBOL_TYPE) {
+    if (!isSymbol(car(argsTree))) {
         printf("Set! must bind a value to symbol; wrong token type found for symbol name.\n");
         printf("At expression: (set! ");
         printTree(argsTree);
@@ -1608,7 +1610,7 @@ Value *eval(Value *tree, Frame *frame) {
         return expr;
     } else if (expr->type == NULL_TYPE) {
         return expr;
-    } else if (expr->type == SYMBOL_TYPE) {
+    } else if (isSymbol(expr)) {
         Value *binding = lookUpSymbol(expr, frame);
         return car(binding); // Gets value from binding
     } else if (expr->type == UNINITIALIZED) {
@@ -1625,7 +1627,7 @@ Value *eval(Value *tree, Frame *frame) {
         assert(args != NULL);
 
 
-        if (first->type == SYMBOL_TYPE) {
+        if (isSymbol(first)) {
                 // Special cases
             if (!strcmp(first->s, "if")) {
                 return evalIf(args, frame);

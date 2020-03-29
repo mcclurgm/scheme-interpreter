@@ -80,8 +80,8 @@ Value *endToken(Value *tokens) {
             car(tokens)->i = false;
         } else {
             // Invalid boolean.
-            // Trying to end token before it reaches multiple characters: 
-            // just "#". Other cases (invalid character, too long, etc) should 
+            // Trying to end token before it reaches multiple characters:
+            // just "#". Other cases (invalid character, too long, etc) should
             // be caught in parseBool.
             assert(!strcmp(tokenString, "#t") && "Invalid token made it past parseBool");
             printf("Syntax error: invalid bool declaration.\n");
@@ -277,7 +277,7 @@ Value *tokenize(FILE *fp) {
                 printf("Null type before character: %c\n", charRead);
             }
         }
-        
+
         // Check state for cases that don't parse for new tokens
         if (inComment) {
             if (charRead == '\n') {
@@ -344,7 +344,7 @@ Value *tokenize(FILE *fp) {
             tokens = parseBool(charRead, tokens);
         } else if (car(tokens)->type == DOT_TYPE) {
             tokens = parseDot(charRead, tokens);
-        } else if (car(tokens)->type == SYMBOL_TYPE) {
+        } else if (isSymbol(car(tokens))) {
             tokens = parseSymbol(charRead, tokens);
         }
 
@@ -381,7 +381,7 @@ void displayTokens(Value *list) {
         else if (car(current)->type == STR_TYPE) {
             printf("\"%s\":string\n", car(current)->s);
         }
-        else if (car(current)->type == SYMBOL_TYPE) {
+        else if (isSymbol(car(current))) {
             printf("%s:symbol\n", car(current)->s);
         }
         else if (car(current)->type == OPEN_TYPE) {

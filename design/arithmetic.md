@@ -62,6 +62,7 @@ This gets a little more complicated when operations can cast (back?) up. For exa
   - This fits within the current design, where the type of the result is the type of operation that's called. So within that operation, it could simply convert the inputs to the proper types.
   - This doesn't fit with the goal of reducing duplicate code, though. Instead of being in the single primary `add` function, it would have to be in all four types.
 - **I can actually optimize integer conversions away completely.** No number can be implicitly converted to an integer following the hierarchy of types. It is consistent design to keep an conversion function, but it is a waste of resources to call it. It would be necessary to implement polymorphism in a rigidly structured way (like in Java, for example), but it is not necessary here.
+	- This isn't necessarily true with up-casting. Two rationals can be multiplied to create an integer (like `1/2 * 2`).
 
 ## The Actual Operations
 After performing the type matching process, I can then check what type the numbers are and perform the operation. The operations would be performed using typed function calls: `intAdd`, `complexAdd`, etc. This part should be very simple, essentially a switch statement on the type of the numbers and a single function call in each.
@@ -86,7 +87,7 @@ Functions:
 - Take two arguments to apply the operation to
 - Return the type of the least exact value. Two exact numbers will yield an exact number.
 
-Implementing the Functions
+#### Implementing the Functions
 - I need to pass the values around somehow. I need to know whether to do that as `Values` or as the resulting types. This will affect the design of other functions, since the add functions need to accept the proper type. Their API would be nicer if they took their own type, like `Complex`, instead of a generic `Value`. But it could make using them more difficult.
   - Passing `Values` around would make the code in arithmetic functions like `add` more elegant. I wouldn't have to worry about the types much, and I would never have to pull the value of of the `Value` struct.
     - Method signature: `intAdd(Value *a, Value *b)`
@@ -101,6 +102,19 @@ Implementing the Functions
       - Another thing. I probably have to return a `Value` anyway (if I have to put `Value` stuff into these), or else I would have to pack the result into a `Value` in the calling function. Although I'll already by in an if statement to figure out which type, it would be a little less nice.
   - I think the decision is to just pass around `Values`. There are enough advantages that it's probably worth it. And for encapsulation, it doesn't quite make sense to force all the operation functinos to take and return only their own (raw) type.
     - I may do the wrapper functions though. That could add both the advantages, except making the codebase more complicated.
+
+#### The Current Design
+
+Probably subject to change, but this is where it's at right now.
+
+This is a general framework that I should be able to use for all basic arithmetic operations. The only real difference is which specific operation I call at the end. (This could mean that there's a better way to implement it that has less code reuse by doing all this logic in a single function then branching to the operation, but I'm not sure that really makes sense, especially in an API context).
+
+1. Negotiate the common type to perform the operation on. By using a single common type I can use the arithmetic style of a single numeric type, without having to worry about the huge number of input type combinations.
+	1. This will be the lowest hierarchical (least specific) type.
+	2. This should have no downsides or cause any loss of information, except for some small efficiency setback and perhaps floating-point precision issues (which I hope I don't run into much, and is probaby not really my issue anyway).
+2. Convert the input numbers to the common operation type.
+3. Call the proper typed operation (`intAdd`, `realDivide`, etc).
+4. 'Up-cast' the result up to a higher-level type if possible.
 
 ### Helpers
 

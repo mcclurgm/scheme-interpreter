@@ -88,6 +88,11 @@ bool isSymbol(Value *value);
 // Check that the value is null.
 bool isNull(Value *value);
 
+// Check that the type of the valye is the given type.
+// This is a generic function for less common type checks. For common types,
+// like cons, use the associated function like isCons().
+bool isType(Value *value, valueType type);
+
 // Gets a Value's truth value: either true or false.
 // All values except the Boolean type #f have the value true.
 bool isTrue(Value *value);

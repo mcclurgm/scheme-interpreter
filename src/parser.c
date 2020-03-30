@@ -16,8 +16,8 @@ bool tokenInExpression(Value *currentToken, valueType closeType) {
         texit(1);
     } else if (car(currentToken)->type == closeType) {
         return false;
-    } else if (car(currentToken)->type == CLOSE_TYPE
-            || car(currentToken)->type == CLOSE_BRACKET_TYPE) {
+    } else if (isType(car(currentToken), CLOSE_TYPE)
+            || isType(car(currentToken), CLOSE_BRACKET_TYPE)) {
 
         // This means the first open token we hit is the wrong type.
         printf("Syntax error: bracket type mismatch.\n");
@@ -83,7 +83,7 @@ Value *parse(Value *tokens) {
     Value *currentToken = tokens;
     assert(currentToken != NULL && "Error (parse): null pointer");
     while (!isNull(currentToken)) {
-        if (car(currentToken)->type == CLOSE_TYPE || car(currentToken)->type == CLOSE_BRACKET_TYPE) {
+        if (isType(car(currentToken), CLOSE_TYPE) || isType(car(currentToken), CLOSE_BRACKET_TYPE)) {
             // There are too many close parentheses.
             // All the close types should be handled by parseExpression,
             // since they're part of an expression (the end). So if we see a
@@ -118,10 +118,10 @@ void printValue(Value *val) {
     else if (isSymbol(val)) {
         printf("%s", val->s);
     }
-    else if (val->type == OPEN_TYPE) {
+    else if (isType(val, OPEN_TYPE)) {
         printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO OPEN_TYPE\n");
     }
-    else if (val->type == CLOSE_TYPE) {
+    else if (isType(val, CLOSE_TYPE)) {
         printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO CLOSE_TYPE\n");
     }
     else if (isBoolean(val)) {
@@ -131,25 +131,25 @@ void printValue(Value *val) {
             printf("#f");
         }
     }
-    else if (val->type == QUOTE_TYPE) {
+    else if (isType(val, QUOTE_TYPE)) {
         printf("%s", val->s);
     }
-    else if (val->type == OPEN_BRACKET_TYPE) {
+    else if (isType(val, OPEN_BRACKET_TYPE)) {
         printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO OPEN_BRACKET_TYPE\n");
     }
-    else if (val->type == CLOSE_BRACKET_TYPE) {
+    else if (isType(val, CLOSE_BRACKET_TYPE)) {
         printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO CLOSE_BRACKET_TYPE\n");
     }
-    else if (val->type == DOT_TYPE) {
+    else if (isType(val, DOT_TYPE)) {
         printf("%s", val->s);
     }
     else if (isNull(val)) {
         printf("()");
     }
-    else if (val->type == PRIMITIVE_TYPE) {
+    else if (isType(val, PRIMITIVE_TYPE)) {
         printf("#<primitive>");
     }
-    else if (val->type == CLOSURE_TYPE) {
+    else if (isType(val, CLOSURE_TYPE)) {
         printf("#<procedure>");
 
         // Debugging:
@@ -219,10 +219,10 @@ void printTreeTest(Value *tree, int indent) {
         else if (isSymbol(car(current))) {
             printf("%s\n", car(current)->s);
         }
-        else if (car(current)->type == OPEN_TYPE) {
+        else if (isType(car(current), OPEN_TYPE)) {
             printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO OPEN_TYPE\n");
         }
-        else if (car(current)->type == CLOSE_TYPE) {
+        else if (isType(car(current), CLOSE_TYPE)) {
             printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO CLOSE_TYPE\n");
         }
         else if (isBoolean(car(current))) {
@@ -232,16 +232,16 @@ void printTreeTest(Value *tree, int indent) {
                 printf("#f\n");
             }
         }
-        else if (car(current)->type == QUOTE_TYPE) {
+        else if (isType(car(current), QUOTE_TYPE)) {
             printf("%s\n", car(current)->s);
         }
-        else if (car(current)->type == OPEN_BRACKET_TYPE) {
+        else if (isType(car(current), OPEN_BRACKET_TYPE)) {
             printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO OPEN_BRACKET_TYPE\n");
         }
-        else if (car(current)->type == CLOSE_BRACKET_TYPE) {
+        else if (isType(car(current), CLOSE_BRACKET_TYPE)) {
             printf("THIS IS A MAJOR ERROR THERE SHOULD BE NO CLOSE_BRACKET_TYPE\n");
         }
-        else if (car(current)->type == DOT_TYPE) {
+        else if (isType(car(current), DOT_TYPE)) {
             printf("%s\n", car(current)->s);
         }
         else if (isNull(car(current))) {

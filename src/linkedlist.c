@@ -62,13 +62,13 @@ void display(Value *list) {
     else if ((*list).type == STR_TYPE) {
         printf("%s\n", (*list).s);
     }
-    else if (list->type == PTR_TYPE) {
+    else if (isType(list, PTR_TYPE)) {
         printf("%p\n", list->p);
     }
-    else if (list->type == OPEN_TYPE) {
+    else if (isType(list, OPEN_TYPE)) {
         printf("%s\n", list->s);
     }
-    else if (list->type == CLOSE_TYPE) {
+    else if (isType(list, CLOSE_TYPE)) {
         printf("%s\n", list->s);
     }
     else {

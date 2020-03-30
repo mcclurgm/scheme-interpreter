@@ -125,6 +125,14 @@ bool isNull(Value *value) {
     return value->type == NULL_TYPE;
 }
 
+// Check that the type of the valye is the given type.
+// This is a generic function for less common type checks. For common types,
+// like cons, use the associated function like isCons().
+bool isType(Value *value, valueType type) {
+    assert(value != NULL);
+    return value->type == type;
+}
+
 // Gets a Value's truth value: either true or false.
 // All values except the Boolean type #f have the value true.
 bool isTrue(Value *value) {

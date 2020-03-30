@@ -31,13 +31,13 @@ Value *tallocCons(Value *newCar, Value *newCdr) {
     assert(newCar != NULL);
     assert(newCdr != NULL);
     assert((*newCdr).type == CONS_TYPE || isNull(newCdr));
-    assert(newCar->type == PTR_TYPE);
+    assert(isType(newCar, PTR_TYPE)); //TEST test coverage
 
     // Value *car = malloc(sizeof(Value));
     // (*car).marked = false;
     // (*car).type = (*newCar).type;
     // (*car).p = (*newCar).p;
-    
+
     Value *cell = malloc(sizeof(Value));
     (*cell).marked = false;
     (*cell).type = CONS_TYPE;
@@ -73,7 +73,7 @@ void *talloc(size_t size) {
 void tfree() {
     // Build a new pointers list and use this at the end
     Value *newPointers = tallocMakeNull();
-    
+
     Value *current = pointers;
     while ((*current).type != NULL_TYPE) {
         Value *currentPointer = car(current);
@@ -107,10 +107,10 @@ void texit(int status) {
     exit(status);
 }
 
-/*TODO: 
+/*TODO:
 We're setting the marked property in the Value passed to this function.
 Dave seems to expect that we're marking it in the pointer to the Value (or
-whatever it is). How do we deal with this???? 
+whatever it is). How do we deal with this????
 
 Looks right to Dave, how it being used may be the issue
 */

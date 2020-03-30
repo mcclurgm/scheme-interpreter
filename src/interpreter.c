@@ -1609,7 +1609,8 @@ Value *eval(Value *tree, Frame *frame) {
         return expr;
     } else if (isBoolean(expr)) {
         return expr;
-    } else if (expr->type == PRIMITIVE_TYPE) {
+    } else if (isType(expr, PRIMITIVE_TYPE)) {
+        //TEST test coverage
         return expr;
     } else if (isNull(expr)) {
         return expr;
@@ -1670,7 +1671,8 @@ Value *eval(Value *tree, Frame *frame) {
                 // then apply the first to the args.
                 Value *evaledOperator = eval(expr, frame);
                 Value *evaledArgs = evalEach(args, frame);
-                if (evaledOperator->type == PRIMITIVE_TYPE) {
+                if (isType(evaledOperator, PRIMITIVE_TYPE)) {
+                    //TEST test coverage
                     return (*(evaledOperator->pf))(evaledArgs);
                 } else {
                     return apply(evaledOperator,evaledArgs);
@@ -1681,7 +1683,8 @@ Value *eval(Value *tree, Frame *frame) {
             // then apply the first to the args.
             Value *evaledOperator = eval(expr, frame);
             Value *evaledArgs = evalEach(args, frame);
-            if (evaledOperator->type == PRIMITIVE_TYPE) {
+            if (isType(evaledOperator, PRIMITIVE_TYPE)) {
+                    //TEST test coverage
                     return (*(evaledOperator->pf))(evaledArgs);
                 } else {
                     return apply(evaledOperator,evaledArgs);

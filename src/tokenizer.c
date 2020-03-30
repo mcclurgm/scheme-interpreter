@@ -342,7 +342,7 @@ Value *tokenize(FILE *fp) {
 
         else if (isBoolean(car(tokens))) {
             tokens = parseBool(charRead, tokens);
-        } else if (car(tokens)->type == DOT_TYPE) {
+        } else if (isType(car(tokens), DOT_TYPE)) {
             tokens = parseDot(charRead, tokens);
         } else if (isSymbol(car(tokens))) {
             tokens = parseSymbol(charRead, tokens);
@@ -384,10 +384,10 @@ void displayTokens(Value *list) {
         else if (isSymbol(car(current))) {
             printf("%s:symbol\n", car(current)->s);
         }
-        else if (car(current)->type == OPEN_TYPE) {
+        else if (isType(car(current), OPEN_TYPE)) {
             printf("%s:open\n", car(current)->s);
         }
-        else if (car(current)->type == CLOSE_TYPE) {
+        else if (isType(car(current), CLOSE_TYPE)) {
             printf("%s:close\n", car(current)->s);
         }
         else if (isBoolean(car(current))) {
@@ -397,16 +397,16 @@ void displayTokens(Value *list) {
                 printf("#f:bool\n");
             }
         }
-        else if (car(current)->type == QUOTE_TYPE) {
+        else if (isType(car(current), QUOTE_TYPE)) {
             printf("%s:singlequote\n", car(current)->s);
         }
-        else if (car(current)->type == OPEN_BRACKET_TYPE) {
+        else if (isType(car(current), OPEN_BRACKET_TYPE)) {
             printf("%s:openbracket\n", car(current)->s);
         }
-        else if (car(current)->type == CLOSE_BRACKET_TYPE) {
+        else if (isType(car(current), CLOSE_BRACKET_TYPE)) {
             printf("%s:closebracket\n", car(current)->s);
         }
-        else if (car(current)->type == DOT_TYPE) {
+        else if (isType(car(current), DOT_TYPE)) {
             printf("%s:dot\n", car(current)->s);
         }
         else if (isNull(car(current))) {

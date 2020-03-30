@@ -67,13 +67,13 @@ bool isCons(Value *value) {
 bool isProperList(Value *value) {
     Value *current = value;
     // Check that the current value is either a cons cell or null
-    if (current->type != CONS_TYPE && !isNull(current)) {
+    if (!isCons(current) && !isNull(current)) {
         return false;
     }
 
     // Check that each subsequent value also starts a valid list
     while (!isNull(current)) {
-        if (!isNull(cdr(current)) && cdr(current)->type != CONS_TYPE) {
+        if (!isNull(cdr(current)) && !isCons(cdr(current))) {
             return false;
         }
         current = cdr(current);

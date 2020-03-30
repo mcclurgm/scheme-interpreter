@@ -179,7 +179,7 @@ void printTree(Value *tree) {
             printf(" ");
         }
 
-        if (!isNull(cdr(current)) && cdr(current)->type != CONS_TYPE) {
+        if (!isNull(cdr(current)) && !isCons(cdr(current))) {
             printf(". ");
             printValue(cdr(current));
             break;
@@ -194,7 +194,7 @@ void printTreeTest(Value *tree, int indent) {
 
     Value *current = tree;
     while (!isNull(current)) {
-        if (car(current)->type != CONS_TYPE) {
+        if (!isCons(car(current))) {
             for(int i = 0; i < indent; i++) {
                 printf(" ");
             }

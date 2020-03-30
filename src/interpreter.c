@@ -197,11 +197,11 @@ Value *primitiveAdd(Value *args) {
 }
 
 Value *primitiveSubtract(Value *args) {
-    if (args->type != CONS_TYPE) {
+    if (!isCons(args)) {
         printf("- expression has no arguments: expected at least 2, given none.\n");
         texit(1);
     }
-    if (cdr(args)->type != CONS_TYPE) {
+    if (!isCons(cdr(args))) {
         printf("- expression has too few arguments: expected at least 2, given 1\n");
         printf("Expression: (- ");
         printTree(args);
@@ -285,11 +285,11 @@ Value *primitiveMult(Value *args) {
 }
 
 Value *primitiveDivide(Value *args) {
-    if (args->type != CONS_TYPE) {
+    if (!isCons(args)) {
         printf("/ expression has no arguments: expected 2, given none.\n");
         texit(1);
     }
-    if (cdr(args)->type != CONS_TYPE) {
+    if (!isCons(cdr(args))) {
         printf("/ expression has too few arguments: expected 2, given 1\n");
         printf("Expression: (/ ");
         printTree(args);
@@ -376,7 +376,7 @@ Value *primitiveIsList(Value *args) {
 
 Value *primitiveCar(Value *args) {
     enforceArgumentArity(args, 1, "cons");
-    if (car(args)->type != CONS_TYPE) {
+    if (!isCons(car(args))) {
         printf("car statement needs to act on a cons cell\n");
         printf("Expression: (car ");
         printTree(args);
@@ -389,7 +389,7 @@ Value *primitiveCar(Value *args) {
 
 Value *primitiveCdr(Value *args) {
     enforceArgumentArity(args, 1, "cdr");
-    if (car(args)->type != CONS_TYPE) {
+    if (!isCons(car(args))) {
         printf("cdr statement needs to act on a cons cell\n");
         printf("Expression: (cdr ");
         printTree(args);
@@ -413,7 +413,7 @@ Value *primitiveList(Value *args) {
 }
 
 Value *primitiveAppend(Value *args) {
-    if (args->type != CONS_TYPE) {
+    if (!isCons(args)) {
         return makeNull();
     }
 
@@ -430,7 +430,7 @@ Value *primitiveAppend(Value *args) {
 
 Value *primitiveReverse(Value *args) {
     enforceArgumentArity(args, 1, "reverse");
-    if (car(args)->type != CONS_TYPE && !isNull(car(args))) {
+    if (!isCons(car(args)) && !isNull(car(args))) {
         printf("reverse expression needs to act on a cons cell\n");
         printf("Expression: (reverse ");
         printTree(args);
@@ -449,7 +449,7 @@ Value *primitiveLength(Value *args) {
         return makeInt(0);
     }
 
-    if (car(args)->type != CONS_TYPE) {
+    if (!isCons(car(args))) {
         printf("length expression needs to act on a cons cell\n");
         printf("Expression: (length ");
         printTree(args);
@@ -524,7 +524,7 @@ Value *primitiveIsNumber(Value *args) {
 Value *primitiveEqualNum(Value *args) {
     enforceArgumentArityRange(args, 1, -1, "=");
 
-    if (args->type != CONS_TYPE) {
+    if (!isCons(args)) {
         printf("= statement has no arguments: expected at least one.\n");
         printf("At: (=)\n");
         texit(1);
@@ -566,11 +566,11 @@ Value *primitiveEqualNum(Value *args) {
 }
 
 Value *primitiveLessThan(Value *args) {
-    if (args->type != CONS_TYPE) {
+    if (!isCons(args)) {
         printf("< expression has no arguments: expected 2, given none.\n");
         texit(1);
     }
-    if (cdr(args)->type != CONS_TYPE) {
+    if (!isCons(cdr(args))) {
         printf("< expression has too few arguments: expected 2, given 1\n");
         printf("Expression: (< ");
         printTree(args);
@@ -632,11 +632,11 @@ Value *primitiveLessThan(Value *args) {
 }
 
 Value *primitiveGreaterThan(Value *args) {
-    if (args->type != CONS_TYPE) {
+    if (!isCons(args)) {
         printf("> expression has no arguments: expected 2, given none.\n");
         texit(1);
     }
-    if (cdr(args)->type != CONS_TYPE) {
+    if (!isCons(cdr(args))) {
         printf("> expression has too few arguments: expected 2, given 1\n");
         printf("Expression: (> ");
         printTree(args);
@@ -698,11 +698,11 @@ Value *primitiveGreaterThan(Value *args) {
 }
 
 Value *primitiveModulo(Value *args) {
-    if (args->type != CONS_TYPE) {
+    if (!isCons(args)) {
         printf("modulo expression has no arguments: expected 2, given none.\n");
         texit(1);
     }
-    if (cdr(args)->type != CONS_TYPE) {
+    if (!isCons(cdr(args))) {
         printf("modulo expression has too few arguments: expected 2, given 1\n");
         printf("Expression: (modulo ");
         printTree(args);
@@ -1068,7 +1068,7 @@ Value *evalDisplay(Value *argTree, Frame *activeFrame) {
 Value *evalWhen(Value *argsTree, Frame *activeFrame) {
     // Initialize expressions; sanity checks
     Value *condExpr = argsTree;
-    if (condExpr->type != CONS_TYPE) {
+    if (!isCons(condExpr)) {
         printf("When statement has no condition: expected at least 2 arguments, given none.\n");
         printf("Expression: (when ");
         printTree(argsTree);
@@ -1076,7 +1076,7 @@ Value *evalWhen(Value *argsTree, Frame *activeFrame) {
         texit(1);
     }
     Value *thenExpr = cdr(condExpr);
-    if (thenExpr->type != CONS_TYPE) {
+    if (!isCons(thenExpr)) {
         printf("when statement has no body: expected at least 2 arguments, given 1.\n");
         printf("Expression: (when ");
         printTree(argsTree);
@@ -1102,7 +1102,7 @@ Value *evalWhen(Value *argsTree, Frame *activeFrame) {
 Value *evalUnless(Value *argsTree, Frame *activeFrame) {
     // Initialize expressions; sanity checks
     Value *condExpr = argsTree;
-    if (condExpr->type != CONS_TYPE) {
+    if (!isCons(condExpr)) {
         printf("Unless statement has no condition: expected at least 2 arguments, given none.\n");
         printf("Expression: (unless ");
         printTree(argsTree);
@@ -1110,7 +1110,7 @@ Value *evalUnless(Value *argsTree, Frame *activeFrame) {
         texit(1);
     }
     Value *thenExpr = cdr(condExpr);
-    if (thenExpr->type != CONS_TYPE) {
+    if (!isCons(thenExpr)) {
         printf("Unless statement has no body: expected at least 2 arguments, given 1.\n");
         printf("Expression: (unless ");
         printTree(argsTree);
@@ -1136,7 +1136,7 @@ Value *evalUnless(Value *argsTree, Frame *activeFrame) {
 Value *evalIf(Value *argsTree, Frame *activeFrame) {
     // Initialize expressions; sanity checks
     Value *condExpr = argsTree;
-    if (condExpr->type != CONS_TYPE) {
+    if (!isCons(condExpr)) {
         printf("If statement has no body: expected 3 arguments, given none.\n");
         printf("Expression: (if ");
         printTree(argsTree);
@@ -1144,7 +1144,7 @@ Value *evalIf(Value *argsTree, Frame *activeFrame) {
         texit(1);
     }
     Value *thenExpr = cdr(condExpr);
-    if (thenExpr->type != CONS_TYPE) {
+    if (!isCons(thenExpr)) {
         printf("If statement has no 'then' expression: expected 3 arguments, given 1.\n");
         printf("Expression: (if ");
         printTree(argsTree);
@@ -1152,7 +1152,7 @@ Value *evalIf(Value *argsTree, Frame *activeFrame) {
         texit(1);
     }
     Value *elseExpr = cdr(thenExpr);
-    if (elseExpr->type != CONS_TYPE) {
+    if (!isCons(elseExpr)) {
         printf("If statement has no 'else' expression: expected 3 arguments, given 2.\n");
         printf("Expression: (if ");
         printTree(argsTree);
@@ -1171,7 +1171,7 @@ Value *evalIf(Value *argsTree, Frame *activeFrame) {
 Value *evalLet(Value *argsTree, Frame *activeFrame) {
     assert(argsTree != NULL);
     assert(activeFrame != NULL);
-    if (argsTree->type != CONS_TYPE) {
+    if (!isCons(argsTree)) {
         printf("let statement has no body; expected one.\n");
         printf("At expression: (let)\n");
         texit(1);
@@ -1184,7 +1184,7 @@ Value *evalLet(Value *argsTree, Frame *activeFrame) {
         texit(1);
     }
 
-    if (car(argsTree)->type != CONS_TYPE && !isNull(car(argsTree))) {
+    if (!isCons(car(argsTree)) && !isNull(car(argsTree))) {
         printf("Bindings in let statement is not a list.\n");
         printf("At expression: (let ");
         printTree(argsTree);
@@ -1199,7 +1199,7 @@ Value *evalLet(Value *argsTree, Frame *activeFrame) {
     // Make bindings
     Value *currentBindingPair = car(argsTree);
     while (!isNull(currentBindingPair)) {
-        if (car(currentBindingPair)->type != CONS_TYPE) {
+        if (!isCons(car(currentBindingPair))) {
             printf("Binding in let statement is not a pair.\n");
             printf("At expression: (let ");
             printTree(argsTree);
@@ -1227,7 +1227,7 @@ Value *evalLet(Value *argsTree, Frame *activeFrame) {
 Value *evalLetStar(Value *argsTree, Frame *activeFrame)  {
     assert(argsTree != NULL);
     assert(activeFrame != NULL);
-    if (argsTree->type != CONS_TYPE) {
+    if (!isCons(argsTree)) {
         printf("let* statement has no body; expected one.\n");
         printf("At expression: (let*)\n");
         texit(1);
@@ -1240,7 +1240,7 @@ Value *evalLetStar(Value *argsTree, Frame *activeFrame)  {
         texit(1);
     }
 
-    if (car(argsTree)->type != CONS_TYPE && !isNull(car(argsTree))) {
+    if (!isCons(car(argsTree)) && !isNull(car(argsTree))) {
         printf("Bindings in let* statement is not a list.\n");
         printf("At expression: (let* ");
         printTree(argsTree);
@@ -1253,7 +1253,7 @@ Value *evalLetStar(Value *argsTree, Frame *activeFrame)  {
     // Make bindings
     Value *currentBindingPair = car(argsTree);
     while (!isNull(currentBindingPair)) {
-        if (car(currentBindingPair)->type != CONS_TYPE) {
+        if (!isCons(car(currentBindingPair))) {
             printf("Binding in let statement is not a pair.\n");
             printf("At expression: (let ");
             printTree(argsTree);
@@ -1286,7 +1286,7 @@ Value *evalLetStar(Value *argsTree, Frame *activeFrame)  {
 Value *evalLetRec(Value *argsTree, Frame *activeFrame)  {
     assert(argsTree != NULL);
     assert(activeFrame != NULL);
-    if (argsTree->type != CONS_TYPE) {
+    if (!isCons(argsTree)) {
         printf("let statement has no body; expected one.\n");
         printf("At expression: (let)\n");
         texit(1);
@@ -1299,7 +1299,7 @@ Value *evalLetRec(Value *argsTree, Frame *activeFrame)  {
         texit(1);
     }
 
-    if (car(argsTree)->type != CONS_TYPE && !isNull(car(argsTree))) {
+    if (!isCons(car(argsTree)) && !isNull(car(argsTree))) {
         printf("Bindings in let statement is not a list.\n");
         printf("At expression: (let ");
         printTree(argsTree);
@@ -1316,7 +1316,7 @@ Value *evalLetRec(Value *argsTree, Frame *activeFrame)  {
 
     Value *currentBindingPair = car(argsTree);
     while (!isNull(currentBindingPair)) {
-        if (car(currentBindingPair)->type != CONS_TYPE && cdr(car(currentBindingPair))->type != CONS_TYPE) {
+        if (!isCons(car(currentBindingPair)) && !isCons(cdr(car(currentBindingPair)))) {
             printf("Binding in let statement is not a pair.\n");
             printf("At expression: (let ");
             printTree(argsTree);
@@ -1376,7 +1376,7 @@ Value *evalLambda(Value *argsTree, Frame *activeFrame) {
     assert(argsTree != NULL);
     assert(activeFrame != NULL);
 
-    if (argsTree->type != CONS_TYPE) {
+    if (!isCons(argsTree)) {
         printf("Lambda statement has no or invalid parameters.\n");
         printf("Expected either a list or ().");
         printf("At expression: (lambda ");
@@ -1397,7 +1397,7 @@ Value *evalLambda(Value *argsTree, Frame *activeFrame) {
     Value *body = cdr(argsTree);
 
     // Check parameters list: can be cons or null
-    if (params->type != CONS_TYPE && !isNull(params)
+    if (!isCons(params) && !isNull(params)
             && !isSymbol(params)) {
         //TEST test coverage
         printf("Parameters in lambda statement are not a list.\n");
@@ -1424,7 +1424,7 @@ Value *evalLambda(Value *argsTree, Frame *activeFrame) {
 
 Value *evalDefine(Value *argsTree, Frame *activeFrame) {
     assert(argsTree != NULL);
-    if (argsTree->type != CONS_TYPE) {
+    if (!isCons(argsTree)) {
         printf("Define statement has no body: expected 2 arguments, given none.\n");
         texit(1);
     }
@@ -1454,7 +1454,7 @@ Value *evalDefine(Value *argsTree, Frame *activeFrame) {
         Value *params = cdr(car(argsTree));
         Value *body = cdr(argsTree);
 
-        if (body->type != CONS_TYPE) {
+        if (!isCons(body)) {
             printf("No function body found.\n");
             printf("At expression: (define ");
             printTree(argsTree);
@@ -1509,7 +1509,7 @@ Value *evalDefine(Value *argsTree, Frame *activeFrame) {
 Value *evalSetBang(Value *argsTree, Frame *activeFrame) {
     // Table setting: same as define behavior
     assert(argsTree != NULL);
-    if (argsTree->type != CONS_TYPE) {
+    if (!isCons(argsTree)) {
         printf("Set! statement has no body: expected 2 arguments, given none.\n");
         texit(1);
     }

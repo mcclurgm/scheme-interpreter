@@ -95,7 +95,7 @@ Value *endToken(Value *tokens) {
 
 Value *parseParens(char charRead, Value *tokens) {
     if (charRead == '(') {
-        if (car(tokens)->type != NULL_TYPE) {
+        if (!isNull(car(tokens))) {
             tokens = endToken(tokens);
         }
         car(tokens)->type = OPEN_TYPE;
@@ -105,7 +105,7 @@ Value *parseParens(char charRead, Value *tokens) {
         // End the current token
         tokens  = endToken(tokens);
     } else if (charRead == ')') {
-        if (car(tokens)->type != NULL_TYPE) {
+        if (!isNull(car(tokens))) {
             tokens = endToken(tokens);
         }
         car(tokens)->type = CLOSE_TYPE;
@@ -115,7 +115,7 @@ Value *parseParens(char charRead, Value *tokens) {
         // End the current token
         tokens = endToken(tokens);
     } else if (charRead == '[') {
-        if (car(tokens)->type != NULL_TYPE) {
+        if (!isNull(car(tokens))) {
             tokens = endToken(tokens);
         }
         car(tokens)->type = OPEN_BRACKET_TYPE;
@@ -125,7 +125,7 @@ Value *parseParens(char charRead, Value *tokens) {
         // End the current token
         tokens = endToken(tokens);
     } else if (charRead == ']') {
-        if (car(tokens)->type != NULL_TYPE) {
+        if (!isNull(car(tokens))) {
             tokens = endToken(tokens);
         }
         car(tokens)->type = CLOSE_BRACKET_TYPE;
@@ -272,8 +272,8 @@ Value *tokenize(FILE *fp) {
     bool inComment = false;
     bool inString = false;
     while (!feof(fp)) {
-        if (cdr(tokens)->type != NULL_TYPE) {
-            if (car(cdr(tokens))->type == NULL_TYPE) {
+        if (!isNull(cdr(tokens))) {
+            if (isNull(car(cdr(tokens)))) {
                 printf("Null type before character: %c\n", charRead);
             }
         }
@@ -296,13 +296,13 @@ Value *tokenize(FILE *fp) {
 
         else if (charRead == ';') {
             inComment = true;
-            if (car(tokens)->type != NULL_TYPE) {
+            if (!isNull(car(tokens))) {
                 tokens = endToken(tokens);
             }
         }
         else if (charRead == '"') {
             inString = true;
-            if (car(tokens)->type != NULL_TYPE) {
+            if (!isNull(car(tokens))) {
                 tokens = endToken(tokens);
             }
             car(tokens)->type = STR_TYPE;
@@ -316,7 +316,7 @@ Value *tokenize(FILE *fp) {
             tokens = parseParens(charRead, tokens);
         }
         else if (charRead == '\'') {
-            if (car(tokens)->type != NULL_TYPE) {
+            if (!isNull(car(tokens))) {
                 tokens = endToken(tokens);
             }
             car(tokens)->type = QUOTE_TYPE;
@@ -325,12 +325,12 @@ Value *tokenize(FILE *fp) {
             tokens  = endToken(tokens);
         }
 
-        else if (car(tokens)->type == NULL_TYPE) {
+        else if (isNull(car(tokens))) {
             tokens = parseFirstChar(charRead, tokens);
         }
 
         else if (isspace(charRead)) {
-            if (car(tokens)->type != NULL_TYPE) {
+            if (!isNull(car(tokens))) {
                 tokens = endToken(tokens);
             }
         }
@@ -352,7 +352,7 @@ Value *tokenize(FILE *fp) {
     }
 
     // Finalize the last token
-    if (car(tokens)->type != NULL_TYPE) {
+    if (!isNull(car(tokens))) {
         tokens = endToken(tokens);
     }
     tokens = cdr(tokens);
@@ -371,7 +371,7 @@ void displayTokens(Value *list) {
     assert(list != NULL);
 
     Value *current = list;
-    while(current->type != NULL_TYPE) {
+    while(!isNull(current)) {
         if (isInteger(car(current))) {
             printf("%i:integer\n", car(current)->i);
         }
@@ -409,7 +409,7 @@ void displayTokens(Value *list) {
         else if (car(current)->type == DOT_TYPE) {
             printf("%s:dot\n", car(current)->s);
         }
-        else if (car(current)->type == NULL_TYPE) {
+        else if (isNull(car(current))) {
             printf("Null type, this should be an ERROR.\n");
         }
 

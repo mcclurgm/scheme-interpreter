@@ -41,10 +41,6 @@ Value *car(Value *list);
 // that this is a legitimate operation.
 Value *cdr(Value *list);
 
-// Utility to check if pointing to a NULL_TYPE value. Use assertions to make sure
-// that this is a legitimate operation.
-bool isNull(Value *value);
-
 // Measure length of list. Use assertions to make sure that this is a legitimate
 // operation.
 int length(Value *value);
@@ -52,10 +48,10 @@ int length(Value *value);
 // Appends the elements of newList onto the existing list oldList.
 // This mimics the Scheme append function.
 // This keeps the references of (aliases) oldList in the Value it returns.
-// 
+//
 // Takes two cons-type Value pointers.
 // Returns one cons-type Value pointer.
-// 
+//
 // To test: create two lists, say of length 2 each.
 // Then call:
 // Value *test = append(list1, list2);
@@ -63,15 +59,15 @@ Value *append(Value *newList, Value *oldList);
 
 // Creates a linked list from the values in values[].
 // This mimics the Scheme function list.
-// 
+//
 // Takes an array of Value pointers.
 // These must be of int, double, or string type--not cons or null.
 // It also takes the length of values[] as a parameter.
 // Returns a cons-type Value pointer.
-// 
+//
 // To test, create multiple Value pointers containing data, not cons cells.
 // Make an array of Value pointers and fill it with these pointers.
-// Then call 
+// Then call
 // test = list(3, values);
 // (for example, with an array of length 3 to add 3 elements)
 Value *list(int dim, Value *values[]);

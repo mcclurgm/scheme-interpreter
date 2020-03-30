@@ -67,13 +67,13 @@ bool isCons(Value *value) {
 bool isProperList(Value *value) {
     Value *current = value;
     // Check that the current value is either a cons cell or null
-    if (current->type != CONS_TYPE && current->type != NULL_TYPE) {
+    if (current->type != CONS_TYPE && !isNull(current)) {
         return false;
     }
 
     // Check that each subsequent value also starts a valid list
-    while(current->type != NULL_TYPE) {
-        if (cdr(current)->type != NULL_TYPE && cdr(current)->type != CONS_TYPE) {
+    while(!isNull(current)) {
+        if (!isNull(cdr(current)) && cdr(current)->type != CONS_TYPE) {
             return false;
         }
         current = cdr(current);
@@ -117,6 +117,12 @@ bool isString(Value *value) {
 bool isSymbol(Value *value) {
     assert(value != NULL);
     return value->type == SYMBOL_TYPE;
+}
+
+// Check that the value is null.
+bool isNull(Value *value) {
+    assert(value != NULL);
+    return value->type == NULL_TYPE;
 }
 
 // Gets a Value's truth value: either true or false.

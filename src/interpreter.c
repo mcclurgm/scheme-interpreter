@@ -153,7 +153,7 @@ Frame *getGlobalFrame(Frame *activeFrame) {
 Value *evalEach(Value *body, Frame *activeFrame) {
     Value *result = makeNull();
     Value *currentExpr = body;
-    while(currentExpr->type != NULL_TYPE) {
+    while(!isNull(currentExpr)) {
         result = cons(eval(currentExpr, activeFrame), result);
         currentExpr = cdr(currentExpr);
     }
@@ -170,7 +170,7 @@ Value *primitiveAdd(Value *args) {
     bool isInt = true;
 
     Value *current = args;
-    while(current->type != NULL_TYPE) {
+    while(!isNull(current)) {
         if(!isNumber(car(current))) {
             printf("Expected number in +\n");
             printf("Given: ");
@@ -226,7 +226,7 @@ Value *primitiveSubtract(Value *args) {
     }
 
     Value *current = cdr(args);
-    while(current->type != NULL_TYPE) {
+    while(!isNull(current)) {
         if(!isNumber(car(current))) {
             printf("Expected number in +\n");
             printf("Given: ");
@@ -257,7 +257,7 @@ Value *primitiveMult(Value *args) {
     bool isInt = true;
 
     Value *current = args;
-    while(current->type != NULL_TYPE) {
+    while(!isNull(current)) {
         if(!isNumber(car(current))) {
             printf("Expected number in *\n");
             printf("Given: ");
@@ -296,7 +296,7 @@ Value *primitiveDivide(Value *args) {
         printf(")\n");
         texit(1);
     }
-    if (cdr(cdr(args))->type != NULL_TYPE) {
+    if (!isNull(cdr(cdr(args)))) {
         printf("/ statement has too many arguments: expected 2, given %i\n", length(args));
         printf("Expression: (/ ");
         printTree(args);
@@ -360,7 +360,7 @@ Value *primitiveDivide(Value *args) {
 Value *primitiveIsNull(Value *args) {
     enforceArgumentArity(args, 1, "null?");
 
-    if (car(args)->type == NULL_TYPE) {
+    if (isNull(car(args))) {
         return makeBool(true);
     } else {
         return makeBool(false);
@@ -421,7 +421,7 @@ Value *primitiveAppend(Value *args) {
 
     Value *currentList = car(orderedArgs);
     Value *currentArg = cdr(orderedArgs);
-    while (currentArg->type != NULL_TYPE) {
+    while (!isNull(currentArg)) {
         currentList = append(car(currentArg), currentList);
         currentArg = cdr(currentArg);
     }
@@ -430,7 +430,7 @@ Value *primitiveAppend(Value *args) {
 
 Value *primitiveReverse(Value *args) {
     enforceArgumentArity(args, 1, "reverse");
-    if (car(args)->type != CONS_TYPE && car(args)->type != NULL_TYPE) {
+    if (car(args)->type != CONS_TYPE && !isNull(car(args))) {
         printf("reverse expression needs to act on a cons cell\n");
         printf("Expression: (reverse ");
         printTree(args);
@@ -445,7 +445,7 @@ Value *primitiveLength(Value *args) {
     enforceArgumentArity(args, 1, "length");
 
     // Null is an empty (zero-length) list
-    if (car(args)->type == NULL_TYPE) {
+    if (isNull(car(args))) {
         return makeInt(0);
     }
 
@@ -543,7 +543,7 @@ Value *primitiveEqualNum(Value *args) {
     }
 
     Value *current = cdr(args);
-    while (current->type != NULL_TYPE) {
+    while (!isNull(current)) {
         Value *currentValue = car(current);
         if(!isNumber(currentValue)) {
             printf("Expected number in =\n");
@@ -577,7 +577,7 @@ Value *primitiveLessThan(Value *args) {
         printf(")\n");
         texit(1);
     }
-    if (cdr(cdr(args))->type != NULL_TYPE) {
+    if (!isNull(cdr(cdr(args)))) {
         printf("< statement has too many arguments: expected 2, given %i\n", length(args));
         printf("Expression: (< ");
         printTree(args);
@@ -643,7 +643,7 @@ Value *primitiveGreaterThan(Value *args) {
         printf(")\n");
         texit(1);
     }
-    if (cdr(cdr(args))->type != NULL_TYPE) {
+    if (!isNull(cdr(cdr(args)))) {
         printf("> statement has too many arguments: expected 2, given %i\n", length(args));
         printf("Expression: (> ");
         printTree(args);
@@ -709,7 +709,7 @@ Value *primitiveModulo(Value *args) {
         printf(")\n");
         texit(1);
     }
-    if (cdr(cdr(args))->type != NULL_TYPE) {
+    if (!isNull(cdr(cdr(args)))) {
         printf("modulo statement has too many arguments: expected 2, given %i\n", length(args));
         printf("Expression: (modulo ");
         printTree(args);
@@ -771,7 +771,7 @@ void bindPrimitive(char *name, Value *(*function)(struct Value *), Frame *frame)
 
 Value *lookupBindingInFrame(Value *symbol, Frame *frame) {
     Value *currentBinding = frame->bindings;
-    while (currentBinding->type != NULL_TYPE) {
+    while (!isNull(currentBinding)) {
         // A binding is a linked list, where car points to a cons cell.
         // Car of that cell is the name of the binding, and cdr is its value.
         Value *bindingPair = car(currentBinding);
@@ -810,7 +810,7 @@ Frame *makeBinding(Value *bindingPair, Frame *activeFrame) {
     Value *expr = cdr(bindingPair);
 
     // Check that it's a pair
-    if (expr->type == NULL_TYPE || cdr(expr)->type != NULL_TYPE) {
+    if (isNull(expr) || !isNull(cdr(expr))) {
         printf("Binding in let statement is not a pair.\n");
         printf("At binding: ");
         printValue(bindingPair);
@@ -854,7 +854,7 @@ Frame *makeBinding(Value *bindingPair, Frame *activeFrame) {
 }
 
 bool checkValidParameters(Value *paramsList) {
-    if (paramsList->type == NULL_TYPE) {
+    if (isNull(paramsList)) {
         return true;
     }
     if (isSymbol(paramsList)) {
@@ -866,9 +866,9 @@ bool checkValidParameters(Value *paramsList) {
         return false;
     }
     // Check that parameter name can't show up twice
-    while (currentParam->type != NULL_TYPE) {
+    while (!isNull(currentParam)) {
         Value *compareParam = cdr(currentParam);
-        while (compareParam->type != NULL_TYPE) {
+        while (!isNull(compareParam)) {
             if (!isSymbol(car(compareParam))) {
                 return false;
             }
@@ -892,7 +892,7 @@ Frame *makeApplyBindings(Value *functionParams, Value *args, Frame *functionFram
             functionFrame->bindings = cons(newBinding, functionFrame->bindings);
     } else {
         //TEST test coverage
-        assert(isCons(functionParams) || functionParams->type == NULL_TYPE);
+        assert(isCons(functionParams) || isNull(functionParams));
 
         if (length(functionParams) != length(args)) {
             printf("Arity mismatch in function application.\n");
@@ -909,7 +909,7 @@ Frame *makeApplyBindings(Value *functionParams, Value *args, Frame *functionFram
         // Note: we can now assume that functionParams and args have the same length.
         // Also, functionParams can't include duplicate symbols to bind. That was
         // handled in evalLambda.
-        while (currentParam->type != NULL_TYPE) {
+        while (!isNull(currentParam)) {
             // Make the binding
             Value *newBinding = makeNull();
             newBinding = cons(car(currentArg), newBinding);
@@ -947,7 +947,7 @@ Value *apply(Value *function, Value *argsTree) {
     // Evaluate the function body expressions
     Value *result = makeNull();
     Value *currentExpr = function->cl.functionCode;
-    while(currentExpr->type != NULL_TYPE) {
+    while(!isNull(currentExpr)) {
         result = eval(currentExpr, evalFrame);
         currentExpr = cdr(currentExpr);
     }
@@ -962,7 +962,7 @@ Value *apply(Value *function, Value *argsTree) {
 Value *evalBegin(Value *argsTree, Frame *activeFrame) {
     Value *result = makeVoid();
     Value *currentExpr = argsTree;
-    while(currentExpr->type != NULL_TYPE) {
+    while(!isNull(currentExpr)) {
         result = eval(currentExpr, activeFrame);
         currentExpr = cdr(currentExpr);
     }
@@ -973,21 +973,21 @@ Value *evalBegin(Value *argsTree, Frame *activeFrame) {
 Value *evalCond(Value *argsTree, Frame *activeFrame) {
     // Check for correct syntax with else
     Value *currentExpr = argsTree;
-    while (currentExpr->type != NULL_TYPE) {
+    while (!isNull(currentExpr)) {
         Value *condition = car(currentExpr);
         Value *body = cdr(car(currentExpr));
 
         // Check for else special case
         if (isSymbol(car(condition))) {
             if (!strcmp(car(condition)->s, "else")) {
-                if (body->type == NULL_TYPE) {
+                if (isNull(body)) {
                     printf("Else clause must have a body.\n");
                     printf("At expression: ");
                     printTree(currentExpr);
                     printf("\n");
                     texit(1);
                 }
-                if (cdr(currentExpr)->type != NULL_TYPE) {
+                if (!isNull(cdr(currentExpr))) {
                     printf("Else clause must be last; given too many.\n");
                     printf("At expression: ");
                     printTree(cdr(currentExpr));
@@ -1001,7 +1001,7 @@ Value *evalCond(Value *argsTree, Frame *activeFrame) {
 
     // Actually evaluate
     currentExpr = argsTree;
-    while (currentExpr->type != NULL_TYPE) {
+    while (!isNull(currentExpr)) {
         Value *condition = car(currentExpr);
         Value *body = cdr(car(currentExpr));
 
@@ -1027,7 +1027,7 @@ Value *evalCond(Value *argsTree, Frame *activeFrame) {
 Value *evalAnd(Value *argsTree, Frame *activeFrame) {
     // Evaluates to #t until it hits a false case
     Value *currentExpr = argsTree;
-    while(currentExpr->type != NULL_TYPE) {
+    while(!isNull(currentExpr)) {
         Value *condition = eval(currentExpr, activeFrame);
         if (!isTrue(condition)) {
             return makeBool(false);
@@ -1042,7 +1042,7 @@ Value *evalOr(Value *argsTree, Frame *activeFrame) {
     // Evaluates to #f until it hits a true case
 
     Value *currentExpr = argsTree;
-    while(currentExpr->type != NULL_TYPE) {
+    while(!isNull(currentExpr)) {
         Value *condition = eval(currentExpr, activeFrame);
         if (isTrue(condition)) {
             //TODO implement arbitrary typed returns, instead of hard-coding
@@ -1089,7 +1089,7 @@ Value *evalWhen(Value *argsTree, Frame *activeFrame) {
         // Evaluate the body expressions
         Value *result = makeNull();
         Value *currentExpr = thenExpr;
-        while(currentExpr->type != NULL_TYPE) {
+        while(!isNull(currentExpr)) {
             result = eval(currentExpr, activeFrame);
             currentExpr = cdr(currentExpr);
         }
@@ -1123,7 +1123,7 @@ Value *evalUnless(Value *argsTree, Frame *activeFrame) {
         // Evaluate the body expressions
         Value *result = makeNull();
         Value *currentExpr = thenExpr;
-        while(currentExpr->type != NULL_TYPE) {
+        while(!isNull(currentExpr)) {
             result = eval(currentExpr, activeFrame);
             currentExpr = cdr(currentExpr);
         }
@@ -1176,7 +1176,7 @@ Value *evalLet(Value *argsTree, Frame *activeFrame) {
         printf("At expression: (let)\n");
         texit(1);
     }
-    if (cdr(argsTree)->type == NULL_TYPE) {
+    if (isNull(cdr(argsTree))) {
         printf("let statement has no body; expected one.\n");
         printf("At expression: (let ");
         printTree(argsTree);
@@ -1184,7 +1184,7 @@ Value *evalLet(Value *argsTree, Frame *activeFrame) {
         texit(1);
     }
 
-    if (car(argsTree)->type != CONS_TYPE && car(argsTree)->type != NULL_TYPE) {
+    if (car(argsTree)->type != CONS_TYPE && !isNull(car(argsTree))) {
         printf("Bindings in let statement is not a list.\n");
         printf("At expression: (let ");
         printTree(argsTree);
@@ -1198,7 +1198,7 @@ Value *evalLet(Value *argsTree, Frame *activeFrame) {
 
     // Make bindings
     Value *currentBindingPair = car(argsTree);
-    while (currentBindingPair->type != NULL_TYPE) {
+    while (!isNull(currentBindingPair)) {
         if (car(currentBindingPair)->type != CONS_TYPE) {
             printf("Binding in let statement is not a pair.\n");
             printf("At expression: (let ");
@@ -1216,7 +1216,7 @@ Value *evalLet(Value *argsTree, Frame *activeFrame) {
     // Evaluate the body expressions
     Value *result = makeNull();
     Value *currentExpr = cdr(argsTree);
-    while(currentExpr->type != NULL_TYPE) {
+    while(!isNull(currentExpr)) {
         result = eval(currentExpr, letFrame);
         currentExpr = cdr(currentExpr);
     }
@@ -1232,7 +1232,7 @@ Value *evalLetStar(Value *argsTree, Frame *activeFrame)  {
         printf("At expression: (let*)\n");
         texit(1);
     }
-    if (cdr(argsTree)->type == NULL_TYPE) {
+    if (isNull(cdr(argsTree))) {
         printf("let* statement has no body; expected one.\n");
         printf("At expression: (let* ");
         printTree(argsTree);
@@ -1240,7 +1240,7 @@ Value *evalLetStar(Value *argsTree, Frame *activeFrame)  {
         texit(1);
     }
 
-    if (car(argsTree)->type != CONS_TYPE && car(argsTree)->type != NULL_TYPE) {
+    if (car(argsTree)->type != CONS_TYPE && !isNull(car(argsTree))) {
         printf("Bindings in let* statement is not a list.\n");
         printf("At expression: (let* ");
         printTree(argsTree);
@@ -1252,7 +1252,7 @@ Value *evalLetStar(Value *argsTree, Frame *activeFrame)  {
 
     // Make bindings
     Value *currentBindingPair = car(argsTree);
-    while (currentBindingPair->type != NULL_TYPE) {
+    while (!isNull(currentBindingPair)) {
         if (car(currentBindingPair)->type != CONS_TYPE) {
             printf("Binding in let statement is not a pair.\n");
             printf("At expression: (let ");
@@ -1275,7 +1275,7 @@ Value *evalLetStar(Value *argsTree, Frame *activeFrame)  {
     // Evaluate the body expressions
     Value *result = makeNull();
     Value *currentExpr = cdr(argsTree);
-    while(currentExpr->type != NULL_TYPE) {
+    while(!isNull(currentExpr)) {
         result = eval(currentExpr, letFrame);
         currentExpr = cdr(currentExpr);
     }
@@ -1291,7 +1291,7 @@ Value *evalLetRec(Value *argsTree, Frame *activeFrame)  {
         printf("At expression: (let)\n");
         texit(1);
     }
-    if (cdr(argsTree)->type == NULL_TYPE) {
+    if (isNull(cdr(argsTree))) {
         printf("let statement has no body; expected one.\n");
         printf("At expression: (let ");
         printTree(argsTree);
@@ -1299,7 +1299,7 @@ Value *evalLetRec(Value *argsTree, Frame *activeFrame)  {
         texit(1);
     }
 
-    if (car(argsTree)->type != CONS_TYPE && car(argsTree)->type != NULL_TYPE) {
+    if (car(argsTree)->type != CONS_TYPE && !isNull(car(argsTree))) {
         printf("Bindings in let statement is not a list.\n");
         printf("At expression: (let ");
         printTree(argsTree);
@@ -1315,7 +1315,7 @@ Value *evalLetRec(Value *argsTree, Frame *activeFrame)  {
     Value *uninitializedValue = makeValue(UNINITIALIZED);
 
     Value *currentBindingPair = car(argsTree);
-    while (currentBindingPair->type != NULL_TYPE) {
+    while (!isNull(currentBindingPair)) {
         if (car(currentBindingPair)->type != CONS_TYPE && cdr(car(currentBindingPair))->type != CONS_TYPE) {
             printf("Binding in let statement is not a pair.\n");
             printf("At expression: (let ");
@@ -1338,7 +1338,7 @@ Value *evalLetRec(Value *argsTree, Frame *activeFrame)  {
     // Second pass: for real this time.
     // Letrec 2: Electric Boogaloo
     currentBindingPair = car(argsTree);
-    while (currentBindingPair->type != NULL_TYPE) {
+    while (!isNull(currentBindingPair)) {
         Value *name = car(car(currentBindingPair));
         Value *expr = cdr(car(currentBindingPair));
         assert(car(lookUpSymbol(name, letFrame))->type == UNINITIALIZED);
@@ -1385,7 +1385,7 @@ Value *evalLambda(Value *argsTree, Frame *activeFrame) {
         texit(1);
     }
 
-    if (cdr(argsTree)->type == NULL_TYPE) {
+    if (isNull(cdr(argsTree))) {
         printf("Lambda statement has no body; expected one.\n");
         printf("At expression: (lambda ");
         printTree(argsTree);
@@ -1397,7 +1397,7 @@ Value *evalLambda(Value *argsTree, Frame *activeFrame) {
     Value *body = cdr(argsTree);
 
     // Check parameters list: can be cons or null
-    if (params->type != CONS_TYPE && params->type != NULL_TYPE
+    if (params->type != CONS_TYPE && !isNull(params)
             && !isSymbol(params)) {
         //TEST test coverage
         printf("Parameters in lambda statement are not a list.\n");
@@ -1429,7 +1429,7 @@ Value *evalDefine(Value *argsTree, Frame *activeFrame) {
         texit(1);
     }
 
-    if (cdr(argsTree)->type == NULL_TYPE) {
+    if (isNull(cdr(argsTree))) {
         printf("Define statement has no expression to bind to.\n");
         printf("Found one argument; expected two.\n");
         printf("At expression: (define ");
@@ -1469,7 +1469,7 @@ Value *evalDefine(Value *argsTree, Frame *activeFrame) {
         symbol = car(argsTree);
         Value *expr = cdr(argsTree);
 
-        if (cdr(expr)->type != NULL_TYPE) {
+        if (!isNull(cdr(expr))) {
             printf("Define statement has too many arguments: expected 2, given %i\n", length(argsTree));
             printf("Expression: (define ");
             printTree(argsTree);
@@ -1514,7 +1514,7 @@ Value *evalSetBang(Value *argsTree, Frame *activeFrame) {
         texit(1);
     }
 
-    if (cdr(argsTree)->type == NULL_TYPE) {
+    if (isNull(cdr(argsTree))) {
         printf("Set! statement has no expression to bind to.\n");
         printf("Found one argument; expected two.\n");
         printf("At expression: (set! ");
@@ -1533,7 +1533,7 @@ Value *evalSetBang(Value *argsTree, Frame *activeFrame) {
         printf(")\n");
         texit(1);
     }
-    if (cdr(expr)->type != NULL_TYPE) {
+    if (!isNull(cdr(expr))) {
         printf("Set! statement has too many arguments: expected 2, given %i\n", length(argsTree));
         printf("Expression: (set! ");
         printTree(argsTree);
@@ -1611,7 +1611,7 @@ Value *eval(Value *tree, Frame *frame) {
         return expr;
     } else if (expr->type == PRIMITIVE_TYPE) {
         return expr;
-    } else if (expr->type == NULL_TYPE) {
+    } else if (isNull(expr)) {
         return expr;
     } else if (isSymbol(expr)) {
         Value *binding = lookUpSymbol(expr, frame);
@@ -1728,7 +1728,7 @@ void interpret(Value *tree) {
     bindPrimitive("not", primitiveNot, global);
 
     Value *current = tree;
-    while(current->type != NULL_TYPE) {
+    while(!isNull(current)) {
         Value *result = eval(current, global);
 
         if (result->type != VOID_TYPE) {

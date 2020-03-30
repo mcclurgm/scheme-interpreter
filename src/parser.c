@@ -7,7 +7,7 @@
 #include "tokenizer.h"
 
 bool tokenInExpression(Value *currentToken, valueType closeType) {
-    if (currentToken->type == NULL_TYPE) {
+    if (isNull(currentToken)) {
         // We are trying to add the end of a file to an expression.
         // This corresponds to too many open parentheses: we never reached
         // a close paren to close the expression.
@@ -82,7 +82,7 @@ Value *parse(Value *tokens) {
     // While there are more tokens:
     Value *currentToken = tokens;
     assert(currentToken != NULL && "Error (parse): null pointer");
-    while (currentToken->type != NULL_TYPE) {
+    while (!isNull(currentToken)) {
         if (car(currentToken)->type == CLOSE_TYPE || car(currentToken)->type == CLOSE_BRACKET_TYPE) {
             // There are too many close parentheses.
             // All the close types should be handled by parseExpression,
@@ -143,7 +143,7 @@ void printValue(Value *val) {
     else if (val->type == DOT_TYPE) {
         printf("%s", val->s);
     }
-    else if (val->type == NULL_TYPE) {
+    else if (isNull(val)) {
         printf("()");
     }
     else if (val->type == PRIMITIVE_TYPE) {
@@ -169,17 +169,17 @@ void printTree(Value *tree) {
     assert(tree != NULL);
 
     Value *current = tree;
-    while(current->type != NULL_TYPE) {
+    while(!isNull(current)) {
         printValue(car(current));
 
         // If the next element is null (the current subtree is done),
         // don't print a space.
         // Otherwise, the next element requires a space.
-        if (cdr(current)->type != NULL_TYPE) {
+        if (!isNull(cdr(current))) {
             printf(" ");
         }
 
-        if (cdr(current)->type != NULL_TYPE && cdr(current)->type != CONS_TYPE) {
+        if (!isNull(cdr(current)) && cdr(current)->type != CONS_TYPE) {
             printf(". ");
             printValue(cdr(current));
             break;
@@ -193,7 +193,7 @@ void printTreeTest(Value *tree, int indent) {
     assert(tree != NULL);
 
     Value *current = tree;
-    while(current->type != NULL_TYPE) {
+    while(!isNull(current)) {
         if (car(current)->type != CONS_TYPE) {
             for(int i = 0; i < indent; i++) {
                 printf(" ");
@@ -244,7 +244,7 @@ void printTreeTest(Value *tree, int indent) {
         else if (car(current)->type == DOT_TYPE) {
             printf("%s\n", car(current)->s);
         }
-        else if (car(current)->type == NULL_TYPE) {
+        else if (isNull(car(current))) {
             printf("() NULL TYPE\n");
         }
 

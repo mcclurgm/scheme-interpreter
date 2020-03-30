@@ -72,7 +72,7 @@ bool isProperList(Value *value) {
     }
 
     // Check that each subsequent value also starts a valid list
-    while(!isNull(current)) {
+    while (!isNull(current)) {
         if (!isNull(cdr(current)) && cdr(current)->type != CONS_TYPE) {
             return false;
         }

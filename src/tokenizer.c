@@ -371,7 +371,7 @@ void displayTokens(Value *list) {
     assert(list != NULL);
 
     Value *current = list;
-    while(!isNull(current)) {
+    while (!isNull(current)) {
         if (isInteger(car(current))) {
             printf("%i:integer\n", car(current)->i);
         }

@@ -153,7 +153,7 @@ Frame *getGlobalFrame(Frame *activeFrame) {
 Value *evalEach(Value *body, Frame *activeFrame) {
     Value *result = makeNull();
     Value *currentExpr = body;
-    while(!isNull(currentExpr)) {
+    while (!isNull(currentExpr)) {
         result = cons(eval(currentExpr, activeFrame), result);
         currentExpr = cdr(currentExpr);
     }
@@ -170,8 +170,8 @@ Value *primitiveAdd(Value *args) {
     bool isInt = true;
 
     Value *current = args;
-    while(!isNull(current)) {
-        if(!isNumber(car(current))) {
+    while (!isNull(current)) {
+        if (!isNumber(car(current))) {
             printf("Expected number in +\n");
             printf("Given: ");
             printTree(current);
@@ -187,7 +187,7 @@ Value *primitiveAdd(Value *args) {
     }
 
     Value *result;
-    if(isInt){
+    if (isInt){
         result = makeInt(sum);
     } else {
         result = makeDouble(sum);
@@ -211,7 +211,7 @@ Value *primitiveSubtract(Value *args) {
 
     double difference = 0;
     bool isInt = true;
-    if(!isNumber(car(args))) {
+    if (!isNumber(car(args))) {
         //TODO Reorganize if statement flow here
         printf("Expected number in +\n");
         printf("Given: ");
@@ -226,8 +226,8 @@ Value *primitiveSubtract(Value *args) {
     }
 
     Value *current = cdr(args);
-    while(!isNull(current)) {
-        if(!isNumber(car(current))) {
+    while (!isNull(current)) {
+        if (!isNumber(car(current))) {
             printf("Expected number in +\n");
             printf("Given: ");
             printTree(current);
@@ -243,7 +243,7 @@ Value *primitiveSubtract(Value *args) {
     }
 
     Value *result;
-    if(isInt){
+    if (isInt){
         result = makeInt(difference);
     } else {
         result = makeDouble(difference);
@@ -257,8 +257,8 @@ Value *primitiveMult(Value *args) {
     bool isInt = true;
 
     Value *current = args;
-    while(!isNull(current)) {
-        if(!isNumber(car(current))) {
+    while (!isNull(current)) {
+        if (!isNumber(car(current))) {
             printf("Expected number in *\n");
             printf("Given: ");
             printTree(current);
@@ -275,7 +275,7 @@ Value *primitiveMult(Value *args) {
 
     // Package result in a Value
     Value *result;
-    if(isInt){
+    if (isInt){
         result = makeInt(product);
     } else {
         result = makeDouble(product);
@@ -531,7 +531,7 @@ Value *primitiveEqualNum(Value *args) {
     }
 
     Value *first = car(args);
-    if(!isNumber(first)) {
+    if (!isNumber(first)) {
         printf("Expected number in =\n");
         printf("Given ");
         printValue(first);
@@ -545,7 +545,7 @@ Value *primitiveEqualNum(Value *args) {
     Value *current = cdr(args);
     while (!isNull(current)) {
         Value *currentValue = car(current);
-        if(!isNumber(currentValue)) {
+        if (!isNumber(currentValue)) {
             printf("Expected number in =\n");
             printf("Given ");
             printValue(currentValue);
@@ -947,7 +947,7 @@ Value *apply(Value *function, Value *argsTree) {
     // Evaluate the function body expressions
     Value *result = makeNull();
     Value *currentExpr = function->cl.functionCode;
-    while(!isNull(currentExpr)) {
+    while (!isNull(currentExpr)) {
         result = eval(currentExpr, evalFrame);
         currentExpr = cdr(currentExpr);
     }
@@ -962,7 +962,7 @@ Value *apply(Value *function, Value *argsTree) {
 Value *evalBegin(Value *argsTree, Frame *activeFrame) {
     Value *result = makeVoid();
     Value *currentExpr = argsTree;
-    while(!isNull(currentExpr)) {
+    while (!isNull(currentExpr)) {
         result = eval(currentExpr, activeFrame);
         currentExpr = cdr(currentExpr);
     }
@@ -1027,7 +1027,7 @@ Value *evalCond(Value *argsTree, Frame *activeFrame) {
 Value *evalAnd(Value *argsTree, Frame *activeFrame) {
     // Evaluates to #t until it hits a false case
     Value *currentExpr = argsTree;
-    while(!isNull(currentExpr)) {
+    while (!isNull(currentExpr)) {
         Value *condition = eval(currentExpr, activeFrame);
         if (!isTrue(condition)) {
             return makeBool(false);
@@ -1042,7 +1042,7 @@ Value *evalOr(Value *argsTree, Frame *activeFrame) {
     // Evaluates to #f until it hits a true case
 
     Value *currentExpr = argsTree;
-    while(!isNull(currentExpr)) {
+    while (!isNull(currentExpr)) {
         Value *condition = eval(currentExpr, activeFrame);
         if (isTrue(condition)) {
             //TODO implement arbitrary typed returns, instead of hard-coding
@@ -1089,7 +1089,7 @@ Value *evalWhen(Value *argsTree, Frame *activeFrame) {
         // Evaluate the body expressions
         Value *result = makeNull();
         Value *currentExpr = thenExpr;
-        while(!isNull(currentExpr)) {
+        while (!isNull(currentExpr)) {
             result = eval(currentExpr, activeFrame);
             currentExpr = cdr(currentExpr);
         }
@@ -1123,7 +1123,7 @@ Value *evalUnless(Value *argsTree, Frame *activeFrame) {
         // Evaluate the body expressions
         Value *result = makeNull();
         Value *currentExpr = thenExpr;
-        while(!isNull(currentExpr)) {
+        while (!isNull(currentExpr)) {
             result = eval(currentExpr, activeFrame);
             currentExpr = cdr(currentExpr);
         }
@@ -1216,7 +1216,7 @@ Value *evalLet(Value *argsTree, Frame *activeFrame) {
     // Evaluate the body expressions
     Value *result = makeNull();
     Value *currentExpr = cdr(argsTree);
-    while(!isNull(currentExpr)) {
+    while (!isNull(currentExpr)) {
         result = eval(currentExpr, letFrame);
         currentExpr = cdr(currentExpr);
     }
@@ -1275,7 +1275,7 @@ Value *evalLetStar(Value *argsTree, Frame *activeFrame)  {
     // Evaluate the body expressions
     Value *result = makeNull();
     Value *currentExpr = cdr(argsTree);
-    while(!isNull(currentExpr)) {
+    while (!isNull(currentExpr)) {
         result = eval(currentExpr, letFrame);
         currentExpr = cdr(currentExpr);
     }
@@ -1728,7 +1728,7 @@ void interpret(Value *tree) {
     bindPrimitive("not", primitiveNot, global);
 
     Value *current = tree;
-    while(!isNull(current)) {
+    while (!isNull(current)) {
         Value *result = eval(current, global);
 
         if (result->type != VOID_TYPE) {

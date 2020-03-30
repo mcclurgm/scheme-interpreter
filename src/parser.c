@@ -169,7 +169,7 @@ void printTree(Value *tree) {
     assert(tree != NULL);
 
     Value *current = tree;
-    while(!isNull(current)) {
+    while (!isNull(current)) {
         printValue(car(current));
 
         // If the next element is null (the current subtree is done),
@@ -193,7 +193,7 @@ void printTreeTest(Value *tree, int indent) {
     assert(tree != NULL);
 
     Value *current = tree;
-    while(!isNull(current)) {
+    while (!isNull(current)) {
         if (car(current)->type != CONS_TYPE) {
             for(int i = 0; i < indent; i++) {
                 printf(" ");

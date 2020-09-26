@@ -17,7 +17,7 @@ if "No bugs found." not in clangresult.stdout.decode():
 
 allTestsPass = True
 for filename in sorted(os.listdir()):
-    if filename.endswith('.rkt'):
+    if filename.endswith('.rkt') and filename.startswith('test-in-'):
         # Get files
         m = re.match('test-in-(.*).rkt', filename)
         expectedOutput = 'test-out-'+m.group(1)+'.txt'
@@ -28,7 +28,7 @@ for filename in sorted(os.listdir()):
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output = result.stdout
         valgrind_output = result.stderr.decode('utf-8')
-        
+
         # Check output
         with open(expectedOutput,"rb") as expOut:
             expResults = expOut.read()

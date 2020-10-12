@@ -7,16 +7,35 @@
   * `(let (x 1) (let (y x)))`
 
 
-## Implementation
+## Core
 
-* Looking up bindings:
-  * Go up environments in order
-  * Start at innermost environment, go up successively
-  * If nothing (including global as ending case) has it, error
-    * Should be already good because global will be the last frame we can go to
+### REPL
 
+* Step 1: get a loop in C to read from the command line
+  * This ought to be a pain.
+  * Here are some sources with info:
+    * [Dave's project description](https://www.cs.carleton.edu/faculty/dmusicant/CS251-00-s19/interpreter/interp9complete.html), which describes an issue about unnecessary prompts
+    * [Ohio State on interactive C input](https://www.asc.ohio-state.edu/physics/ntg/780/handouts/interactive_input_in_C.pdf)
+* Step 2: run that through evaluation
+  * Current method in `main`:
+    ```C
+    Value *list = tokenize(stdin);
+    Value *tree = parse(list);
+    interpret(tree);
+    ```
+  * Should probably make this a function that I can then call from the REPL implementation and `main`.
+* Step 3: make data persistent
+  * I need to keep all the bindings around between successive calls to the evaluator, since that's how the REPL works.
 
-## `eval`
+**Actually,** my implementation of `tokenize` reads directly from an input stream (only I pass it a file pointer instead of `stdin`). If I can rearrange that to accept `stdin` (and the other formatting that comes with it), then it should be a fairly simple change. 
+
+New steps:
+1. Accept arguments for filename
+2. Run `tokenize`, `parse`, and `interpret` in a loop from `main`.
+3. Adjust `tokenize` to accept the usual command-line trappings. Ctrl-D on its own line should exit. (Dunno what happens if I just add it to a random line.) Deal with EOL's, and I shouldn't be getting EOF.
+4. Make data persistent
+
+### `eval`
 
 * Cons-type
   * Special forms: check for the keywords we know
@@ -93,6 +112,11 @@
   * `cdr` is the value it's bound to (arbitrary type as long as it's a valid value)
   * We can make a `makeBinding(Value *name, Value *val)`
     * `name` is a symbol type and you should just be able to pass it directly from the tree
+* Looking up bindings:
+  * Go up environments in order
+  * Start at innermost environment, go up successively
+  * If nothing (including global as ending case) has it, error
+    * Should be already good because global will be the last frame we can go to
 
 ## Special Forms
 
@@ -172,7 +196,7 @@
       * `(and 1 2 #f 3) -> #f`
       * `(and 1 2 3) -> 3`
 
-### Bonus: `load`
+### `load`
 
 * C file handling: this is the code from main that successfully executes
 ```c

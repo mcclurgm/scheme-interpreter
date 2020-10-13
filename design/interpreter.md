@@ -35,6 +35,16 @@ New steps:
 3. Adjust `tokenize` to accept the usual command-line trappings. Ctrl-D on its own line should exit. (Dunno what happens if I just add it to a random line.) Deal with EOL's, and I shouldn't be getting EOF.
 4. Make data persistent
 
+### Evaluation order
+
+Separate initialization from evaluation.
+
+When the interpreter is called, run initialization (so establish the built-in commands in the global frame). Then run evaluation as many times as I want (similar to `load`)with that frame and conserve it through those.
+
+- Break apart `interpret`, and keep `interpret` to only evaluate a single tree. Put all the initialization work in another function (`init` I suppose) in `interpreter.c`.
+- Run `initialize` to establish a global frame.
+- Run `interpret` on any trees.
+
 ### `eval`
 
 * Cons-type

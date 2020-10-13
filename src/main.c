@@ -6,13 +6,17 @@
 #include "talloc.h"
 #include "interpreter.h"
 
-int main() {
-
+void evaluate(Frame *global) {
     Value *list = tokenize(stdin);
     Value *tree = parse(list);
-    // printTree(tree);
-    // printf("\n");
-    interpret(tree);
+    interpret(global, tree);
+}
+
+int main(int argc, char *argv[]) {
+
+    Frame *global = initialize();
+
+    evaluate(global);
 
     tfree();
     return 0;

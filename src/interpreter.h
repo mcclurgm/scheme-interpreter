@@ -14,8 +14,8 @@ struct Frame {
 
 typedef struct Frame Frame;
 
-void interpret(Value *tree);
-Value *eval(Value *expr, Frame *frame);
+void interpret(Frame *global, Value *tree);
+Frame *initialize();
 
 #endif
 

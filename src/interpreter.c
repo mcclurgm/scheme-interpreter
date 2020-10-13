@@ -9,6 +9,9 @@
 #include "talloc.h"
 #include "tokenizer.h"
 
+// Eval is used all over, so make a prototype
+Value *eval(Value *expr, Frame *frame);
+
 //==================
 // Helper Functions
 //==================
@@ -1703,7 +1706,7 @@ Value *eval(Value *tree, Frame *frame) {
 }
 
 
-void interpret(Value *tree) {
+Frame *initialize() {
     Frame *global = talloc(sizeof(Frame));
     global->parent = NULL;
     global->bindings = makeNull();
@@ -1730,6 +1733,10 @@ void interpret(Value *tree) {
     bindPrimitive("modulo", primitiveModulo, global);
     bindPrimitive("not", primitiveNot, global);
 
+    return global;
+}
+
+void interpret(Frame *global, Value *tree) {
     Value *current = tree;
     while (!isNull(current)) {
         Value *result = eval(current, global);

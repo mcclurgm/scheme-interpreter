@@ -264,7 +264,7 @@ Value *parseFirstChar(char charRead, Value *tokens) {
 Value *tokenize(FILE *fp) {
     char charRead;
     Value *tokens = makeNull();
-    charRead = (char)fgetc(fp);
+    charRead = (char)getc(fp);
 
     // Initialize the first data cons cell
     tokens = cons(makeNull(), tokens);

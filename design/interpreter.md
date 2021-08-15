@@ -45,6 +45,22 @@ When the interpreter is called, run initialization (so establish the built-in co
 - Run `initialize` to establish a global frame.
 - Run `interpret` on any trees.
 
+### Command line interface
+
+Make a reasonable command-line interface that can both load files and run from an interactive session (the REPL).
+
+The current goal is to implement file handling. First: input. This is re-implementing the way I have it right now, where the program is read from a file on disk, the output is printed, and the program exits. It would also be nice to have output, where I can redirect output to a file, but to be fair that's already implemented by the shell.
+
+So, the interface:
+- `interpreter`: open an interactive REPL session.
+- `interpreter -f filename`: read program from `filename`, run, and exit.
+
+Wishlist: it would be nice to be able to supply multiple files in one go and run them one by one, holding all the info in the REPL.
+
+How to implement command line?
+- In `main`, use `argc` and `argv`.
+
+
 ### `eval`
 
 * Cons-type
